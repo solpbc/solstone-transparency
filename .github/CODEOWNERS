@@ -1,0 +1,9 @@
+# Required reviewers for specific paths. See CONTRIBUTING.md for why
+# protocol/ carries an additional licensing term that a reviewer must see
+# before a pull request touching it can merge.
+
+/protocol/ @quartzjer
+
+# This file governs who can require review elsewhere in the repository.
+# It is protected the same way so its own rule cannot be quietly removed.
+/.github/CODEOWNERS @quartzjer

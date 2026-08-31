@@ -1,0 +1,25 @@
+{
+  "name": "solstone-transparency",
+  "version": "0.1.0",
+  "private": true,
+  "description": "sol pbc trust/transparency evidence plane — shared verifier/publisher, protocol schemas, and trust portal source",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "bin": {
+    "solstone-transparency": "./bin/solstone-transparency.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/ bin/",
+    "format": "biome format --write src/ bin/"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/bun": "^1.3.0",
+    "typescript": "^5.9.0"
+  },
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ]
+}
