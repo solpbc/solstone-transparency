@@ -2,7 +2,7 @@
   "name": "solstone-transparency",
   "version": "0.1.0",
   "private": true,
-  "description": "sol pbc trust/transparency evidence plane — shared verifier/publisher, protocol schemas, and trust portal source",
+  "description": "sol pbc trust/transparency evidence plane. Early scaffold: shared verifier/publisher, protocol schemas, and trust portal source will land here; no verification or publish logic exists yet.",
   "license": "AGPL-3.0-only",
   "type": "module",
   "bin": {
