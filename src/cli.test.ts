@@ -4,14 +4,16 @@
 import { describe, expect, test } from "bun:test";
 import { run } from "./cli";
 
-function capture(fn: () => number): { code: number; out: string[] } {
+async function capture(
+	fn: () => Promise<number>,
+): Promise<{ code: number; out: string[] }> {
 	const out: string[] = [];
 	const original = console.log;
 	console.log = (...args: unknown[]) => {
 		out.push(args.join(" "));
 	};
 	try {
-		const code = fn();
+		const code = await fn();
 		return { code, out };
 	} finally {
 		console.log = original;
@@ -19,21 +21,26 @@ function capture(fn: () => number): { code: number; out: string[] } {
 }
 
 describe("run", () => {
-	test("--help prints usage and exits 0", () => {
-		const { code, out } = capture(() => run(["--help"]));
+	test("--help prints usage and exits 0", async () => {
+		const { code, out } = await capture(() => run(["--help"]));
 		expect(code).toBe(0);
 		expect(out.join("\n")).toContain("Usage: solstone-transparency");
 	});
 
-	test("no arguments also prints usage and exits 0", () => {
-		const { code, out } = capture(() => run([]));
+	test("no arguments also prints usage and exits 0", async () => {
+		const { code, out } = await capture(() => run([]));
 		expect(code).toBe(0);
 		expect(out.join("\n")).toContain("Usage: solstone-transparency");
 	});
 
-	test("--version prints the installed version and exits 0", () => {
-		const { code, out } = capture(() => run(["--version"]));
+	test("--version prints the installed version and exits 0", async () => {
+		const { code, out } = await capture(() => run(["--version"]));
 		expect(code).toBe(0);
 		expect(out[0]).toMatch(/^\d+\.\d+\.\d+/);
+	});
+
+	test("legacy-model without --out fails with a clear message and exits 1", async () => {
+		const code = await run(["legacy-model"]);
+		expect(code).toBe(1);
 	});
 });

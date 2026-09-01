@@ -2,24 +2,49 @@
 // Copyright (c) 2026 sol pbc
 
 import { VERSION } from "./index";
+import { buildPortalModel } from "./legacy/adapter";
 
 const HELP = `solstone-transparency ${VERSION}
 
 Usage: solstone-transparency [--version] [--help]
+       solstone-transparency legacy-model --out <path>
 
-Bootstrap scaffold for sol pbc's transparency evidence-plane verifier,
-publisher, and trust portal. This build implements no evidence, parsing,
-verification, or portal behavior.
+This build implements the read-side v1 legacy verifier/adapter and its
+typed portal model (src/legacy/). It builds no portal routes, HTML, or UI.
+It makes no public claim beyond: these are historical records of what sol
+pbc published.
 
 Options:
-  --version   Print the installed version and exit
-  --help      Show this help text and exit
+  --version           Print the installed version and exit
+  --help              Show this help text and exit
+  legacy-model --out  Fetch and verify the live v1 register from
+                      transparency.solstone.app and write the resulting
+                      typed portal model as JSON to the given path.
+                      Read-only: makes no write to the evidence host.
 `;
 
 /** Runs the CLI against argv (excluding the node/bun/script entries) and returns the process exit code. */
-export function run(argv: string[]): number {
+export async function run(argv: string[]): Promise<number> {
 	if (argv[0] === "--version") {
 		console.log(VERSION);
+		return 0;
+	}
+	if (argv[0] === "legacy-model") {
+		const outIdx = argv.indexOf("--out");
+		const outPath = outIdx >= 0 ? argv[outIdx + 1] : undefined;
+		if (!outPath) {
+			console.error("legacy-model requires --out <path>");
+			return 1;
+		}
+		const result = await buildPortalModel();
+		if (!result.ok) {
+			console.error(
+				`model degraded (http ${result.degraded.httpStatus}): ${result.degraded.reason}`,
+			);
+			return 1;
+		}
+		await Bun.write(outPath, `${JSON.stringify(result.model, null, 2)}\n`);
+		console.log(`wrote portal model to ${outPath}`);
 		return 0;
 	}
 	console.log(HELP);

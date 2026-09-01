@@ -2,7 +2,7 @@
 
 This repository is being bootstrapped as the shared verifier/publisher code, public protocol schemas, and trust-portal source for sol pbc's public trust and transparency surface.
 
-**Status: early scaffold.** Nothing beyond this bootstrap exists yet. This checkout implements no evidence parsing, no signature verification, no record publishing, and no portal routes or UI. It exposes only an installable package with a versioned library entry point and a `--help`/`--version` CLI surface, so that later work has a working install/lint/typecheck/test baseline to build on.
+**Status: read-side legacy verifier landed; no portal UI yet.** `src/legacy/` reads the existing historical (v1) release-transparency register, verifies each record's minisign signature and hash-chain linkage, and builds a typed model of what it found. It publishes nothing, signs nothing, and mutates no evidence. There is still no portal route, HTML, or UI — this repository does not yet serve `trust.solstone.app`. These are historical records of what sol pbc published; this code does not claim they are current, reproducible, or a complete account of every release.
 
 ## Install
 

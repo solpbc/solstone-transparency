@@ -1,0 +1,1192 @@
+[
+	{
+		"key": "releases/solstone-journal/latest.json",
+		"bytes": 286,
+		"sha256": "0fa2d82895783e5532afa301eeda62d26ada1a6c475fc02e167a6977cf5fe8b6",
+		"content_type": "application/json",
+		"etag": "\"959ec483aa63995cb56182159a67db5a\"",
+		"cache_control": "no-cache",
+		"collection": "solstone-journal-pointer",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/latest.json.minisig",
+		"bytes": 434,
+		"sha256": "1c48ed2e3f58bc7f12076071c5f8c293dfe33af0981e8bba72aaeb3a754843ff",
+		"content_type": "application/octet-stream",
+		"etag": "\"1e0fb581e63ab0fb767a9975737a052a\"",
+		"cache_control": "no-cache",
+		"collection": "solstone-journal-pointer",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/ledger-entry.json",
+		"bytes": 4172,
+		"sha256": "12dcc873dfa68e801e7c39b7298c3c418ddcb675f1adca066e9e2c667a224f99",
+		"content_type": "application/json",
+		"etag": "\"1ba42aef7d812ccbbec0905934c80943\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/ledger-entry.json.minisig",
+		"bytes": 479,
+		"sha256": "6e690b78c6f0087d570762a2c749b9f558096a1f98c83376822506feb61e83f8",
+		"content_type": "application/octet-stream",
+		"etag": "\"2ac6a0926da3f3d5c7bf48e617b000dc\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/solstone_core-1.0.22-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "035bf6c80d4bfb09dba91345bfa93850b7e96bc4b4ec497bb36f1781626f9675",
+		"content_type": "application/json",
+		"etag": "\"bddbe55db3b74232ebe81c3e2e7f4fa5\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/solstone_core-1.0.22-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "e38a82d9656bb7f97ca8d0954fb0cdb3d6a9fa1723a74d72481ee21a7bc750e2",
+		"content_type": "application/json",
+		"etag": "\"f020c987ccd00c0cdcd70af608da23c3\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/solstone_core-1.0.22-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "c7dd02e7290f12bebd2643ce5e09df49f1d2276bfa467f7af8029aaef1f0632d",
+		"content_type": "application/json",
+		"etag": "\"fb1450b3497d36646ab4239929e5ea68\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/solstone_core-1.0.22.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "615e3c3502cbb88dd368740fd41b3ab2703d01db711a59f8cbc2ab2893b8754f",
+		"content_type": "application/json",
+		"etag": "\"81bbd7d0fa3f3299e6f85a933059cbb1\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/linux-aarch64-musl.json",
+		"bytes": 5836,
+		"sha256": "67e5b8488680911d91adc986b9dff2f3a64b5833b0b49385eb0a58081de10f79",
+		"content_type": "application/json",
+		"etag": "\"be5f86e20e0eb30113fa3e4c00ae0edd\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/linux-aarch64-musl.nvattest.json",
+		"bytes": 16331,
+		"sha256": "33fe38a60bf055da6eb69f1cc0913f8ace8e6714d3ceb88880e3a0e0178bc22c",
+		"content_type": "application/json",
+		"etag": "\"914de39e3867ff631bb0a1e675799a03\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/linux-x86_64-musl.json",
+		"bytes": 5840,
+		"sha256": "f728231d9444f76c1888c5a0ad47c62da1b5cc42418fdc642333c5c1d18d7445",
+		"content_type": "application/json",
+		"etag": "\"93c8db0c0194e577f7eb8edafb258670\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/linux-x86_64-musl.nvattest.json",
+		"bytes": 17935,
+		"sha256": "e2f0639007a92e7cb6ff2465bfc036aa83b39de0a45ba1396245df5fa89801a6",
+		"content_type": "application/json",
+		"etag": "\"c8883aae4cf990b1cf01b10d3f9a144e\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/macos-arm64.json",
+		"bytes": 6088,
+		"sha256": "4c28301085bfa75770de7abc1183c1bf98e0d387ee15df8898c0ec6101382181",
+		"content_type": "application/json",
+		"etag": "\"9f8c5ad7f902ed5eab467857a0521178\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.22/macos-arm64.nvattest.json",
+		"bytes": 16301,
+		"sha256": "be2e1b511d4fbf2e197e6161f527a1d51272dad4d10d16ad8aa18a379112a6c1",
+		"content_type": "application/json",
+		"etag": "\"038940aa584bafe7bd983a913e1ddad5\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/ledger-entry.json",
+		"bytes": 4171,
+		"sha256": "a53162921e02307bda9d9908260011a70b518ca06e969c7387fa2543d6162862",
+		"content_type": "application/json",
+		"etag": "\"65271530dcd0ee0b20d284d6da5b09aa\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "2408e5a7286330e168b4eb62509c7b4cc6e3a857596b978c88f714dd6a041ac6",
+		"content_type": "application/octet-stream",
+		"etag": "\"2074142de804a98335cae5bfdaaa9250\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/solstone_core-1.0.21-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "14886cd726ff068b80654080f993a6ff8b1333104db9c75e982095bfe0f8abe4",
+		"content_type": "application/json",
+		"etag": "\"313554b5b03c259f189706684cf21375\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/solstone_core-1.0.21-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "6256e7b242b985fb77ebb13a1f9b34eaffbded4c13e0cc19a00c2e96132e3d70",
+		"content_type": "application/json",
+		"etag": "\"c78ca780d7125cbb21145c42cd806114\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/solstone_core-1.0.21-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "a7793352e0494f001abe1f020b871807ed6ee7c3adf339f7679dea29ade319e9",
+		"content_type": "application/json",
+		"etag": "\"2383c131d5fa1743b7b3a4297553a6ba\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/solstone_core-1.0.21.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "f77cb812ce9f51347f0de0fbad3cc5e24e4878855ae012a46d4527f585b3450f",
+		"content_type": "application/json",
+		"etag": "\"12ff0c392784dd58ae424ac80cf00fc6\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/linux-aarch64-musl.json",
+		"bytes": 5836,
+		"sha256": "555754dbe68ae16aef54b5487ef57e4a90b041b8c49b5a0ca3a27425a474540c",
+		"content_type": "application/json",
+		"etag": "\"eb01185ede56d5f0946422b2f0f3ccc7\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/linux-aarch64-musl.nvattest.json",
+		"bytes": 16331,
+		"sha256": "78938c440bb07f107a40097316aab3bf19aaafb856530fefb86adaf64eaaa02f",
+		"content_type": "application/json",
+		"etag": "\"4e1ec100a44b53a43af02355d586b12c\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/linux-x86_64-musl.json",
+		"bytes": 5840,
+		"sha256": "2fd93e29c2b82617fd058710ec67a920be6120cd8399d2e97acd7012d6b45a2b",
+		"content_type": "application/json",
+		"etag": "\"c53f22116f4a3df32120ebea0720216d\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/linux-x86_64-musl.nvattest.json",
+		"bytes": 17935,
+		"sha256": "4b8f89a0704133be5b1f5d4fe756ad56e16fa80f76d0e6253dc979187ae6e8bc",
+		"content_type": "application/json",
+		"etag": "\"8f9156d8c6ee4914f67cf41d5b47449b\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/macos-arm64.json",
+		"bytes": 6088,
+		"sha256": "cff664de772d6dc3c1fa1a1a6ccfb15aea231ea75241e1a1dce7037f3955297d",
+		"content_type": "application/json",
+		"etag": "\"f8b34590c04999bec8a32645e6110cad\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.21/macos-arm64.nvattest.json",
+		"bytes": 16301,
+		"sha256": "42fcfdf128a21d8c6286c0a6ec87b823ba321298f889167645e6ae630762b606",
+		"content_type": "application/json",
+		"etag": "\"6fe8ac49c35d092c6eb2270e57ae1487\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/ledger-entry.json",
+		"bytes": 4171,
+		"sha256": "f62d0f1ef549feb5ffef5a6f39f7b7d4a4c8bc488c7fbc30ae2f9e3a416844a1",
+		"content_type": "application/json",
+		"etag": "\"30b582345a922306f57c807b4c99874e\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "2dcd8c56477cedb9fec0f8d43505f0bad103a5a5820a319c5d3ab0a32c92baf9",
+		"content_type": "application/octet-stream",
+		"etag": "\"8d3da07c019a60766b498b73dc79e0a5\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/solstone_core-1.0.20-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "c8db0590b32077f0b2e063c38d4f451792c25b4bf380d1c8ac1d0052d8bc1ee8",
+		"content_type": "application/json",
+		"etag": "\"20d1d58ead026971bfc7010da46187a3\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/solstone_core-1.0.20-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "b79c8d859619df291290d67c849957a0d7d053aad4628c30b9353cce09a185fb",
+		"content_type": "application/json",
+		"etag": "\"ab2f07b819648a919e219714dfc1daf4\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/solstone_core-1.0.20-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "0f027e88a72408d2bc3c2f6bc442f2eb2c27acd37b724a6bee47bb2ff4aad16c",
+		"content_type": "application/json",
+		"etag": "\"72e6410dd4668e7d3bdafb05fb90b48f\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/solstone_core-1.0.20.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "860fae721cec7d29319551221c1fa6d058c37d60203129e360140733f19a812f",
+		"content_type": "application/json",
+		"etag": "\"52cc3a5153d79b927864f46c5ba448b2\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/linux-aarch64-musl.json",
+		"bytes": 5836,
+		"sha256": "02efee8275d307326d5d01c94f4bd31fe20843a60d6e6e46f0ffe765312fc005",
+		"content_type": "application/json",
+		"etag": "\"21136900f72447ec7555c4d832ab888b\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/linux-aarch64-musl.nvattest.json",
+		"bytes": 16331,
+		"sha256": "64663a5fb92b1d55f3e6c7025d0fea85fd125cd6ba192a71ddc583f6c87a64df",
+		"content_type": "application/json",
+		"etag": "\"124da6202a000b45f89dd882bb51f7c3\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/linux-x86_64-musl.json",
+		"bytes": 5840,
+		"sha256": "07e342f59484ac594e147b865171db8d8897807fd7c5503adbc3e3158e857c1d",
+		"content_type": "application/json",
+		"etag": "\"16b9239c19a0b989da31e4d8186174aa\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/linux-x86_64-musl.nvattest.json",
+		"bytes": 16306,
+		"sha256": "cea2464ce78724ce3c2a57adab684b3c0cda5e7734b64b444aedd9a8ffa7e37d",
+		"content_type": "application/json",
+		"etag": "\"eee21cf19767050d7b7a519daea1c7a4\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/macos-arm64.json",
+		"bytes": 6088,
+		"sha256": "c9d792168f9b14413063750e34aee5e49e899a7c8ce412723286532ffd52c9f6",
+		"content_type": "application/json",
+		"etag": "\"76ea1f7f4580cad2dec496138ff56445\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.20/macos-arm64.nvattest.json",
+		"bytes": 16301,
+		"sha256": "1fdb0ad0d73e0cd1db682e40be226c8a80a28bb10dd8a309422b51f8a6450885",
+		"content_type": "application/json",
+		"etag": "\"78a58b333d02d61eb007131f32d3c1d2\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/ledger-entry.json",
+		"bytes": 4171,
+		"sha256": "9165848c13dd1a72a43c680231232529a1ae43b7404c428cd42b87c3d1f45c90",
+		"content_type": "application/json",
+		"etag": "\"b37589e4202f54482b2111eb306a70a3\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "372777ab460cef4df3ab74f0f3a956f3e887d91d3b6c7c5c686079d519892078",
+		"content_type": "application/octet-stream",
+		"etag": "\"303ae5ac5855e40b36f65d0f9dbbe333\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/solstone_core-1.0.19-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "77ca84343a1f91a869fd6a1aad7f1daabd5b024742fe349995afbdcf40a59f1d",
+		"content_type": "application/json",
+		"etag": "\"97fdea79736b0a0e047734b83151b491\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/solstone_core-1.0.19-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "ba6af12d3b6e89c52791171e651f8add73788baa726880ed76de9b1ca6687477",
+		"content_type": "application/json",
+		"etag": "\"3627c247aa607f8a60fccbc43e674743\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/solstone_core-1.0.19-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "af4cf5737d9ac69063989a23be89d3cfdd590dc8d6360e3d93675fc3138cfe2c",
+		"content_type": "application/json",
+		"etag": "\"86e3505ab562584ba37d5523a72854fb\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/solstone_core-1.0.19.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "18f5a14d5c46873432b9fa79e11af313c1f0874cffe84cc562fac0b8a8012a37",
+		"content_type": "application/json",
+		"etag": "\"8fa0d078babf33d74c5b91f110a508d2\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/linux-aarch64-musl.json",
+		"bytes": 5836,
+		"sha256": "a85f2c3a3479d6dbc86fc8da4112d90ecf2ec1147d4b72a310d7dbaef6229bde",
+		"content_type": "application/json",
+		"etag": "\"40ea2152b53112e9f423ff918ad1727f\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/linux-aarch64-musl.nvattest.json",
+		"bytes": 16331,
+		"sha256": "17dd42d79bf1231578e30d8fcf627f8712130f1fb8814ae2f34134d05cb4fccd",
+		"content_type": "application/json",
+		"etag": "\"40d375ea0d4fc6c4eaa619ae644e1f47\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/linux-x86_64-musl.json",
+		"bytes": 5840,
+		"sha256": "025a1392ff2096ec2aae578e8bc12fdb1cb0f367142b8fcca7aaeed5da1ffc5b",
+		"content_type": "application/json",
+		"etag": "\"3aac8cb79f75266f9b82208067cd7349\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/linux-x86_64-musl.nvattest.json",
+		"bytes": 17935,
+		"sha256": "4954e5cc8dd9fe3d61cd98949be411fe5864ae61e22a7a84284a28e1e5c0f1ff",
+		"content_type": "application/json",
+		"etag": "\"194294442415a63e57740c60dc60b1ea\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/macos-arm64.json",
+		"bytes": 6088,
+		"sha256": "7b7e44c7b427872bdb9a662f1ade1726ceba353b075cc899a5d5b3c83d7835a5",
+		"content_type": "application/json",
+		"etag": "\"6b826257386d228c61e968ffbf21ee2a\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.19/macos-arm64.nvattest.json",
+		"bytes": 16301,
+		"sha256": "649dc73496588245dc1ed1e363a1188633671cb287fd8a98fd1d05f06310eaf6",
+		"content_type": "application/json",
+		"etag": "\"5435f04827625820706a8add74a3f2f8\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/ledger-entry.json",
+		"bytes": 3879,
+		"sha256": "4a94e36710575580258025cf5a463d0c2e390ce33418141b19057a05407416dd",
+		"content_type": "application/json",
+		"etag": "\"888c6d4d40a525e73f2ec482e20e997d\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "4f865eeaf5e4a2b90f115acd678accfc9c82d4b7654e4686e284ef212ce08e76",
+		"content_type": "application/octet-stream",
+		"etag": "\"4bc2b3e91b7d51e69f0ec5ea1cb8962c\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/solstone_core-1.0.18-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "a24bcf0fc1eddacf7961ad2fcf9a0f7c5d3a710771c34f67c837ae426cb199b0",
+		"content_type": "application/json",
+		"etag": "\"0034148d901b161039829ae139612178\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/solstone_core-1.0.18-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "c9c24c0050a811f93e83b2db9d4125b30672f2ce6a715669dd47f8e31faf9659",
+		"content_type": "application/json",
+		"etag": "\"043e04aa15b7f5c0620b37c397cb66d6\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/solstone_core-1.0.18-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "34c6e83209a5e9486b1c126fed08e7b4d861c5f19d8a3c7a3e1fdccdbc9e2c0b",
+		"content_type": "application/json",
+		"etag": "\"f26f397d54f50f98d37400d442ba76ce\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/solstone_core-1.0.18.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "6adbc88b2f2e5a97b91ef986ab76cf2bf8fb50bc3ba27a99f8982e8d3e739a95",
+		"content_type": "application/json",
+		"etag": "\"74a5119bd02798049a44b2b4ab3a45dc\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/linux-aarch64-musl.json",
+		"bytes": 3480,
+		"sha256": "65296833c5500dc281cd5e09e7258d70ac75a42a3dd1ae2b6bb9bfbf168f3082",
+		"content_type": "application/json",
+		"etag": "\"9aea5357c6be955911db38a1584aa41b\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/linux-aarch64-musl.nvattest.json",
+		"bytes": 14936,
+		"sha256": "19bf85403c5918b2a6a3e5a46407d880f5a4c49fcbb88432b3482dd9b4bb7e35",
+		"content_type": "application/json",
+		"etag": "\"b6f5bf950264e2ab4771a60b8e85b0bc\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/linux-x86_64-musl.json",
+		"bytes": 5447,
+		"sha256": "a76664f419c450d37a4600122c0108911b8a9f243f670d83077bc820f7b6049d",
+		"content_type": "application/json",
+		"etag": "\"e0637ce6c2220d2d1f56b5cb8a492a15\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/linux-x86_64-musl.nvattest.json",
+		"bytes": 17002,
+		"sha256": "d86606243fde0370d0ffbb56c0b69e28310ea3c668cd4fc95e7f827bbb049f14",
+		"content_type": "application/json",
+		"etag": "\"800a202355ea3cab8874055ec5317258\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/macos-arm64.json",
+		"bytes": 3747,
+		"sha256": "3b620af09613192d41706306bb736a726b8a76f9c0cc4f3a79e1792a95cfeec8",
+		"content_type": "application/json",
+		"etag": "\"9280f839077f0fac70fd5346bc7aa9c6\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.18/macos-arm64.nvattest.json",
+		"bytes": 14916,
+		"sha256": "7c11a4b4337428761876c05a22985a772b080db7fb2553b5e7418932043817ca",
+		"content_type": "application/json",
+		"etag": "\"639437a06277f5008f9503a79ee22df4\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/ledger-entry.json",
+		"bytes": 3002,
+		"sha256": "7c0a906bbee0f4897a161654b1994d9fd927660e22036aef3cddab0079e070b2",
+		"content_type": "application/json",
+		"etag": "\"707e043240733d2fb5c3d175a966d198\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "f9a0d1d8bc455839a39aa81e70873303bfafac7e1412a56b652f327afcfb2534",
+		"content_type": "application/octet-stream",
+		"etag": "\"b9de51828f8c459a1016034245a2250b\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/solstone_core-1.0.17-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "21e36ae1d7cc2f5c8a5b23d64459f0739a832116a0cfd10312f2713b8a9fe810",
+		"content_type": "application/json",
+		"etag": "\"79eaf14f1df198a4a109fd00aa9c4d97\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/solstone_core-1.0.17-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "5dfbe2c71bf93950e8ca250b6ea9b06bab5c5b7e0dda4d4b5352616fed2c7500",
+		"content_type": "application/json",
+		"etag": "\"481f8ce010a9db787d6e097146824171\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/solstone_core-1.0.17-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "b2a93dc1be98d5d95a6c44613c51ba2c65eb7b158233731ecbb37578e41ba5ed",
+		"content_type": "application/json",
+		"etag": "\"f3e5395d5721ea76165796fccbbeb0c1\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/solstone_core-1.0.17.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "035bd1e09e8899c2110b9c7dbbc84cba20ff852400af20278d4a4547dd2cf38a",
+		"content_type": "application/json",
+		"etag": "\"1d9acd8f8c750600501c69d64ccea918\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/linux-aarch64-musl.json",
+		"bytes": 3480,
+		"sha256": "e1f16e006810ecdf90d281430ea115f7e4e804c37fae982ed491824b2016fbfc",
+		"content_type": "application/json",
+		"etag": "\"68f856c889eb725b406123ac50bd2845\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/linux-x86_64-musl.json",
+		"bytes": 3483,
+		"sha256": "d7acc7baf3b6c00419684161f78ee2473c94ceb8412711e414a0852070ad5d0c",
+		"content_type": "application/json",
+		"etag": "\"317aa56fea5b76b29bb9b33d76f3738f\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.17/macos-arm64.json",
+		"bytes": 3747,
+		"sha256": "53ecbdf1e5e95c780807e1699f52b51fd43e6928bca5cddcd71c2d7bbb01fa65",
+		"content_type": "application/json",
+		"etag": "\"24231a69b35f65da785b37c7f6cd778e\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/ledger-entry.json",
+		"bytes": 3002,
+		"sha256": "d7448ad7582d6f762e34345fa051d2ff7ded8371400ee7f1ca763289a106958b",
+		"content_type": "application/json",
+		"etag": "\"af8b12a2d4457e2055b95c0bd74267ab\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "32015323b4a9135536caea328a559de26a976e786f8a1e8d170fd3e0acbeb6c3",
+		"content_type": "application/octet-stream",
+		"etag": "\"4001baef9ec73e433851a96fcd6eba48\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/solstone_core-1.0.16-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "5841e2b0bd592ee0aed0c98ff73ec05e374d01e3ed69bb6b6c472ec6d2e75b23",
+		"content_type": "application/json",
+		"etag": "\"67dcc415a765f7ed6bd2734a5034cfb2\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/solstone_core-1.0.16-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "6efcc12b9f06fa29d6a7e5732784c8702cf16e7e2f5795f1a74f280ea6ee8ff4",
+		"content_type": "application/json",
+		"etag": "\"e2c92af0660d53eba28458c586c4c1dc\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/solstone_core-1.0.16-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "a126292c66a6fa7e0ef9c4ee7322513aaba3b2f34deb5dbd512d9a609da572ae",
+		"content_type": "application/json",
+		"etag": "\"5223c5e2989966ece9cb7d13f8a0022e\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/solstone_core-1.0.16.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "6740ecfe3d0932ee7111ad922d50cac775f9e089ed06ac5d530e5e15accd151d",
+		"content_type": "application/json",
+		"etag": "\"a1b2050b0c5d820ea5fe28e71f3b8106\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/linux-aarch64-musl.json",
+		"bytes": 3480,
+		"sha256": "3a5af6a03f15f568d70a658dd0fe135b57c53a861a1b7be7af2b0ed8c0283a91",
+		"content_type": "application/json",
+		"etag": "\"48495c29f101828ad4d19dd15ea6e991\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/linux-x86_64-musl.json",
+		"bytes": 3483,
+		"sha256": "212859b8fa52a08889f6698be2980515f84838ccc45201655493444a179b9899",
+		"content_type": "application/json",
+		"etag": "\"e7d4b624cd9ce24adf6c59ebe406c220\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.16/macos-arm64.json",
+		"bytes": 3747,
+		"sha256": "04ef9d992f6f647b7e37cd3a01db9d63dd4f238242b3974909875a6711fe030f",
+		"content_type": "application/json",
+		"etag": "\"e91d4c40f5aa44757d24cf13bd0f6183\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/ledger-entry.json",
+		"bytes": 3002,
+		"sha256": "698a57d7de2a23c1dbc3a36e44bb1ef3a908a77f069161d51ce4a3075302f8db",
+		"content_type": "application/json",
+		"etag": "\"6560a63c706a6c028def70e339a40bd8\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "f2d82ae483940c5c30a9a3766a190234db13977bb67f80fd97c2cee5f9fda6b1",
+		"content_type": "application/octet-stream",
+		"etag": "\"165f17d8074441ad81e17e4182e0667a\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/solstone_core-1.0.15-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "564c3020f6895db80e758f6a006b13fc25e0c0d4dd710030b95622106fbfed10",
+		"content_type": "application/json",
+		"etag": "\"3a045ee9afef6fb06c9e17702421d0bf\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/solstone_core-1.0.15-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "857d8866ecc928863e880a8125bb3c6318712b366de6427d1a0eee6a0d690e13",
+		"content_type": "application/json",
+		"etag": "\"d7783cf16f093502cbbac3edf1fd3ea9\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/solstone_core-1.0.15-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "f4ecead104adf6c1de272be93e7402e18b3f6a8601741c51122257a3adad7eb7",
+		"content_type": "application/json",
+		"etag": "\"46fbd4d44854c7b9d929a2c921ff56c6\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/solstone_core-1.0.15.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "ed89c4040e6550b454e0e24ea124b5bf5d239dcdb1d63a5fccd412cb854cba0d",
+		"content_type": "application/json",
+		"etag": "\"8a2069aff6e509e2c6eff4e997602df2\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/linux-aarch64-musl.json",
+		"bytes": 3480,
+		"sha256": "18e6b24ac85b7bfc7a43ee4aa66b9259ab0efbfdc4d26320e1ded16f9feef830",
+		"content_type": "application/json",
+		"etag": "\"7c176a0825ac09a568dcb5249ac4f671\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/linux-x86_64-musl.json",
+		"bytes": 3483,
+		"sha256": "e16af33eadedcd149179baab56a722be1b4f90257d9a1e5e9fd6ff8bf2a9e0d0",
+		"content_type": "application/json",
+		"etag": "\"310a64a839b373cd9c592aaa5c30b67c\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.15/macos-arm64.json",
+		"bytes": 3747,
+		"sha256": "eee28e670065a8d5359571f45a7aca425dcfde9cbcb011b5bc1d569733c08225",
+		"content_type": "application/json",
+		"etag": "\"814ce3ede4bed2c41fc2a97bdabfb9f2\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/ledger-entry.json",
+		"bytes": 3002,
+		"sha256": "a00a18dc0286513a7b57558c8bdd6c89706982ec5fc7f87974b6bd36ad937188",
+		"content_type": "application/json",
+		"etag": "\"b2d796aa32275f3345d83a2be6eeca16\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "4af7f004403b590912f17fb512db80fa8b88762ef5200dc6a8038c75d6b1f5f7",
+		"content_type": "application/octet-stream",
+		"etag": "\"0f73e3689b713e17dcbba0bd69fc0006\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/solstone_core-1.0.13-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "0dacfbe49ef8c60f647410c986dff0a8f1d1514d598ec0cb67b50811aafe94e8",
+		"content_type": "application/json",
+		"etag": "\"60637b156a4eba5750b8f17bbdaef78c\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/solstone_core-1.0.13-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "b60ad9714d6c26808c82b14daa09d10e6c46dbe99e292bcbfeb731e30f573312",
+		"content_type": "application/json",
+		"etag": "\"4274a20b5f5b9b62d323177f20fc7a5c\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/solstone_core-1.0.13-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "8c79898daf6571742490ff8c24e03e79406a8d4a7ffe594a2502be6a9482ea76",
+		"content_type": "application/json",
+		"etag": "\"b3f0c5503b440f66ecbfdf1e765c4f20\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/solstone_core-1.0.13.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "3eab6ac8dee94d8b16e60eb5929c7e7c06472efbcaeca589d3980dadedd6f641",
+		"content_type": "application/json",
+		"etag": "\"5f43d887806e812d33856f10286cfb25\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/linux-aarch64-musl.json",
+		"bytes": 2781,
+		"sha256": "192ded748ae38a214f71f33a4eba6c850b4a12eca5653c177e6ae29b99716985",
+		"content_type": "application/json",
+		"etag": "\"b162eb52ed2063c58c9732fdb8c23c18\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/linux-x86_64-musl.json",
+		"bytes": 2784,
+		"sha256": "0063ce899341c75c2c326cffa09585f778dc42adce1f3e44f465ecd80ae078fb",
+		"content_type": "application/json",
+		"etag": "\"74692a159232d61410b5a5b4e7e4409d\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.13/macos-arm64.json",
+		"bytes": 3048,
+		"sha256": "33f903a48be90151f3cd60363011ebff7975a5f3d52cdf7c4040fa6416fca9c5",
+		"content_type": "application/json",
+		"etag": "\"2424f63233df43ca57489120d7fec4bb\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/ledger-entry.json",
+		"bytes": 2996,
+		"sha256": "72119a159a0b9655bc442cbb38bece3bafb3709c2cc190da90762fc044b217d0",
+		"content_type": "application/json",
+		"etag": "\"b6d93c0a64b8b622a2f8dbee9b6d0069\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/ledger-entry.json.minisig",
+		"bytes": 478,
+		"sha256": "237542f0364fdd178b6ae20e319b0b0a0d6fd0f20ef8812b3de958405f2603f4",
+		"content_type": "application/octet-stream",
+		"etag": "\"07ede09b6f48cfff32f6ba4d28c46fcc\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/solstone_core-1.0.12-py3-none-macosx_14_0_arm64.whl.rust-release-manifest.json",
+		"bytes": 1313,
+		"sha256": "eecf252e398b0b6219be9f8e31b853d77b980d3cad8ad48bf996eedc7cb9e75e",
+		"content_type": "application/json",
+		"etag": "\"c225328f5aee3bbdb17987ade146e2f8\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/solstone_core-1.0.12-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.rust-release-manifest.json",
+		"bytes": 1079,
+		"sha256": "047c182ef50f4735a471884df510025504272b73c3c69f8a1892bb61793c4795",
+		"content_type": "application/json",
+		"etag": "\"6591f97e7fff51e320e2961debc5d63c\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/solstone_core-1.0.12-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.rust-release-manifest.json",
+		"bytes": 1076,
+		"sha256": "095a35f1188bb0f1239b515f80af7962117d0b395e9fc2982ed6f3193fb56135",
+		"content_type": "application/json",
+		"etag": "\"49a61aba7e645a8495b0653e66893f5c\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/solstone_core-1.0.12.tar.gz.rust-release-manifest.json",
+		"bytes": 934,
+		"sha256": "f515b8886bf1c0fee1cceba501a33dd221c1333783ebabe89190bd1d40f752c5",
+		"content_type": "application/json",
+		"etag": "\"80fca1a1c31f83c07ac0a3e33ce809b7\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/linux-aarch64-musl.json",
+		"bytes": 2781,
+		"sha256": "00509ab1dbc4f58a4f9920a1cd0cc69fb774075d796d22a2863cd9ec38e9d2c4",
+		"content_type": "application/json",
+		"etag": "\"17e74be788c9d64981f0ad11977675ff\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/linux-x86_64-musl.json",
+		"bytes": 2784,
+		"sha256": "bd4c307cb78dde0526456fdf600c363fdfd165259e9650e9360313c2be0ee46a",
+		"content_type": "application/json",
+		"etag": "\"efecfa7b04bb7a58b67643287c5b4e34\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/v/1.0.12/macos-arm64.json",
+		"bytes": 3048,
+		"sha256": "7cd54cfe50b04612b3a4aa57ddff8512ac4eb351a622fec74e46d6e320219221",
+		"content_type": "application/json",
+		"etag": "\"2824c77b34df93eddc570436c3cd35bf\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-journal-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-journal/ledger.jsonl",
+		"bytes": 35568,
+		"sha256": "782415a408085d8e40d18fd891970f8c779fc7c5e5005ae2a8a926550a33b4f4",
+		"content_type": "application/jsonl",
+		"etag": "\"9e2df48e9cdcf24b0374deada56493a6\"",
+		"cache_control": "no-cache",
+		"collection": "solstone-journal-ledger",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/latest.json",
+		"bytes": 282,
+		"sha256": "ac63a0d9400060e2f1b3f93dbfe0ec2674cb841fd89fa8494796b67ae04de50c",
+		"content_type": null,
+		"etag": "\"cbf0179748dabcf6768c0dbe33be2f79\"",
+		"cache_control": "no-cache",
+		"collection": "solstone-linux-pointer",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/latest.json.minisig",
+		"bytes": 431,
+		"sha256": "9e70a1d0695b73a1571478f1cc05dda212ef625203e4308b0bed7c96af5cbc58",
+		"content_type": null,
+		"etag": "\"84eaa9c7247468a0911aa7c062a0e42e\"",
+		"cache_control": "no-cache",
+		"collection": "solstone-linux-pointer",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/v/1.0.2/ledger-entry.json",
+		"bytes": 1349,
+		"sha256": "79c7e69c1489a9a9307e5e3bcf2122dda6fcfc3ba42385d970cfc82fee16cf10",
+		"content_type": null,
+		"etag": "\"83a1610a04197bcd90fabe217eab3529\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-linux-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/v/1.0.2/ledger-entry.json.minisig",
+		"bytes": 475,
+		"sha256": "68272f61fb9e7b29c44de18288a2d9e801b1001f77a0080151c53240ecb4a86b",
+		"content_type": null,
+		"etag": "\"31106e2b9945c5ddbef9d2f10bec50af\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-linux-entry",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/v/1.0.2/solstone-linux-1.0.2-linux-x86_64.rust-release-manifest.json",
+		"bytes": 2294,
+		"sha256": "ab50ab6fa26881dccccbd62eda3be1a02ddf039bb4629e9093de45ed40624e13",
+		"content_type": null,
+		"etag": "\"a954d35aface25047df87627f5ffc0e4\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-linux-manifest",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/v/1.0.2/debian-amd64.json",
+		"bytes": 1251,
+		"sha256": "991804f38555dfdea3c15c7ac0b82f4f63e28fa44bfebdf9d09254f99539d62a",
+		"content_type": null,
+		"etag": "\"149e5fe489e81e2c9c544cfd0499c107\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-linux-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/v/1.0.2/rpm-x86_64.json",
+		"bytes": 1220,
+		"sha256": "a8fad9366aed5b87fc65b196be90d9e468233c22c168697242e3518b9a6d955f",
+		"content_type": null,
+		"etag": "\"48f1b4334bf6503fb2c771308f80f401\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-linux-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/v/1.0.2/tar-x86_64.json",
+		"bytes": 1294,
+		"sha256": "e5607d099a079ff534696d5338c969e4a3ff342f0b5f913b7090cac802d9c2e3",
+		"content_type": null,
+		"etag": "\"40d79437f8313d48db6325b86be1ffd3\"",
+		"cache_control": "public, max-age=31536000, immutable",
+		"collection": "solstone-linux-proof",
+		"status": 200
+	},
+	{
+		"key": "releases/solstone-linux/ledger.jsonl",
+		"bytes": 1349,
+		"sha256": "79c7e69c1489a9a9307e5e3bcf2122dda6fcfc3ba42385d970cfc82fee16cf10",
+		"content_type": null,
+		"etag": "\"83a1610a04197bcd90fabe217eab3529\"",
+		"cache_control": "no-cache",
+		"collection": "solstone-linux-ledger",
+		"status": 200
+	},
+	{
+		"key": "releases/keys/solpbc-transparency-1.pub",
+		"bytes": 113,
+		"sha256": "c9fb713fe57791afbdebddde7b334e950ce1efcc167d49daf4cc1cbd930bb122",
+		"content_type": "application/x-www-form-urlencoded",
+		"etag": "\"4d847f37bab60186636761f84b5f3eef\"",
+		"cache_control": null,
+		"collection": "general",
+		"status": 200
+	},
+	{
+		"key": "releases/ABOUT.txt",
+		"bytes": 1606,
+		"sha256": "b0474f169b41409d3f64dc8d0364f42c36ceb501a1cd5df3e01c413233f5cf26",
+		"content_type": "application/x-www-form-urlencoded",
+		"etag": "\"d92a8ef04e55473187450b5cee72a60c\"",
+		"cache_control": null,
+		"collection": "general",
+		"status": 200
+	}
+]
