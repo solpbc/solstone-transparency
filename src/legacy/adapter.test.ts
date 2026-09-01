@@ -263,6 +263,35 @@ describe("buildPortalModel — full pipeline over a fake, in-memory evidence hos
 		expect(tip.axes.freshness.provenance.kind).toBe("verifier");
 	});
 
+	test("a non-JSON entry body degrades that record to malformed instead of throwing and failing the whole build", async () => {
+		const kp = await generateThrowawayKeypair();
+		const fetcher = new FakeFetcher();
+		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
+		const tipVersion = CATALOG.linux[CATALOG.linux.length - 1];
+		if (tipVersion === undefined) throw new Error("fixture has no linux tip");
+		// A truncated fetch or an HTML error page served with a 200 both look
+		// like this: a 200 status whose body is not parseable JSON at all.
+		fetcher.setBytes(
+			`releases/solstone-linux/v/${tipVersion}/ledger-entry.json`,
+			new TextEncoder().encode("<html>not json</html>"),
+		);
+
+		const result = await buildPortalModel(
+			fetcher,
+			new Date("2026-06-01T00:00:00Z"),
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const linux = result.model.subjects.find((s) => s.product === "linux");
+		if (!linux || !("timeline" in linux))
+			throw new Error("expected linux timeline");
+		const tip = linux.timeline.find((t) => t.kind === "entry" && t.isTip);
+		expect(tip).toBeUndefined();
+		const malformed = linux.timeline.find((t) => t.kind === "malformed");
+		expect(malformed).toBeDefined();
+	});
+
 	test("a missing tip entry degrades that record to missing-object, never a silent gap in the timeline", async () => {
 		const kp = await generateThrowawayKeypair();
 		const fetcher = new FakeFetcher();

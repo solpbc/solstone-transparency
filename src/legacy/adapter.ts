@@ -118,9 +118,18 @@ async function buildEntryRecord(
 		};
 	}
 
-	const parsed: LedgerEntryV1Raw = JSON.parse(
-		new TextDecoder().decode(entryRes.body),
-	);
+	let parsed: LedgerEntryV1Raw;
+	try {
+		parsed = JSON.parse(new TextDecoder().decode(entryRes.body));
+	} catch {
+		return {
+			kind: "malformed",
+			product,
+			reason: "entry body is not valid JSON",
+			provenance: { kind: "verifier", checkedAt },
+			checkedAt,
+		};
+	}
 	const fieldCheck = checkEntryFields(parsed);
 	if (!fieldCheck.ok) {
 		if (fieldCheck.problem === "missing-subject") {
