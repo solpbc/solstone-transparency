@@ -155,7 +155,18 @@ describe("buildPortalModel — full pipeline over a fake, in-memory evidence hos
 		// Every entry actually verified against the fake chain we built.
 		for (const e of entries) {
 			expect(e.axes.verification.state).toBe("valid");
-			expect(e.axes.freshness.state).toBe("expired"); // fixed 2026-01-15 valid_until vs. fixed 2026-06-01 "now"
+			// Freshness is a property of the tip's separately-signed pointer, never
+			// of the entry itself: only the tip gets a time-bound value (fixed
+			// 2026-01-15 valid_until vs. fixed 2026-06-01 "now" → expired); every
+			// superseded entry is honestly "not-time-bound", not a fabricated value
+			// derived from its own published_utc.
+			if (e.isTip) {
+				expect(e.axes.freshness.state).toBe("expired");
+				expect(e.axes.freshness.provenance.kind).toBe("signed");
+			} else {
+				expect(e.axes.freshness.state).toBe("not-time-bound");
+				expect(e.axes.freshness.provenance.kind).toBe("register");
+			}
 			expect(e.axes.publication.state).toBe("paused");
 			expect(e.axes.rebuild.state).toBe("not-attempted");
 		}
@@ -181,6 +192,75 @@ describe("buildPortalModel — full pipeline over a fake, in-memory evidence hos
 			expect(windows.fact.kind).toBe("windows-absence");
 			expect(windows.fact.provenance).toEqual({ kind: "register" });
 		}
+	});
+
+	test("a tampered TIP ENTRY signature never taints freshness — the two axes are independently sourced", async () => {
+		const kp = await generateThrowawayKeypair();
+		const fetcher = new FakeFetcher();
+		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
+		const tipVersion = CATALOG.linux[CATALOG.linux.length - 1];
+		if (tipVersion === undefined) throw new Error("fixture has no linux tip");
+		// Corrupt only the tip entry's own signature; the separately-signed
+		// pointer is untouched.
+		fetcher.setText(
+			`releases/solstone-linux/v/${tipVersion}/ledger-entry.json.minisig`,
+			"untrusted comment: corrupted\nAAAAnotarealsignature",
+		);
+
+		const result = await buildPortalModel(
+			fetcher,
+			new Date("2026-06-01T00:00:00Z"),
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const linux = result.model.subjects.find((s) => s.product === "linux");
+		if (!linux || !("timeline" in linux))
+			throw new Error("expected linux timeline");
+		const tip = linux.timeline.find((t) => t.kind === "entry" && t.isTip);
+		if (!tip || tip.kind !== "entry") throw new Error("expected a tip entry");
+
+		expect(tip.axes.verification.state).toBe("invalid");
+		// The bug this test guards: freshness must never inherit "signed"
+		// provenance from an entry whose own signature failed. It is derived
+		// solely from the separately-signed pointer, which is untouched here.
+		expect(tip.axes.freshness.state).toBe("expired");
+		expect(tip.axes.freshness.provenance.kind).toBe("signed");
+		if (tip.axes.freshness.provenance.kind === "signed") {
+			expect(tip.axes.freshness.provenance.sourceUrl).toContain("latest.json");
+		}
+	});
+
+	test("an unavailable/tampered POINTER never falls back to a fabricated entry-derived freshness value", async () => {
+		const kp = await generateThrowawayKeypair();
+		const fetcher = new FakeFetcher();
+		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
+		// Corrupt only the pointer's signature; every entry (including the tip)
+		// remains genuinely, verifiably signed.
+		fetcher.setText(
+			"releases/solstone-linux/latest.json.minisig",
+			"untrusted comment: corrupted\nAAAAnotarealsignature",
+		);
+
+		const result = await buildPortalModel(
+			fetcher,
+			new Date("2026-06-01T00:00:00Z"),
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		const linux = result.model.subjects.find((s) => s.product === "linux");
+		if (!linux || !("timeline" in linux))
+			throw new Error("expected linux timeline");
+		const tip = linux.timeline.find((t) => t.kind === "entry" && t.isTip);
+		if (!tip || tip.kind !== "entry") throw new Error("expected a tip entry");
+
+		expect(tip.axes.verification.state).toBe("valid");
+		// The bug this test guards: a pointer that fails to verify must never
+		// silently fall back to a "signed"-tagged value derived from the
+		// entry's own published_utc.
+		expect(tip.axes.freshness.state).toBe("unavailable");
+		expect(tip.axes.freshness.provenance.kind).toBe("verifier");
 	});
 
 	test("a missing tip entry degrades that record to missing-object, never a silent gap in the timeline", async () => {

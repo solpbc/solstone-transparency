@@ -88,6 +88,30 @@ export type FreshnessAxis =
 			validUntil: Iso8601;
 			signedAt: Iso8601;
 			provenance: Extract<Provenance, { kind: "signed" }>;
+	  }
+	/**
+	 * Only the current tip carries a signed freshness assertion (the mutable
+	 * `latest.json` pointer). A superseded, non-tip entry was never itself
+	 * signed as "valid until <date>" — using its own `published_utc` as a
+	 * stand-in for that would be a fabricated freshness claim. This state is
+	 * a structural fact about chain position, read from the frozen legacy
+	 * inventory, never the verifier's own report.
+	 */
+	| {
+			state: "not-time-bound";
+			provenance: Extract<Provenance, { kind: "register" }>;
+	  }
+	/**
+	 * The tip entry's pointer could not be fetched or did not verify. Freshness
+	 * is a property of that separately-signed pointer, never of the entry
+	 * itself — so an entry-verification failure never reaches this state, and
+	 * this state never falls back to deriving freshness from the entry.
+	 */
+	| {
+			state: "unavailable";
+			reason: string;
+			checkedAt: Iso8601;
+			provenance: Extract<Provenance, { kind: "verifier" }>;
 	  };
 
 /**

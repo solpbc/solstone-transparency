@@ -198,17 +198,16 @@ async function buildEntryRecord(
 						provenance: { kind: "verifier", checkedAt },
 					};
 
+	// Freshness is a property of the separately-signed mutable pointer, never
+	// of this entry — an entry-verification failure (`outcome.state` above)
+	// must never taint this axis, and a non-tip entry was never itself signed
+	// as "valid until <date>", so it gets the structural "not-time-bound"
+	// state rather than a value derived from its own `published_utc`.
 	let latestLink: EvidenceLinkStatus | undefined;
 	let latestSigLink: EvidenceLinkStatus | undefined;
-	const latestUrlResult = rawlink.latestUrl(fullProduct);
 	let freshness: AxisBlock["freshness"] = {
-		state: "expired",
-		validUntil: fields.publishedUtc,
-		signedAt: fields.publishedUtc,
-		provenance: {
-			kind: "signed",
-			sourceUrl: latestUrlResult.status === "linked" ? latestUrlResult.url : "",
-		},
+		state: "not-time-bound",
+		provenance: { kind: "register" },
 	};
 
 	if (isTip) {
@@ -219,6 +218,12 @@ async function buildEntryRecord(
 			fetcher.getBytes(latestPath),
 			fetcher.getText(`${latestPath}.minisig`),
 		]);
+		freshness = {
+			state: "unavailable",
+			reason: "the signed freshness pointer could not be fetched",
+			checkedAt,
+			provenance: { kind: "verifier", checkedAt },
+		};
 		if (ptrBody && ptrBody.status === 200 && ptrSig && ptrSig.status === 200) {
 			const ptrOutcome = await verifyPointer({
 				pointerBytes: ptrBody.body,
@@ -236,6 +241,13 @@ async function buildEntryRecord(
 						kind: "signed",
 						sourceUrl: `${BASE_URL}/${latestPath}`,
 					},
+				};
+			} else {
+				freshness = {
+					state: "unavailable",
+					reason: `the signed freshness pointer did not verify: ${ptrOutcome.reason}`,
+					checkedAt,
+					provenance: { kind: "verifier", checkedAt },
 				};
 			}
 		}
