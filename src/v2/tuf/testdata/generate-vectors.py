@@ -76,6 +76,8 @@ for label, pub in [("all-aa", "aa"*32), ("all-00", "00"*32), ("mixed", "01234567
     })
 
 doc = {
+    "SPDX-License-Identifier": "AGPL-3.0-only",
+    "_copyright": "Copyright (c) 2026 sol pbc",
     "_comment": [
         "Known-answer conformance vectors for TUF canonical JSON and key-ID construction.",
         "GENERATED FROM AN INDEPENDENT REFERENCE IMPLEMENTATION, NOT FROM THIS REPOSITORY.",
