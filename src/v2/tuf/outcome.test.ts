@@ -6,6 +6,15 @@ import { DEFAULT_MAX_METADATA_BYTES, admitTufJson } from "./admission";
 import { canonicalizeTufJson } from "./canonical";
 import { computeKeyId, verifyEd25519Signature } from "./ed25519";
 import { TUF_REJECTION_REASONS, type TufResult } from "./outcome";
+import { validateFilenameVersion } from "./reader";
+import {
+	authorizeTargetPath,
+	checkMetadataType,
+	evaluateRoleAuthorization,
+	validateDelegationChain,
+	validateRoleConfiguration,
+	validateTargetPath,
+} from "./role-graph";
 
 const EXPECTED_REASONS = [
 	"malformed",
@@ -25,6 +34,15 @@ const EXPECTED_REASONS = [
 	"unsupported-key-type",
 	"signature-invalid",
 	"keyid-mismatch",
+	"threshold-unmet",
+	"key-not-in-role",
+	"dangling-keyid",
+	"degenerate-role-configuration",
+	"role-not-authorized",
+	"delegation-too-deep",
+	"unsafe-target-path",
+	"metadata-type-mismatch",
+	"filename-version-mismatch",
 ] as const;
 
 function bytesToHex(bytes: Uint8Array): string {
@@ -39,12 +57,22 @@ function isCryptoKeyPair(
 	return "privateKey" in value && "publicKey" in value;
 }
 
+function assertMeaningful(value: unknown): void {
+	expect(value).not.toBeUndefined();
+	if (typeof value === "string") expect(value.length).toBeGreaterThan(0);
+	if (Array.isArray(value)) expect(value.length).toBeGreaterThan(0);
+	if (value !== null && typeof value === "object")
+		expect(Object.keys(value).length).toBeGreaterThan(0);
+}
+
 function recordFailure(result: TufResult<unknown>, observed: string[]): void {
 	expect(result.ok).toBe(false);
 	if (result.ok) return;
 	expect(Object.keys(result.detail).length).toBeGreaterThan(0);
 	expect(result.detail).toHaveProperty("expected");
 	expect(result.detail).toHaveProperty("observed");
+	assertMeaningful(result.detail.expected);
+	assertMeaningful(result.detail.observed);
 	observed.push(result.reason);
 }
 
@@ -137,6 +165,96 @@ test("the reason vocabulary is complete, duplicate-free, and reachable without o
 		}),
 		observed,
 	);
+
+	const secondPair = await crypto.subtle.generateKey(
+		{ name: "Ed25519" },
+		true,
+		["sign", "verify"],
+	);
+	if (!isCryptoKeyPair(secondPair))
+		throw new Error("expected second Ed25519 key pair");
+	const secondObject = {
+		keytype: "ed25519",
+		scheme: "ed25519",
+		keyval: {
+			public: bytesToHex(
+				new Uint8Array(
+					await crypto.subtle.exportKey("raw", secondPair.publicKey),
+				),
+			),
+		},
+	};
+	const secondId = await computeKeyId(secondObject);
+	if (!secondId.ok) throw new Error("could not compute second test key ID");
+	const signedMessage = new TextEncoder().encode("outcome reachability");
+	const validSignature = bytesToHex(
+		new Uint8Array(
+			await crypto.subtle.sign(
+				{ name: "Ed25519" },
+				keyPair.privateKey,
+				signedMessage,
+			),
+		),
+	);
+	const secondSignature = bytesToHex(
+		new Uint8Array(
+			await crypto.subtle.sign(
+				{ name: "Ed25519" },
+				secondPair.privateKey,
+				signedMessage,
+			),
+		),
+	);
+	recordFailure(
+		await evaluateRoleAuthorization({
+			role: { keyids: [keyId.value, secondId.value], threshold: 2 },
+			keys: { [keyId.value]: keyObject, [secondId.value]: secondObject },
+			signatures: [{ keyid: keyId.value, sig: validSignature }],
+			message: signedMessage,
+		}),
+		observed,
+	);
+	recordFailure(
+		await evaluateRoleAuthorization({
+			role: { keyids: [keyId.value], threshold: 1 },
+			keys: { [keyId.value]: keyObject, [secondId.value]: secondObject },
+			signatures: [{ keyid: secondId.value, sig: secondSignature }],
+			message: signedMessage,
+		}),
+		observed,
+	);
+	recordFailure(
+		await evaluateRoleAuthorization({
+			role: { keyids: ["missing"], threshold: 1 },
+			keys: {},
+			signatures: [],
+			message: signedMessage,
+		}),
+		observed,
+	);
+	recordFailure(
+		validateRoleConfiguration(
+			{ keyids: [keyId.value], threshold: 0 },
+			{ [keyId.value]: keyObject },
+		),
+		observed,
+	);
+	recordFailure(
+		authorizeTargetPath("targets/services", "software/item"),
+		observed,
+	);
+	recordFailure(
+		validateDelegationChain(
+			Array.from({ length: 10 }, (_, index) => `role-${index}`),
+		),
+		observed,
+	);
+	recordFailure(validateTargetPath("https://unsafe.example/item"), observed);
+	recordFailure(
+		checkMetadataType({ _type: "snapshot" }, "timestamp"),
+		observed,
+	);
+	recordFailure(validateFilenameVersion("5.targets.json", 5, 3), observed);
 
 	expect(observed.sort()).toEqual([...EXPECTED_REASONS].sort());
 });

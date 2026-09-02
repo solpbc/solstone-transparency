@@ -20,6 +20,15 @@ export const TUF_REJECTION_REASONS = [
 	"unsupported-key-type",
 	"signature-invalid",
 	"keyid-mismatch",
+	"threshold-unmet",
+	"key-not-in-role",
+	"dangling-keyid",
+	"degenerate-role-configuration",
+	"role-not-authorized",
+	"delegation-too-deep",
+	"unsafe-target-path",
+	"metadata-type-mismatch",
+	"filename-version-mismatch",
 ] as const;
 
 export type TufRejectionReason = (typeof TUF_REJECTION_REASONS)[number];
