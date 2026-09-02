@@ -219,3 +219,143 @@ export async function verifyEd25519Signature(
 		});
 	}
 }
+
+function isCryptoKeyPair(
+	value: CryptoKey | CryptoKeyPair,
+): value is { privateKey: CryptoKey; publicKey: CryptoKey } {
+	return "privateKey" in value && "publicKey" in value;
+}
+
+/**
+ * A generated Ed25519 signing key, paired with the public key object a TUF role
+ * carries and the key ID computed over it.
+ *
+ * The private half stays a `CryptoKey`. Callers that need to persist it export
+ * pkcs8 deliberately rather than getting raw bytes handed to them by default.
+ */
+export interface Ed25519SigningKey {
+	privateKey: CryptoKey;
+	keyObject: {
+		keytype: "ed25519";
+		scheme: "ed25519";
+		keyval: { public: string };
+	};
+	keyId: string;
+}
+
+/**
+ * Generates a fresh Ed25519 signing key and computes its TUF key ID from the same
+ * key object a role will carry, so a caller cannot end up with a key ID derived
+ * from a different projection than the one it publishes.
+ *
+ * ⛔ Every key this produces in Wave 2 is synthetic and thrown away. This module
+ * has no persistence, no vault access, and no ceremony; a production root key is
+ * generated under a separate custody process, not here.
+ */
+export async function generateEd25519SigningKey(): Promise<
+	TufResult<Ed25519SigningKey>
+> {
+	let generated: CryptoKey | CryptoKeyPair;
+	try {
+		generated = await crypto.subtle.generateKey({ name: "Ed25519" }, true, [
+			"sign",
+			"verify",
+		]);
+	} catch (error) {
+		return malformedKey(
+			[],
+			"an Ed25519 key pair from crypto.subtle.generateKey",
+			error instanceof Error ? error.name : typeName(error),
+		);
+	}
+	// Narrow through a predicate rather than cast: generateKey's declared return is
+	// the union, and asserting past it would hide a runtime shape change instead of
+	// reporting one as a named rejection.
+	if (!isCryptoKeyPair(generated)) {
+		return malformedKey([], "an Ed25519 key pair", "a single CryptoKey");
+	}
+	const pair = generated;
+	const raw = new Uint8Array(
+		await crypto.subtle.exportKey("raw", pair.publicKey),
+	);
+	const keyObject = {
+		keytype: "ed25519" as const,
+		scheme: "ed25519" as const,
+		keyval: { public: bytesToHex(raw) },
+	};
+	const keyId = await computeKeyId(keyObject);
+	if (!keyId.ok) return keyId;
+	return {
+		ok: true,
+		value: { privateKey: pair.privateKey, keyObject, keyId: keyId.value },
+	};
+}
+
+/**
+ * Imports a private signing key from pkcs8 bytes.
+ *
+ * pkcs8 is the only import format Web Crypto accepts for an Ed25519 private key:
+ * a `raw` import throws `SyntaxError` even at the correct 32-byte length, so a
+ * caller holding raw seed bytes cannot use them directly. Verified in this
+ * runtime rather than assumed.
+ */
+export async function importEd25519SigningKey(
+	pkcs8: Uint8Array,
+): Promise<TufResult<CryptoKey>> {
+	try {
+		return {
+			ok: true,
+			value: await crypto.subtle.importKey(
+				"pkcs8",
+				new Uint8Array(pkcs8),
+				{ name: "Ed25519" },
+				true,
+				["sign"],
+			),
+		};
+	} catch (error) {
+		return malformedKey(
+			[],
+			"an importable pkcs8 Ed25519 private key",
+			error instanceof Error ? error.name : typeName(error),
+		);
+	}
+}
+
+/**
+ * Signs `message` and returns the 64-byte signature.
+ *
+ * Never throws for an expected failure, matching this module's verify side: a key
+ * that cannot sign comes back as a named rejection rather than a Web Crypto
+ * exception escaping into a caller that has no discriminated branch for it.
+ */
+export async function signEd25519(
+	privateKey: CryptoKey,
+	message: Uint8Array,
+): Promise<TufResult<Uint8Array>> {
+	let signature: ArrayBuffer;
+	try {
+		signature = await crypto.subtle.sign(
+			{ name: "Ed25519" },
+			privateKey,
+			new Uint8Array(message),
+		);
+	} catch (error) {
+		return malformedKey(
+			[],
+			"a CryptoKey usable for Ed25519 signing",
+			error instanceof Error ? error.name : typeName(error),
+		);
+	}
+	const bytes = new Uint8Array(signature);
+	if (bytes.byteLength !== 64) {
+		return rejection("wrong-signature-length", {
+			path: ["signature"],
+			expected: 64,
+			observed: bytes.byteLength,
+			requiredBytes: 64,
+			observedBytes: bytes.byteLength,
+		});
+	}
+	return { ok: true, value: bytes };
+}

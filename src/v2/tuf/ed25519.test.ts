@@ -2,7 +2,13 @@
 // Copyright (c) 2026 sol pbc
 
 import { describe, expect, test } from "bun:test";
-import { computeKeyId, verifyEd25519Signature } from "./ed25519";
+import {
+	computeKeyId,
+	generateEd25519SigningKey,
+	importEd25519SigningKey,
+	signEd25519,
+	verifyEd25519Signature,
+} from "./ed25519";
 import type { TufRejectionReason } from "./outcome";
 import { loadTufConformanceVectors } from "./testdata/vectors";
 
@@ -202,4 +208,90 @@ describe("verifyEd25519Signature", () => {
 		});
 		expectFailure(unknownScheme, "unsupported-key-type");
 	});
+});
+
+test("a generated signing key round-trips through sign and verify", async () => {
+	const key = await generateEd25519SigningKey();
+	expect(key.ok).toBe(true);
+	if (!key.ok) return;
+
+	const message = new TextEncoder().encode("wave 2 staging, synthetic key");
+	const signature = await signEd25519(key.value.privateKey, message);
+	expect(signature.ok).toBe(true);
+	if (!signature.ok) return;
+	expect(signature.value.byteLength).toBe(64);
+
+	// The key ID published with the role must be the one computed over the same
+	// key object, or a verifier resolves a different key than the one that signed.
+	const verified = await verifyEd25519Signature({
+		keyObject: key.value.keyObject,
+		expectedKeyId: key.value.keyId,
+		signature: signature.value,
+		message,
+	});
+	expect(verified.ok).toBe(true);
+});
+
+test("a signature over different bytes fails, so the round-trip above is not vacuous", async () => {
+	const key = await generateEd25519SigningKey();
+	if (!key.ok) throw new Error("key generation failed");
+	const signed = await signEd25519(
+		key.value.privateKey,
+		new TextEncoder().encode("one message"),
+	);
+	if (!signed.ok) throw new Error("signing failed");
+
+	const verified = await verifyEd25519Signature({
+		keyObject: key.value.keyObject,
+		expectedKeyId: key.value.keyId,
+		signature: signed.value,
+		message: new TextEncoder().encode("a different message"),
+	});
+	expect(verified.ok).toBe(false);
+	if (verified.ok) return;
+	expect(verified.reason).toBe("signature-invalid");
+});
+
+test("signing with a verify-only key is a named rejection, never a thrown exception", async () => {
+	const generated = await crypto.subtle.generateKey({ name: "Ed25519" }, true, [
+		"sign",
+		"verify",
+	]);
+	if (!isCryptoKeyPair(generated)) throw new Error("expected a key pair");
+	const pair = generated;
+
+	// The public half cannot sign. Web Crypto throws here; this module must not.
+	const result = await signEd25519(
+		pair.publicKey,
+		new TextEncoder().encode("x"),
+	);
+	expect(result.ok).toBe(false);
+	if (result.ok) return;
+	expect(result.reason).toBe("malformed-key");
+	expect(result.detail).toHaveProperty("expected");
+	expect(result.detail).toHaveProperty("observed");
+});
+
+test("a pkcs8 round-trip produces the identical signature, and raw import is refused", async () => {
+	const key = await generateEd25519SigningKey();
+	if (!key.ok) throw new Error("key generation failed");
+	const message = new TextEncoder().encode("determinism check");
+
+	const direct = await signEd25519(key.value.privateKey, message);
+	if (!direct.ok) throw new Error("signing failed");
+
+	const pkcs8 = new Uint8Array(
+		await crypto.subtle.exportKey("pkcs8", key.value.privateKey),
+	);
+	const reimported = await importEd25519SigningKey(pkcs8);
+	expect(reimported.ok).toBe(true);
+	if (!reimported.ok) return;
+	const again = await signEd25519(reimported.value, message);
+	if (!again.ok) throw new Error("signing after reimport failed");
+	expect(Array.from(again.value)).toEqual(Array.from(direct.value));
+
+	// pkcs8 is the only accepted private-key format: a raw import of the correct
+	// 32-byte length still fails, which is why importEd25519SigningKey takes pkcs8.
+	const rawAttempt = await importEd25519SigningKey(new Uint8Array(32));
+	expect(rawAttempt.ok).toBe(false);
 });
