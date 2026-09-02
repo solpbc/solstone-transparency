@@ -291,12 +291,28 @@ function evidenceRows(model: PortalModel, entry: EntryRecord): EvidenceRow[] {
 	}
 	rows.push(...groupedMembers("release manifests", entry.manifests));
 	rows.push(...groupedMembers("native proof receipts", entry.proofs));
+	// Distributed artifacts are never independently hosted on the evidence
+	// surface, by architectural invariant — they are always declared by
+	// name/digest, never raw-linked (transition plan § 5, IA § 2 item 4).
+	// This renders every artifact as "unhosted" from its own ref data
+	// unconditionally, rather than branching on `a.link.status`: `pushLink`'s
+	// "linked" row type treats `item` as a fixed, trusted label everywhere
+	// else it's used (it always is one, e.g. "immutable entry", "signing
+	// key"), but an artifact's own name is model-derived and must go through
+	// the same untrusted-string path every other model-derived string does.
+	// Branching on `a.link.status` here would make that safety property hold
+	// only because today's adapter happens to always set it to "unhosted",
+	// not by construction.
 	for (const a of entry.artifacts) {
-		if (a.link.status === "unhosted") {
-			rows.push({ type: "unhosted", artifact: a.link.artifact });
-		} else {
-			pushLink(rows, a.ref.name, `${a.ref.bytes} bytes`, a.link);
-		}
+		rows.push({
+			type: "unhosted",
+			artifact: {
+				name: a.ref.name,
+				sha256: a.ref.sha256,
+				bytes: a.ref.bytes,
+				note: "not independently hosted; verify by hash comparison",
+			},
+		});
 	}
 	const key = model.keys[0];
 	if (key) pushLink(rows, "signing key", key.filename, key.link);
