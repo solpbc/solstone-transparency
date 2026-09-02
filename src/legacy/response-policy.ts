@@ -21,10 +21,14 @@ export const HTML_HEADERS: Readonly<Record<string, string>> = {
 	"Content-Type": "text/html; charset=utf-8",
 	// Zero JavaScript ships on this surface, so `default-src 'none'` already
 	// blocks script execution; `script-src 'none'` is stated explicitly
-	// anyway so a reviewer never has to infer it from a default. Only
-	// same-origin styles and images are needed; nothing else is fetched.
+	// anyway so a reviewer never has to infer it from a default. Same-origin
+	// styles, the vendored brand font, and images are needed; nothing else is
+	// fetched. `font-src` was found missing by a real live browser check
+	// against the deployed portal (Chromium blocked the vendored Comfortaa
+	// font under `default-src 'none'`'s fallback, silently degrading every
+	// page to its system-font fallback) and fixed the same session.
 	"Content-Security-Policy":
-		"default-src 'none'; script-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+		"default-src 'none'; script-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 	"X-Content-Type-Options": "nosniff",
 	"X-Frame-Options": "DENY",
 	// Deliberately stricter than this org's usual `strict-origin-when-cross-origin`
