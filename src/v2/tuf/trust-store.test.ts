@@ -87,8 +87,15 @@ test("trust store round-trips a valid canonical state", async () => {
 		const written = await store.replace(undefined, initialState);
 		expect(written).toEqual({ ok: true, value: undefined });
 		const read = await store.read();
+		// 🔴 Assert the value is PRESENT before narrowing. An early `return` here
+		// makes this test vacuous in exactly the case it exists to catch: a store
+		// that never persists reads back `undefined`, the narrowing bails, and the
+		// state comparison below is never reached. Verified: with `replace()`
+		// short-circuited to success without writing, this test still PASSED.
 		expect(read.ok).toBe(true);
-		if (!read.ok || read.value === undefined) return;
+		if (!read.ok) throw new Error(`read failed: ${read.reason}`);
+		expect(read.value).toBeDefined();
+		if (read.value === undefined) throw new Error("store did not persist");
 		expect(read.value.state).toEqual(initialState);
 	} finally {
 		await rm(directory, { recursive: true, force: true });
