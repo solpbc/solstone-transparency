@@ -1,0 +1,144 @@
+{
+	"_comment": [
+		"Known-answer conformance vectors for TUF canonical JSON and key-ID construction.",
+		"GENERATED FROM AN INDEPENDENT REFERENCE IMPLEMENTATION, NOT FROM THIS REPOSITORY.",
+		"Source: python-tuf 7.0.1 / securesystemslib encode_canonical, run 2026-09-02.",
+		"These exist so this project's canonicalizer is pinned to something other than itself.",
+		"A self-consistently wrong implementation passes a builder-verifies-its-own-output test;",
+		"it cannot pass these. Do not regenerate them with this repository's own code.",
+		"Two vectors carry the whole point: 'astral-key-sort' pins key ordering to Unicode",
+		"CODE POINT order (JavaScript's default Array.prototype.sort uses UTF-16 code units and",
+		"orders these two keys the other way round), and 'control-chars-raw' pins string escaping",
+		"to backslash and double-quote ONLY (JSON.stringify additionally escapes control",
+		"characters, producing different signature-input bytes)."
+	],
+	"generator": {
+		"python_tuf": "7.0.1",
+		"generated": "2026-09-02"
+	},
+	"canonical_json": [
+		{
+			"name": "ascii-key-sort",
+			"input": {
+				"b": 1,
+				"a": 2
+			},
+			"canonical_utf8_hex": "7b2261223a322c2262223a317d",
+			"canonical_sha256": "d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772"
+		},
+		{
+			"name": "nested-deep-sort",
+			"input": {
+				"z": {
+					"y": 1,
+					"x": [3, 2, 1]
+				},
+				"a": true
+			},
+			"canonical_utf8_hex": "7b2261223a747275652c227a223a7b2278223a5b332c322c315d2c2279223a317d7d",
+			"canonical_sha256": "bbdd9751b2e04142a1ffeca0d74de87b6756a3b0c6578d3345fc96051f992042"
+		},
+		{
+			"name": "non-ascii-key-sort",
+			"input": {
+				"é": 1,
+				"a": 2
+			},
+			"canonical_utf8_hex": "7b2261223a322c22c3a9223a317d",
+			"canonical_sha256": "13f878ef9384d590f247c529a1b5831722a4bc7d02c8a6757ecd7b9b5b31cd06"
+		},
+		{
+			"name": "astral-key-sort",
+			"input": {
+				"😀": 1,
+				"～": 2
+			},
+			"canonical_utf8_hex": "7b22efbd9e223a322c22f09f9880223a317d",
+			"canonical_sha256": "676eced5da6311f3e768f35d0921b3e2759791654ea8e5adb3b281c6f405776d"
+		},
+		{
+			"name": "control-chars-raw",
+			"input": {
+				"k": "abé\n\u0007\t"
+			},
+			"canonical_utf8_hex": "7b226b223a226162c3a90a0709227d",
+			"canonical_sha256": "46d65bfca5ad550c0008964d9b5e5958f8e9868856264dc801f76b5b66365316"
+		},
+		{
+			"name": "quote-and-backslash",
+			"input": {
+				"k": "\"\\"
+			},
+			"canonical_utf8_hex": "7b226b223a225c225c5c227d",
+			"canonical_sha256": "3f67a7f16e150a85db2722165549fa9d15810a7a21c9d858a31ae10119735b8c"
+		},
+		{
+			"name": "empty-containers",
+			"input": {
+				"o": {},
+				"a": [],
+				"s": "",
+				"n": null
+			},
+			"canonical_utf8_hex": "7b2261223a5b5d2c226e223a6e756c6c2c226f223a7b7d2c2273223a22227d",
+			"canonical_sha256": "a0e64a9d54eb19d4d01f5430bb54ea80575a24a5436ed3d3a64a46a90f52267f"
+		},
+		{
+			"name": "bools-and-big-int",
+			"input": {
+				"t": true,
+				"f": false,
+				"big": 9007199254740992
+			},
+			"canonical_utf8_hex": "7b22626967223a393030373139393235343734303939322c2266223a66616c73652c2274223a747275657d",
+			"canonical_sha256": "4417c4d83f1f2c583678cd3ffe9817918e107426c61186bf33e67198111ab846"
+		},
+		{
+			"name": "negative-and-zero",
+			"input": {
+				"z": 0,
+				"n": -1
+			},
+			"canonical_utf8_hex": "7b226e223a2d312c227a223a307d",
+			"canonical_sha256": "c1080b7170335c4bf4da99316e92c5b0448f9e478f54eeee1609b7af86e09195"
+		}
+	],
+	"keyid": [
+		{
+			"name": "all-aa",
+			"key_object": {
+				"keytype": "ed25519",
+				"scheme": "ed25519",
+				"keyval": {
+					"public": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+				}
+			},
+			"canonical_utf8_hex": "7b226b657974797065223a2265643235353139222c226b657976616c223a7b227075626c6963223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161227d2c22736368656d65223a2265643235353139227d",
+			"keyid": "95d0cae1d8ce74ee848b4981fc54cd7585941564154d0a07296d51aeb81861de"
+		},
+		{
+			"name": "all-00",
+			"key_object": {
+				"keytype": "ed25519",
+				"scheme": "ed25519",
+				"keyval": {
+					"public": "0000000000000000000000000000000000000000000000000000000000000000"
+				}
+			},
+			"canonical_utf8_hex": "7b226b657974797065223a2265643235353139222c226b657976616c223a7b227075626c6963223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030227d2c22736368656d65223a2265643235353139227d",
+			"keyid": "7f7373360bc914a5d4a7bd87711615178beb6cf52494fcc49082ec65ba62908c"
+		},
+		{
+			"name": "mixed",
+			"key_object": {
+				"keytype": "ed25519",
+				"scheme": "ed25519",
+				"keyval": {
+					"public": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+				}
+			},
+			"canonical_utf8_hex": "7b226b657974797065223a2265643235353139222c226b657976616c223a7b227075626c6963223a2230313233343536373839616263646566303132333435363738396162636465663031323334353637383961626364656630313233343536373839616263646566227d2c22736368656d65223a2265643235353139227d",
+			"keyid": "44c285b27a4a53b5bdd043dbdcbe738c1e7095f9ea374ff0ada8cf3d606c06e9"
+		}
+	]
+}
