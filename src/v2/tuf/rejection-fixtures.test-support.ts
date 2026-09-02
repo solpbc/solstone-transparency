@@ -4,6 +4,29 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import {
+	type DsseAuthorizationPolicy,
+	type LoadedDsseAuthorizationPolicy,
+	evaluateDssePolicyAuthorization,
+} from "../records/authorization-policy";
+import { IN_TOTO_PAYLOAD_TYPE, verifyDsseEnvelope } from "../records/dsse";
+import {
+	type MigrationManifestPredicate,
+	walkMigrationManifest,
+} from "../records/migration-manifest";
+import {
+	MIGRATION_MANIFEST_PREDICATE_TYPE,
+	validateKnownPredicate,
+} from "../records/predicates";
+import {
+	EVIDENCE_RECORD_SCHEMA,
+	verifyEvidenceRecord,
+} from "../records/record";
+import {
+	IN_TOTO_STATEMENT_V1,
+	type InTotoStatementV1,
+	verifyStatementSubjects,
+} from "../records/statement";
 import { DEFAULT_MAX_METADATA_BYTES, admitTufJson } from "./admission";
 import { type RepositorySigningKeys, buildRepository } from "./builder";
 import { canonicalizeTufJson } from "./canonical";
@@ -21,7 +44,7 @@ import {
 	verifyEd25519Signature,
 } from "./ed25519";
 import type { TufFetchResponse } from "./fetch";
-import type { TufRejectionReason, TufResult } from "./outcome";
+import { type TufRejectionReason, type TufResult, rejection } from "./outcome";
 import { validateFilenameVersion } from "./reader";
 import { DELEGATED_ROLES, TOP_LEVEL_ROLES } from "./role-config";
 import {
@@ -240,6 +263,157 @@ async function primitiveFixtures(): Promise<readonly RejectionFixture[]> {
 		{
 			reason: "filename-version-mismatch",
 			invoke: async () => validateFilenameVersion("5.targets.json", 5, 3),
+		},
+	];
+}
+
+function fixturePolicy(
+	roles: DsseAuthorizationPolicy["roles"],
+): LoadedDsseAuthorizationPolicy {
+	return {
+		sha256: "a".repeat(64),
+		keyMap: {},
+		policy: {
+			version: 1,
+			effective_from: "2026-01-01T00:00:00.000Z",
+			roles,
+			evaluation_rules: {
+				unrecognized_predicate: "unrecognized-predicate",
+				unknown_key: "unknown-key",
+				role_not_authorized: "role-not-authorized",
+				threshold_unmet: "threshold-unmet",
+				outside_issuance_window: "outside-issuance-window",
+			},
+		},
+	};
+}
+
+async function recordFixtures(): Promise<readonly RejectionFixture[]> {
+	const text = new TextEncoder();
+	const statement: InTotoStatementV1 = {
+		type: IN_TOTO_STATEMENT_V1,
+		subject: [
+			{ name: "software/example/v1", digest: { sha256: "0".repeat(64) } },
+		],
+		predicateType: MIGRATION_MANIFEST_PREDICATE_TYPE,
+		predicate: {},
+	};
+	const policy = fixturePolicy([
+		{
+			id: "producer.release",
+			key_label: "fixture",
+			keyids: [],
+			threshold: 1,
+			predicate_types: [MIGRATION_MANIFEST_PREDICATE_TYPE],
+			subject_patterns: ["software/**"],
+			claim_ceiling: "fixture",
+			issuance_window: {
+				not_before: "2026-01-01T00:00:00.000Z",
+				not_after: "2026-12-31T00:00:00.000Z",
+			},
+		},
+	]);
+	const migration: MigrationManifestPredicate = {
+		_comment: ["fixture"],
+		schema: "solstone-transparency/migration-manifest/v1-to-v2",
+		verification_contract: {
+			v1_algorithm: "minisign",
+			v1_public_key:
+				"https://transparency.solstone.app/releases/keys/fixture.pub",
+			note: "fixture",
+		},
+		corpus_sha256: "0".repeat(64),
+		object_count: 1,
+		products: [],
+		objects: [
+			{
+				url: "https://transparency.solstone.app/releases/fixture/object",
+				length: 1,
+				sha256: "0".repeat(64),
+			},
+		],
+	};
+	return [
+		{
+			reason: "payload-type-mismatch",
+			invoke: async () =>
+				verifyDsseEnvelope({
+					envelope: {
+						payloadType: "application/other",
+						payload: "",
+						signatures: [],
+					},
+					expectedPayloadType: IN_TOTO_PAYLOAD_TYPE,
+					keys: {},
+				}),
+		},
+		{
+			reason: "unrecognized-predicate",
+			invoke: async () =>
+				validateKnownPredicate("https://example.invalid/future", {}),
+		},
+		{
+			reason: "predicate-malformed",
+			invoke: async () =>
+				validateKnownPredicate(MIGRATION_MANIFEST_PREDICATE_TYPE, {}),
+		},
+		{
+			reason: "subject-mismatch",
+			invoke: async () =>
+				verifyStatementSubjects(
+					statement,
+					new Map([["software/example/v1", text.encode("not matching")]]),
+				),
+		},
+		{
+			reason: "outside-issuance-window",
+			invoke: async () =>
+				evaluateDssePolicyAuthorization({
+					policy,
+					predicateType: MIGRATION_MANIFEST_PREDICATE_TYPE,
+					subjects: statement.subject,
+					issuedAt: "2027-01-01T00:00:00.000Z",
+					verifiedSignatures: [],
+				}),
+		},
+		{
+			reason: "unknown-key",
+			invoke: async () => {
+				const outcome = await verifyEvidenceRecord({
+					record: {
+						schema: EVIDENCE_RECORD_SCHEMA,
+						policy_sha256: policy.sha256,
+						issued_at: "2026-06-01T00:00:00.000Z",
+						envelope: {
+							payloadType: IN_TOTO_PAYLOAD_TYPE,
+							payload: "",
+							signatures: [{ keyid: "b".repeat(64), sig: "" }],
+						},
+					},
+					policy,
+					subjectBytes: new Map(),
+				});
+				if (outcome.state !== "rejected")
+					throw new Error("unknown-key fixture must reject");
+				return rejection(outcome.reason, outcome.detail);
+			},
+		},
+		{
+			reason: "migration-target-mismatch",
+			invoke: async () =>
+				(
+					await walkMigrationManifest(migration, {
+						async fetch(url) {
+							return {
+								kind: "ok",
+								bytes:
+									url === migration.verification_contract.v1_public_key
+										? text.encode("fixture key")
+										: text.encode("x"),
+							};
+						},
+					})
+				).verdict,
 		},
 	];
 }
@@ -510,5 +684,9 @@ async function clientFixtures(): Promise<readonly RejectionFixture[]> {
 export async function allRejectionFixtures(): Promise<
 	readonly RejectionFixture[]
 > {
-	return [...(await primitiveFixtures()), ...(await clientFixtures())];
+	return [
+		...(await primitiveFixtures()),
+		...(await clientFixtures()),
+		...(await recordFixtures()),
+	];
 }

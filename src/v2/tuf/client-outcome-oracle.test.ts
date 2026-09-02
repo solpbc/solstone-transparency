@@ -42,6 +42,13 @@ const EXPECTED_REASONS = [
 	"expired",
 	"unsupported-spec-version",
 	"trust-store-corrupt",
+	"payload-type-mismatch",
+	"unrecognized-predicate",
+	"predicate-malformed",
+	"subject-mismatch",
+	"outside-issuance-window",
+	"unknown-key",
+	"migration-target-mismatch",
 ] as const;
 
 test("A3 fixture-to-reason oracle reaches every declared rejection reason", async () => {

@@ -39,6 +39,13 @@ export const TUF_REJECTION_REASONS = [
 	"expired",
 	"unsupported-spec-version",
 	"trust-store-corrupt",
+	"payload-type-mismatch",
+	"unrecognized-predicate",
+	"predicate-malformed",
+	"subject-mismatch",
+	"outside-issuance-window",
+	"unknown-key",
+	"migration-target-mismatch",
 ] as const;
 
 export type TufRejectionReason = (typeof TUF_REJECTION_REASONS)[number];
