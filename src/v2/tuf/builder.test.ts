@@ -130,12 +130,15 @@ describe("buildRepository", () => {
 		expect(repository.value.delegatedTargets).toHaveLength(
 			DELEGATED_ROLES.length,
 		);
+		// "targets.json" sorts BEFORE "targets/..." now that snapshot keys carry the
+		// raw role name: "." is 0x2E and "/" is 0x2F. Under the previous (wrong)
+		// URL-encoded keys it sorted last, because "%" is 0x25.
 		expect(metaNames(repository)).toEqual([
-			"targets%2Flegacy.json",
-			"targets%2Fservices.json",
-			"targets%2Fsoftware.json",
-			"targets%2Fverification.json",
 			"targets.json",
+			"targets/legacy.json",
+			"targets/services.json",
+			"targets/software.json",
+			"targets/verification.json",
 		]);
 	});
 
@@ -172,10 +175,10 @@ describe("buildRepository", () => {
 			roleConfiguration: configuration,
 		});
 		expect(metaNames(repository)).toEqual([
-			"targets%2Fservices.json",
-			"targets%2Fsoftware.json",
-			"targets%2Fverification.json",
 			"targets.json",
+			"targets/services.json",
+			"targets/software.json",
+			"targets/verification.json",
 		]);
 	});
 

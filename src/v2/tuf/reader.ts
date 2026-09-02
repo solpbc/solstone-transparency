@@ -578,9 +578,14 @@ export async function readRepository(
 				observed: "missing",
 			});
 		}
-		const logicalName = metadataLogicalName(delegatedRole.name);
-		if (!logicalName.ok) return logicalName;
-		const version = metaVersion(snapshot.value.signed, logicalName.value);
+		// A snapshot META KEY is the RAW role name plus ".json"; only the FILENAME is
+		// URL-encoded. Looking the key up by the encoded name works only against a
+		// repository that made the same mistake -- see builder.ts's note at the
+		// snapshot-meta construction.
+		const version = metaVersion(
+			snapshot.value.signed,
+			`${delegatedRole.name}.json`,
+		);
 		if (!version.ok) return version;
 		const filename = metadataFilename(
 			delegatedRole.name,

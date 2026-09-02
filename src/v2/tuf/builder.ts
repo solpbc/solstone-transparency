@@ -557,11 +557,26 @@ export async function buildRepository(
 
 	const snapshotMeta: Record<string, unknown> = {};
 	for (const metadata of [targets.value, ...delegatedBuilt]) {
-		const name = metadataLogicalName(metadata.roleName);
-		if (!name.ok) return name;
+		// 🔴 A snapshot META KEY is the RAW role name plus ".json", not the
+		// URL-encoded FILENAME. The two differ for any delegated role whose name
+		// contains a path separator: the file on disk is
+		// `1.targets%2Fsoftware.json`, while the snapshot key stays
+		// `targets/software.json`.
+		//
+		// Reference behaviour, read from the installed implementation rather than
+		// assumed: python-tuf's trusted_metadata_set looks up
+		// `self.snapshot.meta.get(f"{role_name}.json")` with the raw name, while
+		// ngclient/updater.py builds the filename with `parse.quote(rolename, "")`.
+		//
+		// This was `metadataLogicalName(...)` -- the encoding function -- which
+		// produced `targets%2Fsoftware.json` as the key. Every test here passed,
+		// because our own reader resolved it the same wrong way; python-tuf rejected
+		// it with "Snapshot does not contain information for 'targets/software'".
+		// Exactly the self-consistently-wrong class the external cross-check exists
+		// to catch.
 		const description = await metaDescription(metadata);
 		if (!description.ok) return description;
-		snapshotMeta[name.value] = description.value;
+		snapshotMeta[`${metadata.roleName}.json`] = description.value;
 	}
 	const snapshot = await signMetadata(
 		"snapshot",
