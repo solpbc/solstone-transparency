@@ -100,7 +100,10 @@ function bytesToHex(bytes: Uint8Array): string {
 	);
 }
 
-/** Computes the TUF key identifier over the complete, unprojected key object. */
+/**
+ * Computes the TUF key identifier over the complete, unprojected key object.
+ * Call only with an admitted, depth-bounded key object; admission owns hostile-depth handling.
+ */
 export async function computeKeyId(
 	keyObject: unknown,
 ): Promise<TufResult<string>> {

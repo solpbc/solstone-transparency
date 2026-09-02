@@ -4,7 +4,6 @@
 import {
 	type JsonPath,
 	type TufFailure,
-	type TufJsonValue,
 	type TufResult,
 	rejection,
 } from "./outcome";
@@ -156,11 +155,12 @@ function encodeValue(
 	return encoded;
 }
 
-/** Canonical TUF JSON as compact UTF-8 bytes, without a trailing newline. */
+/**
+ * Canonical TUF JSON as compact UTF-8 bytes, without a trailing newline.
+ * Call only with an admitted, depth-bounded value; admission owns hostile-depth handling.
+ */
 export function canonicalizeTufJson(value: unknown): TufResult<Uint8Array> {
 	const encoded = encodeValue(value, [], new WeakSet<object>());
 	if (typeof encoded !== "string") return encoded;
 	return { ok: true, value: new TextEncoder().encode(encoded) };
 }
-
-export type { TufJsonValue };
