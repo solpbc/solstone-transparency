@@ -9,3 +9,13 @@ main = "worker.ts"
 workers_dev = false
 
 routes = [{ pattern = "trust.solstone.app", custom_domain = true }]
+
+# The one static file this surface serves that isn't generated in-memory by
+# the Worker (the vendored brand font). Requests are routed to this binding
+# explicitly inside worker.ts, not via Cloudflare's default assets-first
+# behavior, so every non-static-asset path still reaches handle() and every
+# response header still comes from the one approved policy.
+[assets]
+directory = "public"
+binding = "ASSETS"
+run_worker_first = true
