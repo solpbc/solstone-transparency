@@ -4,12 +4,15 @@
 import { VERSION } from "./index";
 import { buildPortalModel } from "./legacy/adapter";
 import { buildSitemap } from "./portal/sitemap";
+import { verifyRepository } from "./v2/verify-cli";
 
 const HELP = `solstone-transparency ${VERSION}
 
 Usage: solstone-transparency [--version] [--help]
        solstone-transparency legacy-model --out <path>
        solstone-transparency sitemap --out <path>
+       solstone-transparency verify-v2 [--metadata-base URL] [--targets-base URL]
+                                       [--store PATH] [--json]
 
 This build implements the read-side v1 legacy verifier/adapter, its typed
 portal model (src/legacy/), a read-only HTML presentation layer
@@ -27,6 +30,19 @@ Options:
                       legacy-model) and write sitemap.xml listing every
                       HTML route the portal actually serves with a 200
                       response.
+  verify-v2           Bootstrap from a pinned v2 root and verify a TUF
+                      repository end to end: root, timestamp, snapshot,
+                      targets, every delegated role, and each target's
+                      recorded digest. Prints the accepted repository
+                      fingerprint, per-role state, and any renewal
+                      advisories. Read-only; holds no credential and never
+                      writes to the evidence host.
+                      --metadata-base / --targets-base default to the v2
+                      staging prefix. --json emits a machine-readable result.
+                      Exit 0 accepted, 1 rejected, 2 could not run.
+
+The v2 rail is under construction and represents no released product or
+operated service. Every key on it is synthetic.
 `;
 
 /** Runs the CLI against argv (excluding the node/bun/script entries) and returns the process exit code. */
@@ -34,6 +50,20 @@ export async function run(argv: string[]): Promise<number> {
 	if (argv[0] === "--version") {
 		console.log(VERSION);
 		return 0;
+	}
+	if (argv[0] === "verify-v2") {
+		const flag = (name: string): string | undefined => {
+			const index = argv.indexOf(name);
+			return index >= 0 ? argv[index + 1] : undefined;
+		};
+		const base = "https://transparency.solstone.app/staging/v2";
+		return verifyRepository({
+			metadataBase: flag("--metadata-base") ?? `${base}/metadata`,
+			targetsBase: flag("--targets-base") ?? `${base}/targets`,
+			rootPath: flag("--root"),
+			storePath: flag("--store") ?? ".solstone-transparency-trust.json",
+			json: argv.includes("--json"),
+		});
 	}
 	if (argv[0] === "legacy-model") {
 		const outIdx = argv.indexOf("--out");
