@@ -29,6 +29,16 @@ export const TUF_REJECTION_REASONS = [
 	"unsafe-target-path",
 	"metadata-type-mismatch",
 	"filename-version-mismatch",
+	"unavailable",
+	"retrieval-failed",
+	"version-rollback",
+	"snapshot-role-dropped",
+	"snapshot-mismatch",
+	"length-mismatch",
+	"hash-mismatch",
+	"expired",
+	"unsupported-spec-version",
+	"trust-store-corrupt",
 ] as const;
 
 export type TufRejectionReason = (typeof TUF_REJECTION_REASONS)[number];
