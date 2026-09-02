@@ -15,6 +15,11 @@
  * window ever looks necessary, the test is wrong, not the policy. Time is injected
  * into the builder; no window is shortened for convenience.
  *
+ * These values are FOUNDER-APPROVED PRODUCTION POLICY as of 2026-09-02, not a
+ * staging-effective determination -- approved in the same gate as the root custody
+ * map. Changing one is a security decision that goes back through that gate, not a
+ * code change.
+ *
  * The organising idea, in the security office's own framing: a key gets separated
  * custody exactly when no higher authority can recover from its loss or compromise.
  * Root is recoverable only from itself, so it gets a quorum and separation. Every
