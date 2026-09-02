@@ -43,7 +43,11 @@ export async function run(argv: string[]): Promise<number> {
 			);
 			return 1;
 		}
-		await Bun.write(outPath, `${JSON.stringify(result.model, null, 2)}\n`);
+		// Write the complete PortalModelResult (the `{ ok: true, model }` shape),
+		// not just the bare model -- this is what `handle()`/`renderAll()` in
+		// `src/portal` consume directly, with no re-wrapping required by whoever
+		// builds and deploys the portal from this output.
+		await Bun.write(outPath, `${JSON.stringify(result, null, 2)}\n`);
 		console.log(`wrote portal model to ${outPath}`);
 		return 0;
 	}

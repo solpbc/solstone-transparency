@@ -1,0 +1,11 @@
+name = "trust-solstone-app"
+account_id = "3f2c1528c7d4d9685819ea9e9e307c92"
+compatibility_date = "2025-04-01"
+main = "worker.ts"
+
+# The portal is reached only via the custom domain -- no *.workers.dev preview
+# hostname, so there is never a second, unlisted, un-indexed origin for the
+# same read-only content.
+workers_dev = false
+
+routes = [{ pattern = "trust.solstone.app", custom_domain = true }]
