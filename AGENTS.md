@@ -4,14 +4,15 @@ sol pbc's transparency evidence-plane verifier, publisher, protocol schemas, and
 
 ## What this is, right now
 
-**Status: the read-side legacy verifier/model exists; the portal does not.** `src/legacy/` fetches the existing historical (v1) release-transparency register, verifies each record (minisign signature, hash-chain linkage, schema shape), and builds a typed, already-verified model of the register — see that directory's own module comments for the exact contract. It is read-only: no record publishing, no signing, and no mutation of evidence anywhere in this repository. There is still no portal route, HTML, or UI. Treat any future mention of "publishing" evidence, or of a portal serving `trust.solstone.app`, as unimplemented until the code that does it actually lands and is reviewed. See [`README.md`](README.md) for the current install/run/test instructions.
+**Status: the read-side legacy verifier/model exists; a read-only HTML presentation layer exists under `src/portal/`; nothing is deployed.** `src/legacy/` fetches the existing historical (v1) release-transparency register, verifies each record (minisign signature, hash-chain linkage, schema shape), and builds a typed, already-verified model of the register — see that directory's own module comments for the exact contract. `src/portal/` renders that model as server-side HTML. It is read-only: no record publishing, no signing, and no mutation of evidence anywhere in this repository. This repository does not serve `trust.solstone.app`; treat any mention of a live portal host as unimplemented until the deploy work that does it actually lands and is reviewed. See [`README.md`](README.md) for the current install/run/test instructions.
 
 ## Repo layout
 
 | Path | Purpose |
 |---|---|
 | `src/` | Library entry point (`index.ts`) and CLI implementation (`cli.ts`) |
-| `src/legacy/` | Read-side v1 legacy adapter/verifier and typed portal model — fetches, verifies, and models the existing historical register. No portal UI. |
+| `src/legacy/` | Read-side v1 legacy adapter/verifier and typed portal model — fetches, verifies, and models the existing historical register |
+| `src/portal/` | Read-only server-rendered HTML over `PortalModel`. Not a live host; does not serve `trust.solstone.app`. |
 | `bin/` | The CLI executable, `solstone-transparency.ts` |
 | `protocol/` | Reserved for public schemas, predicate/semantics documents, and conformance fixtures. Read its `README.md` and the licensing note in [`CONTRIBUTING.md`](CONTRIBUTING.md) before adding anything here. |
 

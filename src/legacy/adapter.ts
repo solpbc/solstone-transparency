@@ -428,6 +428,7 @@ export async function buildPortalModel(
 
 	const journalVersions = catalogOverride?.journal ?? CATALOG.journal;
 	const linuxVersions = catalogOverride?.linux ?? CATALOG.linux;
+	// catalogOverride.windows is accepted for type-symmetry with CATALOG and has no effect: windows never walks a version catalog.
 	const [journalTimeline, linuxTimeline, windowsFact] = await Promise.all([
 		buildProductTimeline(fetcher, pubKeyText, "journal", now, journalVersions),
 		buildProductTimeline(fetcher, pubKeyText, "linux", now, linuxVersions),

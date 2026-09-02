@@ -77,6 +77,10 @@ export function axisBlock(
 		freshnessState = `<span class="state">${trustedText(STATE_COULD_NOT_BE_CHECKED)}</span>`;
 		freshnessExtra = `<span class="basis">${untrustedText(axes.freshness.reason)}</span>`;
 	}
+	if (axes.freshness.provenance.kind === "signed") {
+		const src = axes.freshness.provenance.sourceUrl;
+		freshnessExtra += ` <a class="raw-link" href="${escapeHtml(src)}">${untrustedText(src)}</a>`;
+	}
 	const freshness = axisRow(
 		AXIS_FRESHNESS,
 		kindFromProvenance(axes.freshness.provenance),

@@ -133,6 +133,11 @@ describe("AC-4 journal and linux axes stay separate", () => {
 		expect(vPage).toContain("expired");
 		expect(vPage).toContain("verified");
 		expect(vPage).toContain("signed it as valid through");
+		if (jTip.axes.freshness.provenance.kind === "signed") {
+			expect(journalPage).toContain(
+				`href="${jTip.axes.freshness.provenance.sourceUrl}"`,
+			);
+		}
 	});
 });
 
@@ -324,6 +329,11 @@ describe("AC-10 product history order and gap row", () => {
 		expect(body).toContain(gap.beforeVersion);
 		expect(body).toContain("/software/#coverage");
 		expect(gap.absentVersion).toBe(JOURNAL_GAP.absentVersion);
+		const dated = subject.timeline.find(
+			(t): t is EntryRecord => t.kind === "entry" && !t.isTip,
+		);
+		if (!dated) throw new Error("expected a non-tip journal entry");
+		expect(timelineHtml).toContain(dated.publishedUtc);
 	});
 });
 
@@ -339,16 +349,33 @@ describe("AC-11 distinct-value source binding", () => {
 		const pageB = handle(versionPath("journal", b.version), defaultResult).body;
 		expect(a.entryLink.status).toBe("linked");
 		expect(b.entryLink.status).toBe("linked");
-		if (a.entryLink.status !== "linked" || b.entryLink.status !== "linked")
+		expect(a.entrySigLink.status).toBe("linked");
+		expect(b.entrySigLink.status).toBe("linked");
+		if (
+			a.entryLink.status !== "linked" ||
+			b.entryLink.status !== "linked" ||
+			a.entrySigLink.status !== "linked" ||
+			b.entrySigLink.status !== "linked"
+		)
 			return;
-		expect(pageA).toContain(a.entryLink.link.url);
+		expect(pageA).toContain(`href="${a.entryLink.link.url}"`);
+		expect(pageA).not.toContain(`href="${b.entryLink.link.url}"`);
+		expect(pageA).toContain(`href="${a.entrySigLink.link.url}"`);
+		expect(pageA).not.toContain(`href="${b.entrySigLink.link.url}"`);
 		expect(pageA).toContain(a.entrySha256);
-		expect(pageA).not.toContain(b.entryLink.link.url);
 		expect(pageA).not.toContain(b.entrySha256);
-		expect(pageB).toContain(b.entryLink.link.url);
+		expect(pageB).toContain(`href="${b.entryLink.link.url}"`);
+		expect(pageB).not.toContain(`href="${a.entryLink.link.url}"`);
+		expect(pageB).toContain(`href="${b.entrySigLink.link.url}"`);
+		expect(pageB).not.toContain(`href="${a.entrySigLink.link.url}"`);
 		expect(pageB).toContain(b.entrySha256);
-		expect(pageB).not.toContain(a.entryLink.link.url);
 		expect(a.entryLink.link.url).not.toBe(b.entryLink.link.url);
+		expect(a.entrySigLink.link.url).not.toBe(b.entrySigLink.link.url);
+		const key = defaultModel.keys[0];
+		if (!key || key.link.status !== "linked")
+			throw new Error("expected a linked signing key");
+		expect(pageA).toContain(`href="${key.link.link.url}"`);
+		expect(pageB).toContain(`href="${key.link.link.url}"`);
 	});
 });
 
@@ -379,6 +406,9 @@ describe("AC-12 release detail member accounting and exact layout", () => {
 		expect(tipPage).toContain('<details class="tech" open>');
 		expect(tipPage).toContain(trustedText(VERSION_ARTIFACT_NOTE));
 		expect(tipPage).toContain("/releases/keys/");
+		for (const m of tip.manifests) expect(tipPage).toContain(m.ref.name);
+		for (const p of tip.proofs) expect(tipPage).toContain(p.ref.name);
+		for (const a of tip.artifacts) expect(tipPage).toContain(a.ref.name);
 	});
 
 	test("a category with multiple linked members renders a summary plus open details of exact urls", async () => {
@@ -447,6 +477,19 @@ describe("AC-14 four axes never collapsed", () => {
 		expect(body).toContain("rebuild");
 		expect(body).not.toContain("trust score");
 		expect(body).not.toContain("all verified");
+		const tip = tipOf(journal());
+		const axis = body.slice(
+			body.indexOf('class="axis-block"'),
+			body.indexOf("prove-columns"),
+		);
+		expect(axis).toContain(tip.axes.verification.checkedAt);
+		if (
+			tip.axes.freshness.state === "fresh" ||
+			tip.axes.freshness.state === "expired"
+		) {
+			expect(axis).toContain(tip.axes.freshness.validUntil);
+			expect(axis).toContain(tip.axes.freshness.signedAt);
+		}
 	});
 });
 

@@ -2,7 +2,7 @@
   "name": "solstone-transparency",
   "version": "0.1.0",
   "private": true,
-  "description": "sol pbc trust/transparency evidence plane. Read-side legacy (v1) verifier and typed portal model; no publish logic and no portal UI yet.",
+  "description": "sol pbc trust/transparency evidence plane. Read-side legacy (v1) verifier, typed portal model, and read-only HTML presentation; no publish logic and not a live trust.solstone.app host.",
   "license": "AGPL-3.0-only",
   "type": "module",
   "bin": {

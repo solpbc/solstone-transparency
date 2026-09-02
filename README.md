@@ -2,7 +2,7 @@
 
 This repository is being bootstrapped as the shared verifier/publisher code, public protocol schemas, and trust-portal source for sol pbc's public trust and transparency surface.
 
-**Status: read-side legacy verifier landed; no portal UI yet.** `src/legacy/` reads the existing historical (v1) release-transparency register, verifies each record's minisign signature and hash-chain linkage, and builds a typed model of what it found. It publishes nothing, signs nothing, and mutates no evidence. There is still no portal route, HTML, or UI — this repository does not yet serve `trust.solstone.app`. These are historical records of what sol pbc published; this code does not claim they are current, reproducible, or a complete account of every release.
+**Status: read-side legacy verifier and a read-only HTML presentation layer landed; nothing is deployed.** `src/legacy/` reads the existing historical (v1) release-transparency register, verifies each record's minisign signature and hash-chain linkage, and builds a typed model of what it found. `src/portal/` renders that already-verified model as server-side HTML (home, software index, per-product history, per-release detail, verify, keys, about, not-found). It does not re-verify, re-fetch, or publish, and this repository does not yet serve `trust.solstone.app`. These are historical records of what sol pbc published; this code does not claim they are current, reproducible, or a complete account of every release.
 
 ## Install
 
@@ -31,6 +31,8 @@ make test
 | Path | What's here |
 |------|-------------|
 | `src/` | The library entry point and CLI implementation |
+| `src/legacy/` | Read-side v1 verifier and typed portal model |
+| `src/portal/` | Read-only HTML presentation over that model; not a live host |
 | `bin/` | The CLI executable |
 | `protocol/` | Reserved for the public schemas, predicate/semantics documents, and conformance fixtures that later work will add. See [`protocol/README.md`](protocol/README.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md) for the licensing note that applies to this directory specifically. |
 

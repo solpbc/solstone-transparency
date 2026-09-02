@@ -56,7 +56,6 @@ import {
 } from "./primitives";
 import { versionPath } from "./routes";
 import {
-	KIND_VERIFIER,
 	PRODUCT_DISPLAY,
 	VERIFY_LEAD_IN,
 	VERSION_SUMMARY_NOT_TIME_BOUND,
@@ -335,10 +334,10 @@ function timelineHtml(
 					item.axes.freshness.state === "expired"
 						? ` ${trustedText("expired")}`
 						: "";
-				return `<li><span class="v">${untrustedText(item.version)}</span> · ${kindTag(item.axes.verification.provenance.kind)} <span class="state">${trustedText(item.axes.verification.state)}</span>${fresh} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
+				return `<li><span class="v">${untrustedText(item.version)}</span> · ${untrustedText(item.publishedUtc)} · ${kindTag(item.axes.verification.provenance.kind)} <span class="state">${trustedText(item.axes.verification.state)}</span>${fresh} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
 			}
 			const href = versionPath(product, item.version);
-			return `<li><span class="v">${untrustedText(item.version)}</span> · ${kindTag("verifier")} <span class="state">${untrustedText(failureReason(item))}</span> · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
+			return `<li><span class="v">${untrustedText(item.version)}</span> · ${trustedText("no publish date")} · ${kindTag("verifier")} <span class="state">${untrustedText(failureReason(item))}</span> · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
 		})
 		.join("");
 	return `<ol class="timeline">${items}</ol>`;
@@ -552,7 +551,7 @@ export function renderVersionFailure(
 	const main = `
 <h1>${trustedText(display)} <span class="mono">${untrustedText(failure.version)}</span></h1>
 <p>${kindTag("verifier")} ${untrustedText(failureReason(failure))}</p>
-<p>${trustedText(KIND_VERIFIER)} ${trustedText("this record could not be constructed. no fields from the failed body are shown.")}</p>
+<p>${trustedText("this record could not be constructed. no fields from the failed body are shown.")}</p>
 <p><a href="/software/${escapeHtml(failure.product)}/">${trustedText("back to")} ${trustedText(display)}</a></p>`;
 	return shell({
 		title: `${display} ${failure.version} — trust.solstone.app`,

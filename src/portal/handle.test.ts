@@ -91,10 +91,7 @@ describe("AC-1 durable routes and JS-free graph walk", () => {
 		for (const [path, res] of pages) {
 			for (const href of collectInternalHrefs(res.body, path)) {
 				const target = pages.get(href) ?? handle(href, defaultResult);
-				expect(target.status).not.toBe(500);
-				if (href === "/software/" || href.startsWith("/software/")) {
-					expect([200, 404]).toContain(target.status);
-				}
+				expect(target.status).toBe(200);
 			}
 			expect(res.body).not.toContain("<script");
 			expect(res.body).toContain('id="main"');

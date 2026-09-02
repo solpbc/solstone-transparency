@@ -9,10 +9,10 @@ const HELP = `solstone-transparency ${VERSION}
 Usage: solstone-transparency [--version] [--help]
        solstone-transparency legacy-model --out <path>
 
-This build implements the read-side v1 legacy verifier/adapter and its
-typed portal model (src/legacy/). It builds no portal routes, HTML, or UI.
-It makes no public claim beyond: these are historical records of what sol
-pbc published.
+This build implements the read-side v1 legacy verifier/adapter, its typed
+portal model (src/legacy/), and a read-only HTML presentation layer
+(src/portal/). It does not serve trust.solstone.app. It makes no public
+claim beyond: these are historical records of what sol pbc published.
 
 Options:
   --version           Print the installed version and exit
