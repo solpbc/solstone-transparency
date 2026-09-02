@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 sol pbc
 """Regenerate tuf-conformance-vectors.json from an INDEPENDENT reference implementation.
 
 This script exists so the vectors' provenance is re-derivable by a third party rather
