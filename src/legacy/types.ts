@@ -176,12 +176,15 @@ export interface EntryRecord {
 	latestSigLink?: EvidenceLinkStatus;
 }
 
-/** A version explicitly absent between two recorded neighbours (e.g. journal's real 1.0.14 gap). Register-tagged; worded so it can never imply the version was never released. */
+/** A version explicitly absent between two recorded neighbours. Register-tagged; worded so it can never imply the version was never released. The absent version identity is a curated field (`absentVersion`), never inferred. */
 export interface GapRecord {
 	kind: "gap";
 	product: Extract<ProductSlug, "journal" | "linux">;
 	afterSeq: number;
 	beforeSeq: number;
+	afterVersion: string;
+	beforeVersion: string;
+	absentVersion: string;
 	provenance: Extract<Provenance, { kind: "register" }>;
 }
 
@@ -197,12 +200,14 @@ export type ModelConstructionFailure =
 	| {
 			kind: "missing-subject";
 			product: Extract<ProductSlug, "journal" | "linux">;
+			version: string;
 			provenance: Extract<Provenance, { kind: "verifier" }>;
 			checkedAt: Iso8601;
 	  }
 	| {
 			kind: "missing-object";
 			product: Extract<ProductSlug, "journal" | "linux">;
+			version: string;
 			declaredName: string;
 			provenance: Extract<Provenance, { kind: "verifier" }>;
 			checkedAt: Iso8601;
@@ -210,6 +215,7 @@ export type ModelConstructionFailure =
 	| {
 			kind: "malformed";
 			product: Extract<ProductSlug, "journal" | "linux">;
+			version: string;
 			reason: string;
 			provenance: Extract<Provenance, { kind: "verifier" }>;
 			checkedAt: Iso8601;
@@ -242,6 +248,15 @@ export interface KeyRecord {
 	role: string;
 	status: "active" | "retired";
 	link: EvidenceLinkStatus;
+	publicKeyText: string;
+	algorithm: "ed25519";
+	fingerprint:
+		| { status: "known"; value: string }
+		| {
+				status: "unavailable";
+				reason: string;
+				provenance: Extract<Provenance, { kind: "verifier" }>;
+		  };
 }
 
 export interface RegisterDeclaration {

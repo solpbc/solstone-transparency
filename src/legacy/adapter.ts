@@ -22,6 +22,7 @@ import type {
 	EntryRecord,
 	EvidenceLinkStatus,
 	GapRecord,
+	KeyRecord,
 	ModelConstructionFailure,
 	ModelDegraded,
 	PortalModel,
@@ -40,6 +41,30 @@ import {
 
 const BASE_URL = "https://transparency.solstone.app";
 const KEY_FILENAME = "solpbc-transparency-1.pub";
+
+export type CatalogOverride = Partial<
+	Record<"journal" | "linux" | "windows", string[]>
+>;
+
+/** Parses the minisign key-id line out of a public-key file. No match is unavailable, never a guessed fingerprint. */
+function parseFingerprint(
+	pubKeyText: string,
+	checkedAt: string,
+): KeyRecord["fingerprint"] {
+	const firstLine = pubKeyText.split(/\r?\n/, 1)[0] ?? "";
+	const match = /^untrusted comment: minisign public key (.+)$/.exec(
+		firstLine.trimEnd(),
+	);
+	const value = match?.[1]?.trim();
+	if (value === undefined || value === "") {
+		return {
+			status: "unavailable",
+			reason: "could not parse minisign key id from the public-key file",
+			provenance: { kind: "verifier", checkedAt },
+		};
+	}
+	return { status: "known", value };
+}
 
 export interface Fetcher {
 	getBytes(path: string): Promise<{ status: number; body: Uint8Array } | null>;
@@ -103,6 +128,7 @@ async function buildEntryRecord(
 		return {
 			kind: "missing-object",
 			product,
+			version,
 			declaredName: entryPath,
 			provenance: { kind: "verifier", checkedAt },
 			checkedAt,
@@ -112,6 +138,7 @@ async function buildEntryRecord(
 		return {
 			kind: "missing-object",
 			product,
+			version,
 			declaredName: sigPath,
 			provenance: { kind: "verifier", checkedAt },
 			checkedAt,
@@ -125,6 +152,7 @@ async function buildEntryRecord(
 		return {
 			kind: "malformed",
 			product,
+			version,
 			reason: "entry body is not valid JSON",
 			provenance: { kind: "verifier", checkedAt },
 			checkedAt,
@@ -136,6 +164,7 @@ async function buildEntryRecord(
 			return {
 				kind: "missing-subject",
 				product,
+				version,
 				provenance: { kind: "verifier", checkedAt },
 				checkedAt,
 			};
@@ -143,6 +172,7 @@ async function buildEntryRecord(
 		return {
 			kind: "malformed",
 			product,
+			version,
 			reason: fieldCheck.detail,
 			provenance: { kind: "verifier", checkedAt },
 			checkedAt,
@@ -172,6 +202,7 @@ async function buildEntryRecord(
 		return {
 			kind: "missing-subject",
 			product,
+			version,
 			provenance: { kind: "verifier", checkedAt },
 			checkedAt,
 		};
@@ -180,6 +211,7 @@ async function buildEntryRecord(
 		return {
 			kind: "malformed",
 			product,
+			version,
 			reason: outcome.reason,
 			provenance: { kind: "verifier", checkedAt },
 			checkedAt,
@@ -315,10 +347,10 @@ async function buildProductTimeline(
 	pubKeyText: string,
 	product: "journal" | "linux",
 	now: Date,
+	versions: string[],
 ): Promise<TimelineEntry[]> {
 	const fullProduct =
 		product === "journal" ? "solstone-journal" : "solstone-linux";
-	const versions = CATALOG[product];
 	const timeline: TimelineEntry[] = [];
 	let expectedPrevSha256: string | null = "0".repeat(64);
 	for (let i = 0; i < versions.length; i++) {
@@ -348,6 +380,9 @@ async function buildProductTimeline(
 				product,
 				afterSeq: JOURNAL_GAP.afterSeq,
 				beforeSeq: JOURNAL_GAP.beforeSeq,
+				afterVersion: JOURNAL_GAP.afterVersion,
+				beforeVersion: JOURNAL_GAP.beforeVersion,
+				absentVersion: JOURNAL_GAP.absentVersion,
 				provenance: { kind: "register" },
 			};
 			timeline.push(gap);
@@ -377,6 +412,7 @@ async function buildWindowsFact(
 export async function buildPortalModel(
 	fetcher: Fetcher = liveFetcher,
 	now: Date = new Date(),
+	catalogOverride?: CatalogOverride,
 ): Promise<PortalModelResult> {
 	const keyRes = await fetcher.getText(`releases/keys/${KEY_FILENAME}`);
 	if (keyRes === null || keyRes.status !== 200) {
@@ -390,11 +426,15 @@ export async function buildPortalModel(
 	}
 	const pubKeyText = keyRes.body;
 
+	const journalVersions = catalogOverride?.journal ?? CATALOG.journal;
+	const linuxVersions = catalogOverride?.linux ?? CATALOG.linux;
 	const [journalTimeline, linuxTimeline, windowsFact] = await Promise.all([
-		buildProductTimeline(fetcher, pubKeyText, "journal", now),
-		buildProductTimeline(fetcher, pubKeyText, "linux", now),
+		buildProductTimeline(fetcher, pubKeyText, "journal", now, journalVersions),
+		buildProductTimeline(fetcher, pubKeyText, "linux", now, linuxVersions),
 		buildWindowsFact(fetcher, now),
 	]);
+
+	const generatedAt = now.toISOString().replace(/\.\d+Z$/, "Z");
 
 	const subjects: SubjectModel[] = [
 		{
@@ -411,7 +451,7 @@ export async function buildPortalModel(
 	];
 
 	const model: PortalModel = {
-		generatedAt: now.toISOString().replace(/\.\d+Z$/, "Z"),
+		generatedAt,
 		registerDeclaration: {
 			basis:
 				"operator decision, 2026-08-12/18: publication is deliberately paused",
@@ -427,6 +467,9 @@ export async function buildPortalModel(
 				role: "verifies this v1 historical register only",
 				status: "active",
 				link: linkFor(rawlink.keyUrl(KEY_FILENAME)),
+				publicKeyText: pubKeyText,
+				algorithm: "ed25519",
+				fingerprint: parseFingerprint(pubKeyText, generatedAt),
 			},
 		],
 	};

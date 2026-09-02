@@ -61,11 +61,13 @@ export const CATALOG: Record<"journal" | "linux" | "windows", string[]> = {
 	windows: [],
 };
 
-/** The one deliberate gap in journal's register: recorded neighbours 1.0.13 and 1.0.15 skip 1.0.14. This is a gap in the record, never evidence the version was not released. */
+/** The one deliberate gap in journal's register: recorded neighbours 1.0.13 and 1.0.15 skip the curated absent version. This is a gap in the record, never evidence the version was not released. */
 export const JOURNAL_GAP = {
 	product: "journal" as const,
 	afterVersion: "1.0.13",
 	beforeVersion: "1.0.15",
+	// the known absent version between the two recorded neighbours — a curated fact from the register's own history, not inferred from the neighbouring version strings
+	absentVersion: "1.0.14",
 	afterSeq: 2,
 	beforeSeq: 3,
 };

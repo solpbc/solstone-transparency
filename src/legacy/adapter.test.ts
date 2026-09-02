@@ -2,139 +2,20 @@
 // Copyright (c) 2026 sol pbc
 
 import { describe, expect, test } from "bun:test";
-import { type Fetcher, buildPortalModel } from "./adapter";
-import { GENESIS_SHA256, canonicalize, sha256Hex } from "./canonical";
+import { buildPortalModel } from "./adapter";
 import { CATALOG, JOURNAL_GAP } from "./inventory";
 import {
-	type ThrowawayKeypair,
+	FakeFetcher,
+	TEST_KEY_FILENAME,
 	generateThrowawayKeypair,
+	seedProductChain,
 } from "./test-helpers";
-import type { LedgerEntryV1Raw } from "./verify";
-
-const KEY_FILENAME = "solpbc-transparency-1.pub";
-
-/** An in-memory Fetcher backed by a plain object store, used so adapter tests never touch the network. */
-class FakeFetcher implements Fetcher {
-	private bytes = new Map<string, Uint8Array>();
-	private text = new Map<string, string>();
-	private status = new Map<string, number>();
-
-	setBytes(path: string, body: Uint8Array, status = 200) {
-		this.bytes.set(path, body);
-		this.status.set(path, status);
-	}
-	setText(path: string, body: string, status = 200) {
-		this.text.set(path, body);
-		this.status.set(path, status);
-	}
-
-	async getBytes(path: string) {
-		const status = this.status.get(path) ?? 404;
-		return { status, body: this.bytes.get(path) ?? new Uint8Array() };
-	}
-	async getText(path: string) {
-		const status = this.status.get(path) ?? 404;
-		return { status, body: this.text.get(path) ?? "" };
-	}
-}
-
-/** Populates a FakeFetcher with a genuinely signed, correctly chained set of entries for one product, matching CATALOG's real version list so the adapter's hardcoded catalog walk resolves every path it looks for. */
-async function seedProductChain(
-	fetcher: FakeFetcher,
-	kp: ThrowawayKeypair,
-	product: "journal" | "linux",
-	fullProduct: string,
-) {
-	const versions = CATALOG[product];
-	let prevSha256 = GENESIS_SHA256;
-	let prevVersion = "";
-	let lastEntryBytes: Uint8Array | undefined;
-	for (let i = 0; i < versions.length; i++) {
-		const version = versions[i];
-		if (version === undefined) continue;
-		const seq = i + 1;
-		const entry: LedgerEntryV1Raw = {
-			artifacts: [
-				{
-					name: `${fullProduct}-${version}.tar.gz`,
-					sha256: "ab".repeat(32),
-					bytes: 1000,
-				},
-			],
-			manifests: [
-				{
-					name: `${fullProduct}-${version}.rust-release-manifest.json`,
-					sha256: "cd".repeat(32),
-					bytes: 200,
-				},
-			],
-			proofs: [
-				{
-					name: `${fullProduct}-${version}.proof.json`,
-					sha256: "ef".repeat(32),
-					bytes: 50,
-				},
-			],
-			prev_sha256: prevSha256,
-			prev_version: prevVersion,
-			product: fullProduct,
-			published_utc: `2026-01-${String(seq).padStart(2, "0")}T00:00:00Z`,
-			schema: "https://solpbc.org/schemas/transparency-ledger-entry/v1.json",
-			seq,
-			source_commit: "0123456789abcdef0123456789abcdef01234567",
-			version,
-		};
-		const bytes = canonicalize(entry);
-		const entrySha256 = await sha256Hex(bytes);
-		const sig = await kp.sign(
-			bytes,
-			`solpbc-transparency-v1 entry product=${fullProduct} seq=${seq} version=${version} sha256=${entrySha256} prev=${prevSha256}`,
-		);
-		const entryPath = `releases/${fullProduct}/v/${version}/ledger-entry.json`;
-		fetcher.setBytes(entryPath, bytes);
-		fetcher.setText(`${entryPath}.minisig`, sig);
-		for (const m of entry.manifests ?? []) {
-			fetcher.setBytes(
-				`releases/${fullProduct}/v/${version}/${m.name}`,
-				new Uint8Array([1]),
-			);
-		}
-		for (const p of entry.proofs ?? []) {
-			fetcher.setBytes(
-				`releases/${fullProduct}/v/${version}/${p.name}`,
-				new Uint8Array([1]),
-			);
-		}
-		prevSha256 = entrySha256;
-		prevVersion = version;
-		lastEntryBytes = bytes;
-	}
-	if (lastEntryBytes) {
-		const tipSha256 = await sha256Hex(lastEntryBytes);
-		const pointer = {
-			chain_length: versions.length,
-			product: fullProduct,
-			schema: "https://solpbc.org/schemas/transparency-latest/v1.json",
-			signed_at: "2026-01-01T00:00:00Z",
-			tip_sha256: tipSha256,
-			valid_until: "2026-01-15T00:00:00Z", // always in the past relative to any realistic test "now" — freshness is not this test's concern
-			version: versions[versions.length - 1],
-		};
-		const pointerBytes = canonicalize(pointer);
-		const pointerSig = await kp.sign(
-			pointerBytes,
-			`solpbc-transparency-v1 latest product=${fullProduct} chain_length=${pointer.chain_length} tip=${tipSha256} valid_until=${pointer.valid_until}`,
-		);
-		fetcher.setBytes(`releases/${fullProduct}/latest.json`, pointerBytes);
-		fetcher.setText(`releases/${fullProduct}/latest.json.minisig`, pointerSig);
-	}
-}
 
 describe("buildPortalModel — full pipeline over a fake, in-memory evidence host", () => {
 	test("builds a valid model with journal's gap, linux's single entry, and windows absence", async () => {
 		const kp = await generateThrowawayKeypair();
 		const fetcher = new FakeFetcher();
-		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		fetcher.setText(`releases/keys/${TEST_KEY_FILENAME}`, kp.pubKeyText);
 		await seedProductChain(fetcher, kp, "journal", "solstone-journal");
 		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
 		// windows: no entries seeded, so getBytes falls through to the default 404.
@@ -197,7 +78,7 @@ describe("buildPortalModel — full pipeline over a fake, in-memory evidence hos
 	test("a tampered TIP ENTRY signature never taints freshness — the two axes are independently sourced", async () => {
 		const kp = await generateThrowawayKeypair();
 		const fetcher = new FakeFetcher();
-		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		fetcher.setText(`releases/keys/${TEST_KEY_FILENAME}`, kp.pubKeyText);
 		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
 		const tipVersion = CATALOG.linux[CATALOG.linux.length - 1];
 		if (tipVersion === undefined) throw new Error("fixture has no linux tip");
@@ -234,7 +115,7 @@ describe("buildPortalModel — full pipeline over a fake, in-memory evidence hos
 	test("an unavailable/tampered POINTER never falls back to a fabricated entry-derived freshness value", async () => {
 		const kp = await generateThrowawayKeypair();
 		const fetcher = new FakeFetcher();
-		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		fetcher.setText(`releases/keys/${TEST_KEY_FILENAME}`, kp.pubKeyText);
 		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
 		// Corrupt only the pointer's signature; every entry (including the tip)
 		// remains genuinely, verifiably signed.
@@ -266,7 +147,7 @@ describe("buildPortalModel — full pipeline over a fake, in-memory evidence hos
 	test("a non-JSON entry body degrades that record to malformed instead of throwing and failing the whole build", async () => {
 		const kp = await generateThrowawayKeypair();
 		const fetcher = new FakeFetcher();
-		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		fetcher.setText(`releases/keys/${TEST_KEY_FILENAME}`, kp.pubKeyText);
 		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
 		const tipVersion = CATALOG.linux[CATALOG.linux.length - 1];
 		if (tipVersion === undefined) throw new Error("fixture has no linux tip");
@@ -295,7 +176,7 @@ describe("buildPortalModel — full pipeline over a fake, in-memory evidence hos
 	test("a missing tip entry degrades that record to missing-object, never a silent gap in the timeline", async () => {
 		const kp = await generateThrowawayKeypair();
 		const fetcher = new FakeFetcher();
-		fetcher.setText(`releases/keys/${KEY_FILENAME}`, kp.pubKeyText);
+		fetcher.setText(`releases/keys/${TEST_KEY_FILENAME}`, kp.pubKeyText);
 		await seedProductChain(fetcher, kp, "linux", "solstone-linux");
 		// Deliberately do not seed journal at all — every journal path 404s via the fake's default.
 
