@@ -2,8 +2,9 @@
 // Copyright (c) 2026 sol pbc
 
 /**
- * Per-route HTML renderers for the Wave 1 portal. No JavaScript, no CSS
- * file, no third-party URLs except already-allowlisted evidence links.
+ * Per-route HTML renderers for the Wave 1 portal. No JavaScript ships; CSS
+ * is served from the model-independent /static/portal.css route. No
+ * third-party URLs except already-allowlisted evidence links.
  */
 
 import {
@@ -49,12 +50,14 @@ import { substituteCopy } from "./copyfill";
 import { escapeHtml, trustedText, untrustedText } from "./escape";
 import {
 	type EvidenceRow,
+	type StateTone,
 	axisBlock,
 	declaration,
 	evidenceTable,
 	kindTag,
+	stateSpan,
 } from "./primitives";
-import { versionPath } from "./routes";
+import { STYLESHEET_PATH, versionPath } from "./routes";
 import {
 	PRODUCT_DISPLAY,
 	VERIFY_LEAD_IN,
@@ -79,9 +82,18 @@ function navLink(
 	return `<a href="${escapeHtml(href)}"${aria}>${trustedText(label)}</a>`;
 }
 
+function verificationTone(
+	state: "valid" | "invalid" | "unavailable",
+): StateTone {
+	if (state === "valid") return "success";
+	if (state === "invalid") return "danger";
+	return "warn";
+}
+
 function shell(args: {
 	title: string;
 	current: NavCurrent;
+	path: string;
 	breadcrumbs?: { href?: string; label: string }[];
 	main: string;
 }): string {
@@ -104,6 +116,8 @@ function shell(args: {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${trustedText(args.title)}</title>
+<link rel="stylesheet" href="${STYLESHEET_PATH}">
+<link rel="canonical" href="https://trust.solstone.app${escapeHtml(args.path)}">
 </head>
 <body>
 <a href="#main" class="skip-link">${trustedText("skip to content")}</a>
@@ -348,12 +362,12 @@ function timelineHtml(
 				const href = versionPath(product, item.version);
 				const fresh =
 					item.axes.freshness.state === "expired"
-						? ` ${trustedText("expired")}`
+						? ` ${stateSpan("neutral", trustedText("expired"))}`
 						: "";
-				return `<li><span class="v">${untrustedText(item.version)}</span> · ${untrustedText(item.publishedUtc)} · ${kindTag(item.axes.verification.provenance.kind)} <span class="state">${trustedText(item.axes.verification.state)}</span>${fresh} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
+				return `<li><span class="v">${untrustedText(item.version)}</span> · ${untrustedText(item.publishedUtc)} · ${kindTag(item.axes.verification.provenance.kind)} ${stateSpan(verificationTone(item.axes.verification.state), trustedText(item.axes.verification.state))}${fresh} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
 			}
 			const href = versionPath(product, item.version);
-			return `<li><span class="v">${untrustedText(item.version)}</span> · ${trustedText("no publish date")} · ${kindTag("verifier")} <span class="state">${untrustedText(failureReason(item))}</span> · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
+			return `<li><span class="v">${untrustedText(item.version)}</span> · ${trustedText("no publish date")} · ${kindTag("verifier")} ${stateSpan("danger", untrustedText(failureReason(item)))} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`;
 		})
 		.join("");
 	return `<ol class="timeline">${items}</ol>`;
@@ -365,10 +379,10 @@ function gapRow(gap: GapRecord): string {
 		prev: gap.afterVersion,
 		next: gap.beforeVersion,
 	});
-	return `<li class="is-gap"><span class="v">${untrustedText(gap.absentVersion)}</span> · ${kindTag("register")} <span class="state">${trustedText("no record")}</span><div class="gap-note">${note} <a href="/software/#coverage">${trustedText("why coverage is stated, not implied")}</a></div></li>`;
+	return `<li class="is-gap"><span class="v">${untrustedText(gap.absentVersion)}</span> · ${kindTag("register")} ${stateSpan("neutral", trustedText("no record"))}<div class="gap-note">${note} <a href="/software/#coverage">${trustedText("why coverage is stated, not implied")}</a></div></li>`;
 }
 
-export function renderHome(model: PortalModel): string {
+export function renderHome(model: PortalModel, path: string): string {
 	const journal = historySubject(model, "journal");
 	const linux = historySubject(model, "linux");
 	const jTip = tipEntry(journal.timeline);
@@ -396,9 +410,9 @@ ${declaration({ kind: "declaration", text: HOME_PUBLICATION_DECLARATION })}
 <caption class="sr-only">${trustedText("software publication register summary")}</caption>
 <thead><tr><th scope="col">${trustedText("product")}</th><th scope="col">${trustedText("publication")}</th><th scope="col">${trustedText("latest recorded release")}</th></tr></thead>
 <tbody>
-<tr><td><a href="/software/journal/">${trustedText(PRODUCT_DISPLAY.journal)}</a></td><td>${kindTag("declaration")} ${trustedText("paused")}</td><td>${jRow}</td></tr>
-<tr><td><a href="/software/linux/">${trustedText(PRODUCT_DISPLAY.linux)}</a></td><td>${kindTag("declaration")} ${trustedText("paused")}</td><td>${lRow}</td></tr>
-<tr><td><a href="/software/windows/">${trustedText(PRODUCT_DISPLAY.windows)}</a></td><td>${kindTag("register")} ${trustedText("no records in this register")}</td><td>${wRow}</td></tr>
+<tr><td><a href="/software/journal/">${trustedText(PRODUCT_DISPLAY.journal)}</a></td><td>${kindTag("declaration")} ${stateSpan("neutral", trustedText("paused"))}</td><td>${jRow}</td></tr>
+<tr><td><a href="/software/linux/">${trustedText(PRODUCT_DISPLAY.linux)}</a></td><td>${kindTag("declaration")} ${stateSpan("neutral", trustedText("paused"))}</td><td>${lRow}</td></tr>
+<tr><td><a href="/software/windows/">${trustedText(PRODUCT_DISPLAY.windows)}</a></td><td>${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}</td><td>${wRow}</td></tr>
 </tbody>
 </table>
 <h2>${trustedText("go deeper")}</h2>
@@ -411,11 +425,12 @@ ${declaration({ kind: "declaration", text: HOME_PUBLICATION_DECLARATION })}
 	return shell({
 		title: "trust.solstone.app",
 		current: "home",
+		path,
 		main,
 	});
 }
 
-export function renderSoftwareIndex(model: PortalModel): string {
+export function renderSoftwareIndex(model: PortalModel, path: string): string {
 	const journal = historySubject(model, "journal");
 	const linux = historySubject(model, "linux");
 	const jTip = tipEntry(journal.timeline);
@@ -428,11 +443,12 @@ ${declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT }).replace('
 <div class="card-grid">
 <div class="card"><a class="card-link" href="/software/journal/"><h3>${trustedText(PRODUCT_DISPLAY.journal)}</h3><p>${jTip ? `${kindTag("signed")} <span class="mono">${untrustedText(jTip.version)}</span> ${trustedText("latest recorded")}` : kindTag("register")}</p></a></div>
 <div class="card"><a class="card-link" href="/software/linux/"><h3>${trustedText(PRODUCT_DISPLAY.linux)}</h3><p>${lTip ? `${kindTag("signed")} <span class="mono">${untrustedText(lTip.version)}</span> ${trustedText("latest recorded")}` : kindTag("register")}</p></a></div>
-<div class="card"><a class="card-link" href="/software/windows/"><h3>${trustedText(PRODUCT_DISPLAY.windows)}</h3><p>${kindTag("register")} ${trustedText("no records in this register")}</p></a></div>
+<div class="card"><a class="card-link" href="/software/windows/"><h3>${trustedText(PRODUCT_DISPLAY.windows)}</h3><p>${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}</p></a></div>
 </div>`;
 	return shell({
 		title: "software — trust.solstone.app",
 		current: "software",
+		path,
 		breadcrumbs: [{ href: "/", label: "home" }, { label: "software" }],
 		main,
 	});
@@ -441,16 +457,18 @@ ${declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT }).replace('
 export function renderProduct(
 	model: PortalModel,
 	product: ProductSlug,
+	path: string,
 ): string {
 	if (product === "windows") {
 		const main = `
 <h1>${trustedText(PRODUCT_DISPLAY.windows)}</h1>
-${declaration({ kind: "register", text: WINDOWS_ABSENCE_EXPLAINER })}
+${declaration({ kind: "register", text: WINDOWS_ABSENCE_EXPLAINER, tone: "neutral" })}
 <p>${trustedText(WINDOWS_ONE_FACT)}</p>
 <p><a href="/software/">${trustedText("back to the software register")}</a></p>`;
 		return shell({
 			title: `${PRODUCT_DISPLAY.windows} — trust.solstone.app`,
 			current: "software",
+			path,
 			breadcrumbs: [
 				{ href: "/", label: "home" },
 				{ href: "/software/", label: "software" },
@@ -478,6 +496,7 @@ ${kindTag("signed")}
 	return shell({
 		title: `${PRODUCT_DISPLAY[product]} — trust.solstone.app`,
 		current: "software",
+		path,
 		breadcrumbs: [
 			{ href: "/", label: "home" },
 			{ href: "/software/", label: "software" },
@@ -528,7 +547,11 @@ function versionSummary(entry: EntryRecord, display: string): string {
 	});
 }
 
-export function renderVersion(model: PortalModel, entry: EntryRecord): string {
+export function renderVersion(
+	model: PortalModel,
+	entry: EntryRecord,
+	path: string,
+): string {
 	const display = PRODUCT_DISPLAY[entry.product];
 	const summary = versionSummary(entry, display);
 	const tech = `<details class="tech" open><summary>${trustedText("technical fields")}</summary><div class="body"><div class="table-scroll"><table class="evidence-table"><tbody>
@@ -549,6 +572,7 @@ ${tech}
 	return shell({
 		title: `${display} ${entry.version} — trust.solstone.app`,
 		current: "software",
+		path,
 		breadcrumbs: [
 			{ href: "/", label: "home" },
 			{ href: "/software/", label: "software" },
@@ -562,6 +586,7 @@ ${tech}
 export function renderVersionFailure(
 	_model: PortalModel,
 	failure: ModelConstructionFailure,
+	path: string,
 ): string {
 	const display = PRODUCT_DISPLAY[failure.product];
 	const main = `
@@ -572,6 +597,7 @@ export function renderVersionFailure(
 	return shell({
 		title: `${display} ${failure.version} — trust.solstone.app`,
 		current: "software",
+		path,
 		breadcrumbs: [
 			{ href: "/", label: "home" },
 			{ href: "/software/", label: "software" },
@@ -582,7 +608,7 @@ export function renderVersionFailure(
 	});
 }
 
-export function renderVerify(model: PortalModel): string {
+export function renderVerify(model: PortalModel, path: string): string {
 	const filename = model.keys[0]?.filename ?? "solpbc-transparency-1.pub";
 	const cmd = verifyCommand(filename);
 	const main = `
@@ -604,12 +630,13 @@ export function renderVerify(model: PortalModel): string {
 	return shell({
 		title: "verify — trust.solstone.app",
 		current: "verify",
+		path,
 		breadcrumbs: [{ href: "/", label: "home" }, { label: "verify" }],
 		main,
 	});
 }
 
-export function renderKeys(model: PortalModel): string {
+export function renderKeys(model: PortalModel, path: string): string {
 	const key = model.keys[0];
 	const fingerprint =
 		key === undefined
@@ -637,12 +664,13 @@ ${declaration({ kind: "declaration", text: KEYS_ROLE_STATEMENT })}
 	return shell({
 		title: "keys — trust.solstone.app",
 		current: "keys",
+		path,
 		breadcrumbs: [{ href: "/", label: "home" }, { label: "keys" }],
 		main,
 	});
 }
 
-export function renderAbout(): string {
+export function renderAbout(path: string): string {
 	const link = aboutUrl();
 	const raw =
 		link.status === "linked"
@@ -655,6 +683,7 @@ export function renderAbout(): string {
 	return shell({
 		title: "about this register — trust.solstone.app",
 		current: "about",
+		path,
 		breadcrumbs: [
 			{ href: "/", label: "home" },
 			{ label: "about this register" },
@@ -665,6 +694,7 @@ export function renderAbout(): string {
 
 export function renderNotFound(
 	variant: "generic" | "version-shaped",
+	path: string,
 	product?: ProductSlug,
 ): string {
 	if (variant === "version-shaped" && product !== undefined) {
@@ -674,8 +704,9 @@ export function renderNotFound(
 <p>${trustedText(NOT_FOUND_VERSION_SHAPED)}</p>
 <p><a href="/software/${escapeHtml(product)}/">${trustedText("view")} ${trustedText(display)}</a></p>`;
 		return shell({
-			title: "not found — trust.solstone.app",
+			title: "no record at this version — trust.solstone.app",
 			current: "none",
+			path,
 			main,
 		});
 	}
@@ -686,11 +717,12 @@ export function renderNotFound(
 	return shell({
 		title: "not found — trust.solstone.app",
 		current: "none",
+		path,
 		main,
 	});
 }
 
-export function renderDegraded(degraded: ModelDegraded): string {
+export function renderDegraded(degraded: ModelDegraded, path: string): string {
 	const main = `
 <h1>${trustedText("this portal cannot present the register right now")}</h1>
 <p><span class="marker">${trustedText(degraded.marker)}</span> ${untrustedText(degraded.reason)}</p>
@@ -698,6 +730,7 @@ export function renderDegraded(degraded: ModelDegraded): string {
 	return shell({
 		title: "unavailable — trust.solstone.app",
 		current: "none",
+		path,
 		main,
 	});
 }
@@ -705,13 +738,15 @@ export function renderDegraded(degraded: ModelDegraded): string {
 export function renderCollision(
 	left: { product: string; version: string },
 	right: { product: string; version: string },
+	path: string,
 ): string {
 	const main = `
 <h1>${trustedText("this portal cannot present colliding records")}</h1>
 <p>${trustedText("two records resolved to the same route")} ${untrustedText(left.product)} ${untrustedText(left.version)} ${trustedText("and")} ${untrustedText(right.product)} ${untrustedText(right.version)}${trustedText(". neither is shown.")}</p>`;
 	return shell({
-		title: "unavailable — trust.solstone.app",
+		title: "this portal cannot present colliding records — trust.solstone.app",
 		current: "none",
+		path,
 		main,
 	});
 }

@@ -11,7 +11,13 @@ import {
 	seedProductChain,
 } from "../legacy/test-helpers";
 import { handle } from "./handle";
-import { buildRouteTable, versionPath } from "./routes";
+import {
+	STYLESHEET_PATH,
+	buildRouteTable,
+	normalizePath,
+	parsePath,
+	versionPath,
+} from "./routes";
 
 const NOW = new Date("2026-06-01T00:00:00Z");
 
@@ -88,7 +94,7 @@ describe("AC-2 route identity is collision-safe", () => {
 		expect(table.collision.right.product).toBe("journal");
 		const res = handle("/software/journal/0.0.1/", result);
 		expect(res.status).toBe(500);
-		expect(res.headers["cache-control"]).toBe("no-store");
+		expect(res.headers["Cache-Control"]).toBe("no-store");
 		expect(res.body).toContain("0.0.1");
 		expect(res.body).toContain("journal");
 		expect(res.body).not.toContain("axis-block");
@@ -110,5 +116,24 @@ describe("AC-2 route identity is collision-safe", () => {
 		expect(
 			table.versions.has(versionPath("journal", JOURNAL_GAP.absentVersion)),
 		).toBe(false);
+	});
+});
+
+describe("stylesheet path matching", () => {
+	test("normalizePath keeps the stylesheet path extension and drops a trailing slash", () => {
+		expect(normalizePath(STYLESHEET_PATH)).toBe(STYLESHEET_PATH);
+		expect(normalizePath(`${STYLESHEET_PATH}/`)).toBe(STYLESHEET_PATH);
+		expect(normalizePath(`${STYLESHEET_PATH}?v=1`)).toBe(STYLESHEET_PATH);
+		expect(normalizePath("/software/journal/1.2.3")).toBe(
+			"/software/journal/1.2.3/",
+		);
+	});
+
+	test("parsePath recognizes the stylesheet before HTML matching", () => {
+		expect(parsePath(STYLESHEET_PATH)).toEqual({ page: "stylesheet" });
+		expect(parsePath(`${STYLESHEET_PATH}/`)).toEqual({ page: "stylesheet" });
+		expect(parsePath("/static/other.css")).toEqual({
+			page: "not-found-generic",
+		});
 	});
 });

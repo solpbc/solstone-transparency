@@ -78,12 +78,17 @@ export function buildRouteTable(
 	return { ok: true, versions };
 }
 
-/** Strip query/hash, force a leading slash, and a trailing slash except for `/`. */
+/** Model-independent stylesheet path. Not a member of STATIC_PATHS. */
+export const STYLESHEET_PATH = "/static/portal.css";
+
+/** Strip query/hash, force a leading slash, and a trailing slash except for `/` and STYLESHEET_PATH. */
 export function normalizePath(path: string): string {
 	const noQuery = path.split("?")[0] ?? path;
 	const noHash = noQuery.split("#")[0] ?? noQuery;
 	let p = noHash;
 	if (!p.startsWith("/")) p = `/${p}`;
+	if (p === STYLESHEET_PATH || p === `${STYLESHEET_PATH}/`)
+		return STYLESHEET_PATH;
 	if (p !== "/" && !p.endsWith("/")) p = `${p}/`;
 	return p;
 }
@@ -100,10 +105,12 @@ export type ParsedPath =
 	| { page: "verify" }
 	| { page: "keys" }
 	| { page: "about" }
+	| { page: "stylesheet" }
 	| { page: "not-found-generic" };
 
 export function parsePath(path: string): ParsedPath {
 	const n = normalizePath(path);
+	if (n === STYLESHEET_PATH) return { page: "stylesheet" };
 	if (n === "/") return { page: "home" };
 	const parts = n.split("/").filter((p) => p.length > 0);
 	if (parts.length === 1 && parts[0] === "software")

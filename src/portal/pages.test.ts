@@ -614,3 +614,17 @@ describe("coverage caveat on software index", () => {
 		expect(body).toContain(trustedText(SOFTWARE_COVERAGE_CAVEAT));
 	});
 });
+
+describe("state color classes follow the binding table", () => {
+	test("axis and glance states use the assigned tone classes", () => {
+		const journalPage = handle("/software/journal/", defaultResult).body;
+		expect(journalPage).toContain('class="state state-neutral"');
+		expect(journalPage).toContain("state-success");
+		const home = handle("/", defaultResult).body;
+		expect(home).toContain('class="state state-neutral"');
+		const windows = handle("/software/windows/", defaultResult).body;
+		expect(windows).toContain('class="declaration state-neutral"');
+		const software = handle("/software/", defaultResult).body;
+		expect(software).toContain('class="state state-neutral"');
+	});
+});

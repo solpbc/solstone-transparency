@@ -25,6 +25,12 @@ import {
 	STATE_SIGNATURE_DID_NOT_VERIFY,
 } from "./vocab";
 
+export type StateTone = "success" | "neutral" | "warn" | "danger";
+
+export function stateSpan(tone: StateTone, innerHtml: string): string {
+	return `<span class="state state-${tone}">${innerHtml}</span>`;
+}
+
 export function kindTag(
 	kind: "signed" | "register" | "declaration" | "verifier",
 ): string {
@@ -59,22 +65,28 @@ export function axisBlock(
 	const pub = axisRow(
 		AXIS_PUBLICATION,
 		kindFromProvenance(axes.publication.provenance),
-		`<span class="state">${trustedText(STATE_PAUSED)}</span>`,
+		stateSpan("neutral", trustedText(STATE_PAUSED)),
 		`<span class="basis">${trustedText(axes.publication.basis)}</span>`,
 	);
 
 	let freshnessState: string;
 	let freshnessExtra = "";
 	if (axes.freshness.state === "expired") {
-		freshnessState = `<span class="state">${trustedText("expired")} ${untrustedText(axes.freshness.validUntil)}</span>`;
+		freshnessState = stateSpan(
+			"neutral",
+			`${trustedText("expired")} ${untrustedText(axes.freshness.validUntil)}`,
+		);
 		freshnessExtra = `<span class="as-of">${trustedText("signed")} ${untrustedText(axes.freshness.signedAt)}</span>`;
 	} else if (axes.freshness.state === "fresh") {
-		freshnessState = `<span class="state">${trustedText("fresh until")} ${untrustedText(axes.freshness.validUntil)}</span>`;
+		freshnessState = stateSpan(
+			"success",
+			`${trustedText("fresh until")} ${untrustedText(axes.freshness.validUntil)}`,
+		);
 		freshnessExtra = `<span class="as-of">${trustedText("signed")} ${untrustedText(axes.freshness.signedAt)}</span>`;
 	} else if (axes.freshness.state === "not-time-bound") {
-		freshnessState = `<span class="state">${trustedText(STATE_NOT_TIME_BOUND)}</span>`;
+		freshnessState = stateSpan("neutral", trustedText(STATE_NOT_TIME_BOUND));
 	} else {
-		freshnessState = `<span class="state">${trustedText(STATE_COULD_NOT_BE_CHECKED)}</span>`;
+		freshnessState = stateSpan("warn", trustedText(STATE_COULD_NOT_BE_CHECKED));
 		freshnessExtra = `<span class="basis">${untrustedText(axes.freshness.reason)}</span>`;
 	}
 	if (axes.freshness.provenance.kind === "signed") {
@@ -91,12 +103,18 @@ export function axisBlock(
 	let verifyState: string;
 	let verifyExtra = "";
 	if (axes.verification.state === "valid") {
-		verifyState = `<span class="state">${trustedText("verified")} ${untrustedText(axes.verification.checkedAt)}</span>`;
+		verifyState = stateSpan(
+			"success",
+			`${trustedText("verified")} ${untrustedText(axes.verification.checkedAt)}`,
+		);
 	} else if (axes.verification.state === "invalid") {
-		verifyState = `<span class="state">${trustedText(STATE_SIGNATURE_DID_NOT_VERIFY)}</span>`;
+		verifyState = stateSpan(
+			"danger",
+			trustedText(STATE_SIGNATURE_DID_NOT_VERIFY),
+		);
 		verifyExtra = `<span class="basis">${untrustedText(axes.verification.reason)}</span>`;
 	} else {
-		verifyState = `<span class="state">${trustedText(STATE_COULD_NOT_BE_CHECKED)}</span>`;
+		verifyState = stateSpan("warn", trustedText(STATE_COULD_NOT_BE_CHECKED));
 		verifyExtra = `<span class="basis">${untrustedText(axes.verification.reason)}</span>`;
 	}
 	if (links?.verifyHref) {
@@ -115,7 +133,7 @@ export function axisBlock(
 	const rebuild = axisRow(
 		AXIS_REBUILD,
 		kindFromProvenance(axes.rebuild.provenance),
-		`<span class="state">${trustedText(STATE_NOT_ATTEMPTED)}</span>`,
+		stateSpan("neutral", trustedText(STATE_NOT_ATTEMPTED)),
 		"",
 	);
 
@@ -125,8 +143,10 @@ export function axisBlock(
 export function declaration(args: {
 	kind: "declaration" | "register";
 	text: string;
+	tone?: StateTone;
 }): string {
-	return `<div class="declaration">${kindTag(args.kind)}<p>${trustedText(args.text)}</p></div>`;
+	const extra = args.tone === undefined ? "" : ` state-${args.tone}`;
+	return `<div class="declaration${extra}">${kindTag(args.kind)}<p>${trustedText(args.text)}</p></div>`;
 }
 
 export type EvidenceRow =
