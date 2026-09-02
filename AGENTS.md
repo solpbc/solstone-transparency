@@ -13,6 +13,7 @@ sol pbc's transparency evidence-plane verifier, publisher, protocol schemas, and
 | `src/` | Library entry point (`index.ts`) and CLI implementation (`cli.ts`) |
 | `src/legacy/` | Read-side v1 legacy adapter/verifier and typed portal model — fetches, verifies, and models the existing historical register |
 | `src/portal/` | Read-only server-rendered HTML over `PortalModel`. Not a live host; does not serve `trust.solstone.app`. |
+| `src/v2/` | v2 evidence-plane primitives: canonical JSON, bounded JSON admission, and Ed25519 key/signature handling (`crypto.subtle` only). Read-side building blocks; not yet wired into publishing, the CLI, or the portal. |
 | `bin/` | The CLI executable, `solstone-transparency.ts` |
 | `protocol/` | Reserved for public schemas, predicate/semantics documents, and conformance fixtures. Read its `README.md` and the licensing note in [`CONTRIBUTING.md`](CONTRIBUTING.md) before adding anything here. |
 
