@@ -3,16 +3,18 @@
 
 import { VERSION } from "./index";
 import { buildPortalModel } from "./legacy/adapter";
+import { buildSitemap } from "./portal/sitemap";
 
 const HELP = `solstone-transparency ${VERSION}
 
 Usage: solstone-transparency [--version] [--help]
        solstone-transparency legacy-model --out <path>
+       solstone-transparency sitemap --out <path>
 
 This build implements the read-side v1 legacy verifier/adapter, its typed
-portal model (src/legacy/), and a read-only HTML presentation layer
-(src/portal/). It does not serve trust.solstone.app. It makes no public
-claim beyond: these are historical records of what sol pbc published.
+portal model (src/legacy/), a read-only HTML presentation layer
+(src/portal/), and the Cloudflare Worker (worker.ts) that serves
+trust.solstone.app from a build-time snapshot of that model.
 
 Options:
   --version           Print the installed version and exit
@@ -21,6 +23,10 @@ Options:
                       transparency.solstone.app and write the resulting
                       typed portal model as JSON to the given path.
                       Read-only: makes no write to the evidence host.
+  sitemap --out       Fetch and verify the live v1 register (same as
+                      legacy-model) and write sitemap.xml listing every
+                      HTML route the portal actually serves with a 200
+                      response.
 `;
 
 /** Runs the CLI against argv (excluding the node/bun/script entries) and returns the process exit code. */
@@ -49,6 +55,24 @@ export async function run(argv: string[]): Promise<number> {
 		// builds and deploys the portal from this output.
 		await Bun.write(outPath, `${JSON.stringify(result, null, 2)}\n`);
 		console.log(`wrote portal model to ${outPath}`);
+		return 0;
+	}
+	if (argv[0] === "sitemap") {
+		const outIdx = argv.indexOf("--out");
+		const outPath = outIdx >= 0 ? argv[outIdx + 1] : undefined;
+		if (!outPath) {
+			console.error("sitemap requires --out <path>");
+			return 1;
+		}
+		const result = await buildPortalModel();
+		if (!result.ok) {
+			console.error(
+				`model degraded (http ${result.degraded.httpStatus}): ${result.degraded.reason}`,
+			);
+			return 1;
+		}
+		await Bun.write(outPath, buildSitemap(result));
+		console.log(`wrote sitemap to ${outPath}`);
 		return 0;
 	}
 	console.log(HELP);

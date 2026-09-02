@@ -1,0 +1,22 @@
+# sol pbc's public crawler stance.
+# this is sol pbc's public trust/evidence portal. it exists to be found,
+# cited, and understood -- an owner should be able to check our claims, not
+# take our word for them. Article 8 protects Customer Data, not this site's
+# public register, which we want propagated.
+# all crawler categories are allowed, by intent:
+#   - Search (Googlebot, Bingbot, Claude-SearchBot, ...): Google Search
+#     eligibility is the prerequisite for AI Overviews and AI Mode:
+#     https://developers.google.com/search/docs/fundamentals/ai-optimization-guide
+#   - AI-retrieval / RAG (Claude-User, PerplexityBot, OAI-SearchBot, ...): we
+#     want assistants to cite sol pbc's own first-hand account accurately.
+#   - AI-training (ClaudeBot, GPTBot, Google-Extended, CCBot, Applebot-Extended,
+#     ...): our public content is intentional digital-self-determination advocacy;
+#     model world-knowledge of it is mission propagation, not data leakage.
+# the signals below restate the three categories above, in machine-readable form.
+# they mean what this file says they mean, and they cover this site only.
+
+User-agent: *
+Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+
+Sitemap: https://trust.solstone.app/sitemap.xml
