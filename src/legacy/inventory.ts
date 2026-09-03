@@ -22,6 +22,15 @@
  * Re-derive, don't restate: a later session doubting any figure here should
  * re-run the same live walk (this module's own object shape is stable
  * enough to script it) rather than trust this file's age.
+ *
+ * Re-verified 2026-09-03 (Wave 3 readiness, `req_fzo23rym`): every one of
+ * the 119 recorded objects re-fetched live and re-hashed, byte-for-byte
+ * identical to what's recorded below; no new journal/linux version exists
+ * (1.0.23 and 1.0.3 both 404); Windows still carries zero records (404).
+ * A fresh R2 bucket listing (`list_objects_v2`, S3-compatible API) found
+ * exactly one object beyond these 119: `robots.txt` (157 bytes) — Wave 1's
+ * tier-4 crawler-policy file (`records/decisions/260901-cto-wave-1-trust-transparency-redirect-robots-d1.md`),
+ * correctly out of scope for this release-evidence inventory. No drift.
  */
 
 import rawInventory from "./inventory-data.json";
