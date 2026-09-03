@@ -546,10 +546,13 @@ export function evaluateDssePolicyAuthorization(
 			observed: [...verifiedKeyids],
 		});
 	}
-	for (const role of active) {
-		const satisfyingKeyids = [...verifiedKeyids].filter((keyid) =>
+	const roleSatisfactions = active.map((role) => ({
+		role,
+		satisfyingKeyids: [...verifiedKeyids].filter((keyid) =>
 			role.keyids.includes(keyid),
-		);
+		),
+	}));
+	for (const { role, satisfyingKeyids } of roleSatisfactions) {
 		if (satisfyingKeyids.length >= role.threshold) {
 			return {
 				ok: true,
@@ -567,6 +570,9 @@ export function evaluateDssePolicyAuthorization(
 			role: role.id,
 			threshold: role.threshold,
 		})),
-		observed: verifiedKeyids.size,
+		observed: roleSatisfactions.map(({ role, satisfyingKeyids }) => ({
+			role: role.id,
+			satisfyingKeyids,
+		})),
 	});
 }

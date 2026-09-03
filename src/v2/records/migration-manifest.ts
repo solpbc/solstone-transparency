@@ -319,52 +319,54 @@ export async function walkMigrationManifest(
 		url: string,
 		descriptor?: MigrationObject,
 	): Promise<TufResult<Uint8Array>> => {
-		const cached = cache.get(url);
-		if (cached !== undefined) return { ok: true, value: cached };
-		let response: MigrationFetchResponse;
-		try {
-			response = await fetcher.fetch(url);
-		} catch (error) {
-			return failure("retrieval-failed", {
-				path: [url],
-				expected: "a successful migration object fetch",
-				observed: error instanceof Error ? error.name : typeName(error),
-			});
+		let bytes = cache.get(url);
+		if (bytes === undefined) {
+			let response: MigrationFetchResponse;
+			try {
+				response = await fetcher.fetch(url);
+			} catch (error) {
+				return failure("retrieval-failed", {
+					path: [url],
+					expected: "a successful migration object fetch",
+					observed: error instanceof Error ? error.name : typeName(error),
+				});
+			}
+			if (response.kind === "not-found")
+				return failure("unavailable", {
+					path: [url],
+					expected: "a fetchable object",
+					observed: "not found",
+				});
+			if (response.kind === "error")
+				return failure("retrieval-failed", {
+					path: [url],
+					expected: "a successful migration object fetch",
+					observed:
+						response.error instanceof Error
+							? response.error.name
+							: typeName(response.error),
+				});
+			bytes = response.bytes;
+			cache.set(url, bytes);
 		}
-		if (response.kind === "not-found")
-			return failure("unavailable", {
-				path: [url],
-				expected: "a fetchable object",
-				observed: "not found",
-			});
-		if (response.kind === "error")
-			return failure("retrieval-failed", {
-				path: [url],
-				expected: "a successful migration object fetch",
-				observed:
-					response.error instanceof Error
-						? response.error.name
-						: typeName(response.error),
-			});
 		if (descriptor !== undefined) {
 			const hash = bytesToHex(
 				new Uint8Array(
-					await crypto.subtle.digest("SHA-256", new Uint8Array(response.bytes)),
+					await crypto.subtle.digest("SHA-256", new Uint8Array(bytes)),
 				),
 			);
 			if (
-				response.bytes.byteLength !== descriptor.length ||
+				bytes.byteLength !== descriptor.length ||
 				hash !== descriptor.sha256
 			) {
 				return failure("migration-target-mismatch", {
 					path: [url],
 					expected: { length: descriptor.length, sha256: descriptor.sha256 },
-					observed: { length: response.bytes.byteLength, sha256: hash },
+					observed: { length: bytes.byteLength, sha256: hash },
 				});
 			}
 		}
-		cache.set(url, response.bytes);
-		return { ok: true, value: response.bytes };
+		return { ok: true, value: bytes };
 	};
 	const key = await fetchBytes(predicate.verification_contract.v1_public_key);
 	if (!key.ok) return { verdict: key, objects: results };

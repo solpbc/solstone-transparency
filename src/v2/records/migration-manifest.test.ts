@@ -27,6 +27,26 @@ function firstObject(predicate: MigrationManifestPredicate): MigrationObject {
 	return object;
 }
 
+function manifestFetcher(responses: ReadonlyMap<string, Uint8Array>) {
+	return {
+		async fetch(url: string) {
+			const bytes = responses.get(url);
+			return bytes === undefined
+				? { kind: "not-found" as const }
+				: { kind: "ok" as const, bytes };
+		},
+	};
+}
+
+function descriptorBytes(objects: readonly MigrationObject[]): Uint8Array {
+	const text = objects
+		.slice()
+		.sort((left, right) => left.url.localeCompare(right.url))
+		.map((object) => `${object.url}\n${object.length}\n${object.sha256}\n`)
+		.join("");
+	return new TextEncoder().encode(text);
+}
+
 describe("migration-manifest predicate and walk", () => {
 	test("AC 19: a signed migration record verifies and walks its original object", async () => {
 		const release = await generatedKey();
@@ -41,19 +61,17 @@ describe("migration-manifest predicate and walk", () => {
 				subjectBytes: new Map([
 					["software/legacy-corpus/v1", record.subjectBytes],
 				]),
+				migrationFetcher: manifestFetcher(
+					new Map([
+						[
+							record.predicate.verification_contract.v1_public_key,
+							new TextEncoder().encode("unused key"),
+						],
+						[object.url, record.objectBytes],
+					]),
+				),
 			}),
 		).toMatchObject({ state: "accepted" });
-		const walked = await walkMigrationManifest(record.predicate, {
-			async fetch(url) {
-				if (url === record.predicate.verification_contract.v1_public_key)
-					return { kind: "ok", bytes: new TextEncoder().encode("unused key") };
-				return { kind: "ok", bytes: record.objectBytes };
-			},
-		});
-		expect(walked).toEqual({
-			verdict: { ok: true, value: undefined },
-			objects: [{ url: object.url, state: "verified" }],
-		});
 	});
 
 	test("AC 19: validates the real predicate body shape and rejects body inconsistencies", async () => {
@@ -74,7 +92,35 @@ describe("migration-manifest predicate and walk", () => {
 		).toMatchObject({ ok: false, reason: "predicate-malformed" });
 	});
 
-	test("AC 20: a listed minisig sibling is verified after byte checks and can fail the record", async () => {
+	test("AC 20: the full record pipeline rejects bytes that mismatch a manifest object", async () => {
+		const release = await generatedKey();
+		const audit = await generatedKey();
+		const policy = await loadedPolicy(release, audit);
+		const record = await signedMigrationRecord(policy, release);
+		const object = firstObject(record.predicate);
+		const result = await verifyEvidenceRecord({
+			record: record.record,
+			policy,
+			subjectBytes: new Map([
+				["software/legacy-corpus/v1", record.subjectBytes],
+			]),
+			migrationFetcher: manifestFetcher(
+				new Map([
+					[
+						record.predicate.verification_contract.v1_public_key,
+						new TextEncoder().encode("unused key"),
+					],
+					[object.url, new TextEncoder().encode("different bytes")],
+				]),
+			),
+		});
+		expect(result).toMatchObject({
+			state: "rejected",
+			reason: "migration-target-mismatch",
+		});
+	});
+
+	test("AC 20: the full record pipeline rejects a bad minisig after matching byte checks", async () => {
 		const fixture = await migrationPredicate();
 		const object = firstObject(fixture.predicate);
 		const signatureBytes = new TextEncoder().encode(
@@ -85,11 +131,24 @@ describe("migration-manifest predicate and walk", () => {
 			length: signatureBytes.byteLength,
 			sha256: await sha256(signatureBytes),
 		};
+		const objects = [object, sibling];
+		const corpusBytes = descriptorBytes(objects);
+		const corpusSha256 = await sha256(corpusBytes);
 		const predicate: MigrationManifestPredicate = {
 			...fixture.predicate,
+			corpus_sha256: corpusSha256,
 			object_count: 2,
-			objects: [object, sibling],
+			products: fixture.predicate.products.map((product) => ({
+				...product,
+				object_count: 2,
+				corpus_sha256: corpusSha256,
+			})),
+			objects,
 		};
+		const release = await generatedKey();
+		const audit = await generatedKey();
+		const policy = await loadedPolicy(release, audit);
+		const record = await signedMigrationRecord(policy, release, predicate);
 		const responses = new Map<string, Uint8Array>([
 			[
 				predicate.verification_contract.v1_public_key,
@@ -98,28 +157,19 @@ describe("migration-manifest predicate and walk", () => {
 			[object.url, fixture.objectBytes],
 			[sibling.url, signatureBytes],
 		]);
-		const result = await walkMigrationManifest(predicate, {
-			async fetch(url) {
-				const bytes = responses.get(url);
-				return bytes === undefined
-					? { kind: "not-found" }
-					: { kind: "ok", bytes };
-			},
+		const result = await verifyEvidenceRecord({
+			record: record.record,
+			policy,
+			subjectBytes: new Map([["software/legacy-corpus/v1", corpusBytes]]),
+			migrationFetcher: manifestFetcher(responses),
 		});
-		expect(result.verdict).toMatchObject({
-			ok: false,
+		expect(result).toMatchObject({
+			state: "rejected",
 			reason: "signature-invalid",
 		});
-		expect(result.objects).toEqual([
-			{
-				url: object.url,
-				state: "rejected",
-				reason: "signature-invalid",
-			},
-		]);
 	});
 
-	test("AC 20 and 21: validates every URL before fetching and reports byte mismatch", async () => {
+	test("AC 21: validates every URL before fetching", async () => {
 		const fixture = await migrationPredicate();
 		const object = firstObject(fixture.predicate);
 		const unsafe: MigrationManifestPredicate = {
@@ -143,17 +193,25 @@ describe("migration-manifest predicate and walk", () => {
 			reason: "unsafe-target-path",
 		});
 		expect(fetches).toBe(0);
-		const mismatch = await walkMigrationManifest(fixture.predicate, {
-			async fetch(url) {
-				if (url === fixture.predicate.verification_contract.v1_public_key)
-					return { kind: "ok", bytes: new TextEncoder().encode("unused key") };
-				return {
-					kind: "ok",
-					bytes: new TextEncoder().encode("different bytes"),
-				};
+	});
+
+	test("validates a cached public-key object against its descriptor", async () => {
+		const fixture = await migrationPredicate();
+		const object = firstObject(fixture.predicate);
+		const predicate: MigrationManifestPredicate = {
+			...fixture.predicate,
+			verification_contract: {
+				...fixture.predicate.verification_contract,
+				v1_public_key: object.url,
 			},
-		});
-		expect(mismatch.verdict).toMatchObject({
+		};
+		const result = await walkMigrationManifest(
+			predicate,
+			manifestFetcher(
+				new Map([[object.url, new TextEncoder().encode("different bytes")]]),
+			),
+		);
+		expect(result.verdict).toMatchObject({
 			ok: false,
 			reason: "migration-target-mismatch",
 		});

@@ -3,6 +3,7 @@
 
 import { describe, expect, test } from "bun:test";
 import type { TufJsonValue } from "../tuf/outcome";
+import type { MigrationManifestPredicate } from "./migration-manifest";
 import { MIGRATION_MANIFEST_PREDICATE_TYPE } from "./predicates";
 import {
 	EVIDENCE_RECORD_SCHEMA,
@@ -18,6 +19,27 @@ import {
 	signedMigrationRecord,
 } from "./records.test-support";
 import { IN_TOTO_STATEMENT_V1 } from "./statement";
+
+function migrationFetcher(
+	predicate: MigrationManifestPredicate,
+	objectBytes: Uint8Array,
+) {
+	const object = predicate.objects[0];
+	if (object === undefined)
+		throw new Error("migration fixture must include one object");
+	return {
+		async fetch(url: string) {
+			if (url === predicate.verification_contract.v1_public_key)
+				return {
+					kind: "ok" as const,
+					bytes: new TextEncoder().encode("unused key"),
+				};
+			if (url === object.url)
+				return { kind: "ok" as const, bytes: objectBytes };
+			return { kind: "not-found" as const };
+		},
+	};
+}
 
 async function customRecord(
 	policy: Awaited<ReturnType<typeof loadedPolicy>>,
@@ -66,6 +88,10 @@ describe("evidence-record verification", () => {
 				subjectBytes: new Map([
 					["software/legacy-corpus/v1", fixture.subjectBytes],
 				]),
+				migrationFetcher: migrationFetcher(
+					fixture.predicate,
+					fixture.objectBytes,
+				),
 			}),
 		).toMatchObject({ state: "accepted" });
 		const declared = await customRecord(
@@ -83,8 +109,21 @@ describe("evidence-record verification", () => {
 				subjectBytes: new Map([
 					["software/legacy-corpus/v1", declared.subjectBytes],
 				]),
+				migrationFetcher: migrationFetcher(
+					fixture.predicate,
+					fixture.objectBytes,
+				),
 			}),
 		).toMatchObject({ state: "accepted" });
+		expect(
+			await verifyEvidenceRecord({
+				record: fixture.record,
+				policy,
+				subjectBytes: new Map([
+					["software/legacy-corpus/v1", fixture.subjectBytes],
+				]),
+			}),
+		).toMatchObject({ state: "rejected", reason: "unavailable" });
 		const mismatched = await verifyEvidenceRecord({
 			record: fixture.record,
 			policy: { ...policy, sha256: "0".repeat(64) },
@@ -190,6 +229,10 @@ describe("evidence-record verification", () => {
 				subjectBytes: new Map([
 					["software/legacy-corpus/v1", twoKeyFixture.subjectBytes],
 				]),
+				migrationFetcher: migrationFetcher(
+					twoKeyFixture.predicate,
+					twoKeyFixture.objectBytes,
+				),
 			}),
 		).toMatchObject({ state: "accepted" });
 		const thresholdWithUnauthorized = basePolicy(release, audit);
@@ -214,15 +257,25 @@ describe("evidence-record verification", () => {
 			policy_sha256: thresholdWithUnauthorizedPolicy.sha256,
 			envelope: await signedEnvelope(twoKeyStatement, [release, audit]),
 		};
-		expect(
-			await verifyEvidenceRecord({
-				record: oneAuthorizedAndOneUnauthorized,
-				policy: thresholdWithUnauthorizedPolicy,
-				subjectBytes: new Map([
-					["software/legacy-corpus/v1", twoKeyFixture.subjectBytes],
-				]),
-			}),
-		).toMatchObject({ state: "rejected", reason: "threshold-unmet" });
+		const insufficient = await verifyEvidenceRecord({
+			record: oneAuthorizedAndOneUnauthorized,
+			policy: thresholdWithUnauthorizedPolicy,
+			subjectBytes: new Map([
+				["software/legacy-corpus/v1", twoKeyFixture.subjectBytes],
+			]),
+		});
+		expect(insufficient).toMatchObject({
+			state: "rejected",
+			reason: "threshold-unmet",
+			detail: {
+				observed: [
+					{
+						role: "producer.release",
+						satisfyingKeyids: [release.keyId],
+					},
+				],
+			},
+		});
 		const wrongCollection = basePolicy(release, audit);
 		wrongCollection.roles = wrongCollection.roles.map((role, index) =>
 			index === 0 ? { ...role, subject_patterns: ["software/other/**"] } : role,
@@ -279,6 +332,10 @@ describe("evidence-record verification", () => {
 				subjectBytes: new Map([
 					["software/legacy-corpus/v1", suspect.subjectBytes],
 				]),
+				migrationFetcher: migrationFetcher(
+					suspect.predicate,
+					suspect.objectBytes,
+				),
 			}),
 		).toMatchObject({ state: "suspect", requiresReattestation: true });
 		const revoked = basePolicy(release, audit);
@@ -299,6 +356,10 @@ describe("evidence-record verification", () => {
 				subjectBytes: new Map([
 					["software/legacy-corpus/v1", beforeRevocation.subjectBytes],
 				]),
+				migrationFetcher: migrationFetcher(
+					beforeRevocation.predicate,
+					beforeRevocation.objectBytes,
+				),
 			}),
 		).toMatchObject({ state: "accepted" });
 		const afterRevocation = await signedMigrationRecord(

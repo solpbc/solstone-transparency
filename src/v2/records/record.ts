@@ -24,7 +24,15 @@ import {
 	parseDsseEnvelopeValue,
 	verifyDsseEnvelope,
 } from "./dsse";
-import { type KnownPredicate, validateKnownPredicate } from "./predicates";
+import {
+	type MigrationObjectFetcher,
+	walkMigrationManifest,
+} from "./migration-manifest";
+import {
+	type KnownPredicate,
+	MIGRATION_MANIFEST_PREDICATE_TYPE,
+	validateKnownPredicate,
+} from "./predicates";
 import {
 	type InTotoStatementV1,
 	parseInTotoStatementV1,
@@ -45,6 +53,7 @@ export interface VerifyEvidenceRecordInput {
 	record: EvidenceRecord;
 	policy?: LoadedDsseAuthorizationPolicy;
 	subjectBytes: ReadonlyMap<string, Uint8Array>;
+	migrationFetcher?: MigrationObjectFetcher;
 }
 
 export type EvidenceVerificationResult =
@@ -205,6 +214,23 @@ export async function verifyEvidenceRecord(
 		input.subjectBytes,
 	);
 	if (!subjects.ok) return rejected(subjects);
+	if (predicate.value.type === MIGRATION_MANIFEST_PREDICATE_TYPE) {
+		// Fail closed: this predicate's evidence claim is incomplete until its objects walk.
+		if (input.migrationFetcher === undefined) {
+			return rejected(
+				rejection("unavailable", {
+					path: ["migrationFetcher"],
+					expected: "a fetcher for migration-manifest object verification",
+					observed: "missing",
+				}),
+			);
+		}
+		const walked = await walkMigrationManifest(
+			predicate.value.body,
+			input.migrationFetcher,
+		);
+		if (!walked.verdict.ok) return rejected(walked.verdict);
+	}
 	if (authorized.value.compromised) {
 		return {
 			state: "suspect",
