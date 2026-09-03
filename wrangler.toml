@@ -10,6 +10,15 @@ workers_dev = false
 
 routes = [{ pattern = "trust.solstone.app", custom_domain = true }]
 
+# This surface's own claim is that visitors aren't measured, so per-request
+# metadata is never persisted -- stated explicitly rather than left to
+# whatever Cloudflare's platform default happens to be.
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
 # The one static file this surface serves that isn't generated in-memory by
 # the Worker (the vendored brand font). Requests are routed to this binding
 # explicitly inside worker.ts, not via Cloudflare's default assets-first
