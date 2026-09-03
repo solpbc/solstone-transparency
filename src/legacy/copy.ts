@@ -42,7 +42,7 @@ export const SOFTWARE_INDEX_LEAD =
 
 const PRODUCT_PLAIN_SUMMARY: Record<ProductSlug, string> = {
 	journal:
-		"this register holds {count} signed records for solstone's journal software, most recently version {version}, signed {date}.",
+		"this register holds {count} signed records for solstone's journal release, most recently version {version}, signed {date}.",
 	linux:
 		"this register holds {count} signed record for solstone's linux release, version {version}, signed {date}.",
 	windows:
@@ -58,7 +58,7 @@ const PRODUCT_DOES_PROVE: Record<ProductSlug, string> = {
 	linux:
 		"that sol pbc signed a record naming this release's exact artifacts, digests, and release date.",
 	windows:
-		"that our register currently has no signed record for a windows build.",
+		"that our register currently has no signed record for a windows release.",
 };
 export function productDoesProve(product: ProductSlug): string {
 	return PRODUCT_DOES_PROVE[product];
@@ -79,7 +79,7 @@ export const PRODUCT_GAP_NOTE =
 	"there's no record here for {version}; the chain runs from {prev} to {next} without it, and a gap in this register is not evidence that {version} was never released.";
 
 export const WINDOWS_ABSENCE_EXPLAINER =
-	"this register has no signed records for a windows build. that's a fact about what we've published to this register, not a claim about whether solstone runs on windows. zero records here means we haven't recorded one yet, not that none exists to record.";
+	"this register has no signed records for a windows release. that's a fact about what we've published to this register, not a claim about whether solstone runs on windows. zero records here means we haven't recorded one yet, not that none exists to record.";
 
 export const VERSION_PLAIN_SUMMARY =
 	"this is the signed record for {product} {version}, published {published_utc}. sol pbc signed it as valid through {valid_until}; that window has since passed, which reflects our publication pause, not a problem with the record itself. the record and its signature remain exactly as published and remain verifiable today.";
