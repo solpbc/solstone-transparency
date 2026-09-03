@@ -2,7 +2,7 @@
 
 This repository is being bootstrapped as the shared verifier/publisher code, public protocol schemas, and trust-portal source for sol pbc's public trust and transparency surface.
 
-**Status: read-side legacy verifier and a read-only HTML presentation layer landed; nothing is deployed.** `src/legacy/` reads the existing historical (v1) release-transparency register, verifies each record's minisign signature and hash-chain linkage, and builds a typed model of what it found. `src/portal/` renders that already-verified model as server-side HTML (home, software index, per-product history, per-release detail, verify, keys, about, not-found). It does not re-verify, re-fetch, or publish, and this repository does not yet serve `trust.solstone.app`. These are historical records of what sol pbc published; this code does not claim they are current, reproducible, or a complete account of every release.
+**Status: read-side legacy verifier and a read-only HTML presentation layer landed; it is deployed and live at `trust.solstone.app`.** `src/legacy/` reads the existing historical (v1) release-transparency register, verifies each record's minisign signature and hash-chain linkage, and builds a typed model of what it found. `src/portal/` renders that already-verified model as server-side HTML (home, software index, per-product history, per-release detail, verify, keys, about, not-found). It does not re-verify, re-fetch, or publish. These are historical records of what sol pbc published; this code does not claim they are current, reproducible, or a complete account of every release.
 
 ## Install
 
