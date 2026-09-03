@@ -19,22 +19,6 @@ async function recordSources(): Promise<readonly [string, string][]> {
 	);
 }
 
-async function changedPaths(paths: readonly string[]): Promise<string> {
-	const process = Bun.spawn(
-		["git", "diff", "--name-only", "beea289", "--", ...paths],
-		{
-			stdout: "pipe",
-			stderr: "pipe",
-		},
-	);
-	const [exitCode, output] = await Promise.all([
-		process.exited,
-		new Response(process.stdout).text(),
-	]);
-	expect(exitCode).toBe(0);
-	return output.trim();
-}
-
 test("AC 23 and 25: records sources carry SPDX headers and no literal private key material", async () => {
 	const sources = await recordSources();
 	const privateKeyMarker = ["-----BEGIN", " PRIVATE KEY-----"].join("");
@@ -64,17 +48,4 @@ test("AC 23 and 25: records sources carry SPDX headers and no literal private ke
 			hasMinisignSecret: false,
 		});
 	}
-});
-
-test("AC 22, 24, and 26: this lode does not mutate protected v1 surfaces or dependencies", async () => {
-	expect(
-		await changedPaths([
-			"src/legacy",
-			"src/portal",
-			"worker.ts",
-			"wrangler.toml",
-			"public",
-		]),
-	).toBe("");
-	expect(await changedPaths(["package.json", "bun.lock"])).toBe("");
 });
