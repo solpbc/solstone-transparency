@@ -43,4 +43,52 @@ describe("run", () => {
 		const code = await run(["legacy-model"]);
 		expect(code).toBe(1);
 	});
+
+	test("--help includes publish-v2 usage and options", async () => {
+		const { code, out } = await capture(() => run(["--help"]));
+		expect(code).toBe(0);
+		const fullText = out.join("\n");
+		expect(fullText).toContain("publish-v2 --artifacts <path>");
+		expect(fullText).toContain(
+			"publish-v2          Build and publish a v2 TUF repository",
+		);
+	});
+
+	test("publish-v2 missing required flags fails with exit code 1", async () => {
+		expect(await run(["publish-v2"])).toBe(1);
+		expect(await run(["publish-v2", "--artifacts", "foo.json"])).toBe(1);
+		expect(
+			await run([
+				"publish-v2",
+				"--artifacts",
+				"foo.json",
+				"--product",
+				"journal",
+			]),
+		).toBe(1);
+		expect(
+			await run([
+				"publish-v2",
+				"--artifacts",
+				"foo.json",
+				"--product",
+				"journal",
+				"--keys",
+				"keys.json",
+			]),
+		).toBe(1);
+		expect(
+			await run([
+				"publish-v2",
+				"--artifacts",
+				"foo.json",
+				"--product",
+				"journal",
+				"--keys",
+				"keys.json",
+				"--policy-sha256",
+				"a".repeat(64),
+			]),
+		).toBe(1);
+	});
 });

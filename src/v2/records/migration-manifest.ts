@@ -168,7 +168,7 @@ function bytesToHex(bytes: Uint8Array): string {
 	);
 }
 
-async function descriptorDigest(
+export async function descriptorDigest(
 	objects: readonly MigrationObject[],
 ): Promise<string> {
 	const text = objects

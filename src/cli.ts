@@ -4,6 +4,7 @@
 import { VERSION } from "./index";
 import { buildPortalModel } from "./legacy/adapter";
 import { buildSitemap } from "./portal/sitemap";
+import { publishRepository } from "./v2/publish-cli";
 import { verifyRepository } from "./v2/verify-cli";
 
 const HELP = `solstone-transparency ${VERSION}
@@ -13,6 +14,9 @@ Usage: solstone-transparency [--version] [--help]
        solstone-transparency sitemap --out <path>
        solstone-transparency verify-v2 [--metadata-base URL] [--targets-base URL]
                                        [--store PATH] [--json]
+       solstone-transparency publish-v2 --artifacts <path> --product <name>
+                                        --keys <path> --policy-sha256 <hex>
+                                        --out <dir> [--now <iso-8601>]
 
 This build implements the read-side v1 legacy verifier/adapter, its typed
 portal model (src/legacy/), a read-only HTML presentation layer
@@ -40,6 +44,17 @@ Options:
                       --metadata-base / --targets-base default to the v2
                       staging prefix. --json emits a machine-readable result.
                       Exit 0 accepted, 1 rejected, 2 could not run.
+  publish-v2          Build and publish a v2 TUF repository containing
+                      the v1-to-v2 legacy migration manifest and a signed
+                      release record for the specified release artifacts.
+                      Writes <dir>/metadata/ with signed TUF metadata
+                      (root, targets, snapshot, timestamp, and delegated
+                      roles) and <dir>/targets/ with signed EvidenceRecord
+                      payloads. Requires a complete key-set JSON file and a
+                      64-char hex policy SHA-256 digest (--policy-sha256
+                      is a placeholder pending real policy publication).
+                      Missing or malformed inputs or an unknown product name
+                      fail closed writing nothing.
 
 The v2 rail is under construction and represents no released product or
 operated service. Every key on it is synthetic.
@@ -50,6 +65,47 @@ export async function run(argv: string[]): Promise<number> {
 	if (argv[0] === "--version") {
 		console.log(VERSION);
 		return 0;
+	}
+	if (argv[0] === "publish-v2") {
+		const flag = (name: string): string | undefined => {
+			const index = argv.indexOf(name);
+			return index >= 0 ? argv[index + 1] : undefined;
+		};
+		const artifactsPath = flag("--artifacts");
+		if (!artifactsPath) {
+			console.error("publish-v2 requires --artifacts <path>");
+			return 1;
+		}
+		const product = flag("--product");
+		if (!product) {
+			console.error("publish-v2 requires --product <name>");
+			return 1;
+		}
+		const keysPath = flag("--keys");
+		if (!keysPath) {
+			console.error("publish-v2 requires --keys <path>");
+			return 1;
+		}
+		const policySha256 = flag("--policy-sha256");
+		if (!policySha256) {
+			console.error("publish-v2 requires --policy-sha256 <hex>");
+			return 1;
+		}
+		const outDir = flag("--out");
+		if (!outDir) {
+			console.error("publish-v2 requires --out <dir>");
+			return 1;
+		}
+		const nowStr = flag("--now");
+		const now = nowStr ? new Date(nowStr) : undefined;
+		return publishRepository({
+			artifactsPath,
+			product,
+			keysPath,
+			policySha256,
+			outDir,
+			now,
+		});
 	}
 	if (argv[0] === "verify-v2") {
 		const flag = (name: string): string | undefined => {

@@ -10,7 +10,7 @@ import {
 import { migrationPredicate } from "./records.test-support";
 
 describe("predicate registry", () => {
-	test("AC 12: only the implemented migration URI is recognized", async () => {
+	test("AC 12: migration and release-record URIs are recognized", async () => {
 		const fixture = await migrationPredicate();
 		expect(
 			await validateKnownPredicate(
@@ -20,7 +20,7 @@ describe("predicate registry", () => {
 		).toMatchObject({ ok: true });
 		expect(
 			await validateKnownPredicate(RELEASE_RECORD_PREDICATE_TYPE, {}),
-		).toMatchObject({ ok: false, reason: "unrecognized-predicate" });
+		).toMatchObject({ ok: false, reason: "malformed" });
 		expect(
 			await validateKnownPredicate("https://example.invalid/new", {}),
 		).toMatchObject({ ok: false, reason: "unrecognized-predicate" });

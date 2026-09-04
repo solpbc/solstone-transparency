@@ -9,6 +9,11 @@ import {
 	type MigrationManifestPredicate,
 	validateMigrationManifestPredicate,
 } from "./migration-manifest";
+import {
+	RELEASE_RECORD_SCHEMA,
+	type ReleaseRecordPredicate,
+	validateReleaseRecordPredicate,
+} from "./release-record";
 
 export const PREDICATE_URI_BASE =
 	"https://transparency.solstone.app/predicates/v1/";
@@ -38,29 +43,45 @@ export const ALL_CSO_PREDICATE_TYPES = [
 	MIGRATION_MANIFEST_PREDICATE_TYPE,
 ] as const;
 
-export type KnownPredicate = {
-	type: typeof MIGRATION_MANIFEST_PREDICATE_TYPE;
-	body: MigrationManifestPredicate;
-};
+export type KnownPredicate =
+	| {
+			type: typeof MIGRATION_MANIFEST_PREDICATE_TYPE;
+			body: MigrationManifestPredicate;
+	  }
+	| {
+			type: typeof RELEASE_RECORD_PREDICATE_TYPE;
+			body: ReleaseRecordPredicate;
+	  };
 
-/** Only the migration manifest is implemented; every other pinned URI fails closed. */
+/** Validates known predicate URIs; every other pinned URI fails closed. */
 export async function validateKnownPredicate(
 	predicateType: string,
 	predicate: TufJsonValue,
 ): Promise<TufResult<KnownPredicate>> {
-	if (predicateType !== MIGRATION_MANIFEST_PREDICATE_TYPE) {
-		return rejection("unrecognized-predicate", {
-			path: ["predicateType"],
-			expected: [MIGRATION_MANIFEST_PREDICATE_TYPE],
-			observed: predicateType,
-		});
+	if (predicateType === MIGRATION_MANIFEST_PREDICATE_TYPE) {
+		const validated = await validateMigrationManifestPredicate(predicate);
+		if (!validated.ok) return validated;
+		return {
+			ok: true,
+			value: { type: MIGRATION_MANIFEST_PREDICATE_TYPE, body: validated.value },
+		};
 	}
-	const validated = await validateMigrationManifestPredicate(predicate);
-	if (!validated.ok) return validated;
-	return {
-		ok: true,
-		value: { type: MIGRATION_MANIFEST_PREDICATE_TYPE, body: validated.value },
-	};
+	if (predicateType === RELEASE_RECORD_PREDICATE_TYPE) {
+		const validated = await validateReleaseRecordPredicate(predicate);
+		if (!validated.ok) return validated;
+		return {
+			ok: true,
+			value: { type: RELEASE_RECORD_PREDICATE_TYPE, body: validated.value },
+		};
+	}
+	return rejection("unrecognized-predicate", {
+		path: ["predicateType"],
+		expected: [
+			MIGRATION_MANIFEST_PREDICATE_TYPE,
+			RELEASE_RECORD_PREDICATE_TYPE,
+		],
+		observed: predicateType,
+	});
 }
 
-export { MIGRATION_MANIFEST_SCHEMA };
+export { MIGRATION_MANIFEST_SCHEMA, RELEASE_RECORD_SCHEMA };

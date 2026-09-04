@@ -40,7 +40,7 @@ import {
 } from "./verify";
 
 const BASE_URL = "https://transparency.solstone.app";
-const KEY_FILENAME = "solpbc-transparency-1.pub";
+export const KEY_FILENAME = "solpbc-transparency-1.pub";
 
 export type CatalogOverride = Partial<
 	Record<"journal" | "linux" | "windows", string[]>
