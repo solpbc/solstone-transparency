@@ -297,8 +297,8 @@ async function descriptorFor(bytes: Uint8Array) {
 test("client completes root look-ahead, verifies every role and persists only after target success", async () => {
 	const built = await fixtureWithKeys();
 	const rotated = await buildRotatingRootChain(built.repository, built.keys);
-	const softwareKey = built.keys.delegated["targets/software"]?.[0];
-	const servicesKey = built.keys.delegated["targets/services"]?.[0];
+	const softwareKey = built.keys.delegated["targets-software"]?.[0];
+	const servicesKey = built.keys.delegated["targets-services"]?.[0];
 	if (softwareKey === undefined || servicesKey === undefined) {
 		throw new Error("fixture delegated keys missing");
 	}
@@ -321,14 +321,14 @@ test("client completes root look-ahead, verifies every role and persists only af
 		expect(result.value.authorizationChain).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
-					subjectRole: "targets/software",
-					delegationPath: ["root", "targets", "targets/software"],
+					subjectRole: "targets-software",
+					delegationPath: ["root", "targets", "targets-software"],
 					authorizingRole: "targets",
 					satisfyingKeyids: [softwareKey.keyId],
 				}),
 				expect.objectContaining({
-					subjectRole: "targets/services",
-					delegationPath: ["root", "targets", "targets/services"],
+					subjectRole: "targets-services",
+					delegationPath: ["root", "targets", "targets-services"],
 					authorizingRole: "targets",
 					satisfyingKeyids: [servicesKey.keyId],
 				}),
@@ -473,7 +473,7 @@ test("client keeps never-checked roles distinct when timestamp retrieval is unav
 			state: "never-checked",
 		});
 		expect(result.partial.roleStatuses).toContainEqual({
-			roleName: "targets/software",
+			roleName: "targets-software",
 			state: "never-checked",
 		});
 	});
@@ -644,14 +644,14 @@ test("expired targets metadata is rejected after snapshot-link verification", as
 test("expired delegated targets metadata is rejected", async () => {
 	const built = await fixtureWithKeys();
 	const delegated = built.repository.delegatedTargets.find(
-		(metadata) => metadata.roleName === "targets/software",
+		(metadata) => metadata.roleName === "targets-software",
 	);
-	const keys = built.keys.delegated["targets/software"];
+	const keys = built.keys.delegated["targets-software"];
 	if (delegated === undefined || keys === undefined)
 		throw new Error("software delegation fixture missing");
 	await replaceMetadataAndAncestors(
 		built,
-		"targets/software",
+		"targets-software",
 		{ ...delegated.envelope.signed, expires: "2030-01-01T00:00:00Z" },
 		keys,
 	);
@@ -734,7 +734,7 @@ test("snapshot dropping an authenticated delegated role is distinct from a malfo
 	>;
 	const meta = Object.fromEntries(
 		Object.entries(snapshotSigned.meta as Record<string, unknown>).filter(
-			([name]) => name !== "targets/software.json",
+			([name]) => name !== "targets-software.json",
 		),
 	);
 	await replaceSnapshotAndTimestamp(built, { ...snapshotSigned, meta });
@@ -844,7 +844,7 @@ test("delegated targets replay below its persisted version rejects as version-ro
 				timestamp: 1,
 				snapshot: 1,
 				targets: 1,
-				delegatedTargets: { "targets/software": 2 },
+				delegatedTargets: { "targets-software": 2 },
 			}),
 		);
 		expect(seeded.ok).toBe(true);
@@ -1000,7 +1000,7 @@ test("equivalent metadata has one fingerprint across separate clients and stores
 test("partial fingerprints distinguish which delegated role was never checked", async () => {
 	const built = await fixtureWithKeys();
 	const partialRun = async (
-		unavailableRole: "targets/software" | "targets/services",
+		unavailableRole: "targets-software" | "targets-services",
 	): Promise<TufClientPartialView> => {
 		const filename = metadataFilename(unavailableRole, 1, true);
 		if (!filename.ok)
@@ -1026,20 +1026,20 @@ test("partial fingerprints distinguish which delegated role was never checked", 
 		return partial;
 	};
 
-	const softwareUnavailable = await partialRun("targets/software");
-	const servicesUnavailable = await partialRun("targets/services");
+	const softwareUnavailable = await partialRun("targets-software");
+	const servicesUnavailable = await partialRun("targets-services");
 	const neverChecked = (partial: TufClientPartialView): string[] =>
 		partial.roleStatuses
 			.filter((status) => status.state === "never-checked")
 			.map((status) => status.roleName);
 	expect(neverChecked(softwareUnavailable)).toEqual([
-		"targets/services",
-		"targets/verification",
-		"targets/legacy",
+		"targets-services",
+		"targets-verification",
+		"targets-legacy",
 	]);
 	expect(neverChecked(servicesUnavailable)).toEqual([
-		"targets/verification",
-		"targets/legacy",
+		"targets-verification",
+		"targets-legacy",
 	]);
 	expect(softwareUnavailable.fingerprint).not.toBe(
 		servicesUnavailable.fingerprint,

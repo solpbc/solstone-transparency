@@ -40,10 +40,10 @@ const CSO_DELEGATED: [
 	renewal: number,
 	alert: number,
 ][] = [
-	["targets/software", "software/", 180, 60, 120],
-	["targets/services", "services/", 180, 60, 120],
-	["targets/verification", "verification/", 180, 60, 120],
-	["targets/legacy", "legacy/", 270, 90, 180],
+	["targets-software", "software/", 180, 60, 120],
+	["targets-services", "services/", 180, 60, 120],
+	["targets-verification", "verification/", 180, 60, 120],
+	["targets-legacy", "legacy/", 270, 90, 180],
 ];
 
 test("top-level roles match the security office's table exactly", () => {

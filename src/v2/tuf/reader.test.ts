@@ -126,7 +126,7 @@ test("reads real serialized bytes and re-verifies every top-level and delegated 
 
 test("authorizes delegated targets using the verified repository delegation graph", async () => {
 	const delegatedRoles = DELEGATED_ROLES.map((role) =>
-		role.name === "targets/software"
+		role.name === "targets-software"
 			? { ...role, name: "targets/product" }
 			: role,
 	);
@@ -135,7 +135,7 @@ test("authorizes delegated targets using the verified repository delegation grap
 		delegatedRoles,
 	};
 	const keys = await signingKeys();
-	const { "targets/software": productKeys, ...otherDelegated } = keys.delegated;
+	const { "targets-software": productKeys, ...otherDelegated } = keys.delegated;
 	if (productKeys === undefined)
 		throw new Error("software signing keys missing");
 	const repository = await buildRepository({
@@ -170,7 +170,7 @@ test("authorizes delegated targets using the verified repository delegation grap
 		).toContain("targets/product");
 		expect(
 			read.value.delegatedTargets.map((metadata) => metadata.roleName),
-		).not.toContain("targets/software");
+		).not.toContain("targets-software");
 	} finally {
 		await rm(directory, { recursive: true, force: true });
 	}
@@ -180,7 +180,7 @@ test("a byte flip in one written role fails that role's signature while baseline
 	const fixture = await writeRepository();
 	try {
 		expect((await readRepository(fixture.directory)).ok).toBe(true);
-		const filename = metadataFilename("targets/software", 1, true);
+		const filename = metadataFilename("targets-software", 1, true);
 		if (!filename.ok) throw new Error("delegated targets filename failed");
 		const path = join(fixture.directory, filename.value);
 		const bytes = new Uint8Array(await readFile(path));
@@ -254,52 +254,52 @@ test("rejects genuinely signed but unauthorized delegated and top-level commitme
 		};
 	}[] = [
 		{
-			roleName: "targets/services",
+			roleName: "targets-services",
 			targetPath: "software/wrong-sibling.json",
 			metadata: (fixture) => {
 				const metadata = fixture.repository.delegatedTargets.find(
-					(item) => item.roleName === "targets/services",
+					(item) => item.roleName === "targets-services",
 				);
 				if (metadata === undefined)
 					throw new Error("services metadata missing");
 				return metadata;
 			},
 			key: (fixture) => {
-				const key = fixture.keys.delegated["targets/services"]?.[0];
+				const key = fixture.keys.delegated["targets-services"]?.[0];
 				if (key === undefined) throw new Error("services key missing");
 				return key;
 			},
 		},
 		{
-			roleName: "targets/software",
+			roleName: "targets-software",
 			targetPath: "policy/wrong-authority.json",
 			metadata: (fixture) => {
 				const metadata = fixture.repository.delegatedTargets.find(
-					(item) => item.roleName === "targets/software",
+					(item) => item.roleName === "targets-software",
 				);
 				if (metadata === undefined)
 					throw new Error("software metadata missing");
 				return metadata;
 			},
 			key: (fixture) => {
-				const key = fixture.keys.delegated["targets/software"]?.[0];
+				const key = fixture.keys.delegated["targets-software"]?.[0];
 				if (key === undefined) throw new Error("software key missing");
 				return key;
 			},
 		},
 		{
-			roleName: "targets/verification",
+			roleName: "targets-verification",
 			targetPath: "commitments/delegated.json",
 			metadata: (fixture) => {
 				const metadata = fixture.repository.delegatedTargets.find(
-					(item) => item.roleName === "targets/verification",
+					(item) => item.roleName === "targets-verification",
 				);
 				if (metadata === undefined)
 					throw new Error("verification metadata missing");
 				return metadata;
 			},
 			key: (fixture) => {
-				const key = fixture.keys.delegated["targets/verification"]?.[0];
+				const key = fixture.keys.delegated["targets-verification"]?.[0];
 				if (key === undefined) throw new Error("verification key missing");
 				return key;
 			},

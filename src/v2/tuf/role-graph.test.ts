@@ -83,11 +83,11 @@ describe("target path and prefix resolution", () => {
 			true,
 		);
 		expectFailure(
-			authorizeTargetPath("targets/software", "policy/authorization.json"),
+			authorizeTargetPath("targets-software", "policy/authorization.json"),
 			"role-not-authorized",
 		);
 		expectFailure(
-			authorizeTargetPath("targets/software", "commitments/statement.json"),
+			authorizeTargetPath("targets-software", "commitments/statement.json"),
 			"role-not-authorized",
 		);
 		expectFailure(
@@ -95,7 +95,7 @@ describe("target path and prefix resolution", () => {
 			"role-not-authorized",
 		);
 		expectFailure(
-			authorizeTargetPath("targets/services", "software/release.json"),
+			authorizeTargetPath("targets-services", "software/release.json"),
 			"role-not-authorized",
 		);
 		expectFailure(
@@ -215,7 +215,7 @@ describe("role authorization", () => {
 			"delegation-too-deep",
 		);
 		expectFailure(
-			validateDelegationChain(["targets", "targets/software", "targets"]),
+			validateDelegationChain(["targets", "targets-software", "targets"]),
 			"delegation-too-deep",
 		);
 	});

@@ -24,14 +24,14 @@ function fingerprintView() {
 				version: 1,
 				signed: { _type: "targets", marker: "targets" },
 			},
-			"targets/software": {
+			"targets-software": {
 				version: 1,
 				signed: { _type: "targets", marker: "delegated" },
 			},
 		},
 		targets: {
 			targets: {},
-			"targets/software": {
+			"targets-software": {
 				"software/release.json": {
 					length: 1,
 					hashes: { sha256: "a".repeat(64) },
@@ -44,7 +44,7 @@ function fingerprintView() {
 			{ roleName: "snapshot", state: "verified" as const, version: 1 },
 			{ roleName: "targets", state: "verified" as const, version: 1 },
 			{
-				roleName: "targets/software",
+				roleName: "targets-software",
 				state: "verified" as const,
 				version: 1,
 			},
@@ -105,13 +105,13 @@ test("fingerprint changes when top-level targets changes", async () => {
 
 test("fingerprint changes when delegated targets metadata changes", async () => {
 	await expectFingerprintChange((view) => {
-		view.metadata["targets/software"].signed.marker = "changed-delegated";
+		view.metadata["targets-software"].signed.marker = "changed-delegated";
 	});
 });
 
 test("fingerprint changes when a recorded target digest changes", async () => {
 	await expectFingerprintChange((view) => {
-		view.targets["targets/software"]["software/release.json"].hashes.sha256 =
+		view.targets["targets-software"]["software/release.json"].hashes.sha256 =
 			"b".repeat(64);
 	});
 });

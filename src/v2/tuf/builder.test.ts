@@ -130,15 +130,15 @@ describe("buildRepository", () => {
 		expect(repository.value.delegatedTargets).toHaveLength(
 			DELEGATED_ROLES.length,
 		);
-		// "targets.json" sorts BEFORE "targets/..." now that snapshot keys carry the
-		// raw role name: "." is 0x2E and "/" is 0x2F. Under the previous (wrong)
-		// URL-encoded keys it sorted last, because "%" is 0x25.
+		// Because "-" is 0x2D and "." is 0x2E, and 0x2D < 0x2E, every
+		// "targets-*.json" key now sorts BEFORE "targets.json" — the opposite of
+		// the old "/"-based ordering.
 		expect(metaNames(repository)).toEqual([
+			"targets-legacy.json",
+			"targets-services.json",
+			"targets-software.json",
+			"targets-verification.json",
 			"targets.json",
-			"targets/legacy.json",
-			"targets/services.json",
-			"targets/software.json",
-			"targets/verification.json",
 		]);
 	});
 
@@ -146,7 +146,7 @@ describe("buildRepository", () => {
 		const configuration: RoleConfiguration = {
 			topLevelRoles: TOP_LEVEL_ROLES,
 			delegatedRoles: DELEGATED_ROLES.filter(
-				(role) => role.name !== "targets/legacy",
+				(role) => role.name !== "targets-legacy",
 			),
 		};
 		const targets = {
@@ -175,10 +175,10 @@ describe("buildRepository", () => {
 			roleConfiguration: configuration,
 		});
 		expect(metaNames(repository)).toEqual([
+			"targets-services.json",
+			"targets-software.json",
+			"targets-verification.json",
 			"targets.json",
-			"targets/services.json",
-			"targets/software.json",
-			"targets/verification.json",
 		]);
 	});
 

@@ -243,7 +243,7 @@ async function primitiveFixtures(): Promise<readonly RejectionFixture[]> {
 		{
 			reason: "role-not-authorized",
 			invoke: async () =>
-				authorizeTargetPath("targets/services", "software/item"),
+				authorizeTargetPath("targets-services", "software/item"),
 		},
 		{
 			reason: "delegation-too-deep",
@@ -587,7 +587,7 @@ async function clientFixtures(): Promise<readonly RejectionFixture[]> {
 				>;
 				const meta = Object.fromEntries(
 					Object.entries(snapshot.meta as Record<string, unknown>).filter(
-						([name]) => name !== "targets/software.json",
+						([name]) => name !== "targets-software.json",
 					),
 				);
 				const snapshotBytes = await signFixture(

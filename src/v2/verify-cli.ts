@@ -28,9 +28,9 @@ import { openFileTrustStore } from "./tuf/trust-store";
  *
  *  1. Metadata and targets live under different bases, which is what the discovery
  *     document's `metadata_base` and `targets_base` describe.
- *  2. A delegated role name contains "/", so its FILENAME is URL-encoded and the
- *     percent must itself be escaped in the request -- otherwise the host decodes
- *     `%2F` back to a separator and looks for a path that does not exist.
+ *  2. Delegated role names use "-" instead of "/", so filenames are never
+ *     percent-encoded, and the classifier recognizes the `targets-<name>.json`
+ *     shape alongside the four bare top-level metadata names.
  */
 export function resolveObjectUrl(
 	metadataBase: string,
@@ -38,7 +38,7 @@ export function resolveObjectUrl(
 	relativePath: string,
 ): string {
 	const isMetadata =
-		/(^|\.)(root|timestamp|snapshot|targets(%2F[^.]+)?)\.json$/.test(
+		/(^|\.)(root|timestamp|snapshot|targets(-[^.]+)?)\.json$/.test(
 			relativePath,
 		);
 	const base = isMetadata ? metadataBase : targetsBase;

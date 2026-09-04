@@ -118,7 +118,7 @@ export const TOP_LEVEL_ROLES = {
  */
 export const DELEGATED_ROLES: readonly DelegatedRoleConfig[] = [
 	{
-		name: "targets/software",
+		name: "targets-software",
 		pathPrefix: "software/",
 		terminating: true,
 		threshold: 1,
@@ -130,7 +130,7 @@ export const DELEGATED_ROLES: readonly DelegatedRoleConfig[] = [
 		keyLabel: "solpbc-tuf-software-1",
 	},
 	{
-		name: "targets/services",
+		name: "targets-services",
 		pathPrefix: "services/",
 		terminating: true,
 		threshold: 1,
@@ -142,7 +142,7 @@ export const DELEGATED_ROLES: readonly DelegatedRoleConfig[] = [
 		keyLabel: "solpbc-tuf-services-1",
 	},
 	{
-		name: "targets/verification",
+		name: "targets-verification",
 		pathPrefix: "verification/",
 		terminating: true,
 		threshold: 1,
@@ -154,7 +154,7 @@ export const DELEGATED_ROLES: readonly DelegatedRoleConfig[] = [
 		keyLabel: "solpbc-tuf-verification-1",
 	},
 	{
-		name: "targets/legacy",
+		name: "targets-legacy",
 		pathPrefix: "legacy/",
 		terminating: true,
 		threshold: 1,
@@ -197,8 +197,8 @@ export const TOP_LEVEL_ONLY_PREFIXES: readonly string[] = [
 export const VALIDITY_ORDER: readonly string[] = [
 	"timestamp",
 	"snapshot",
-	"targets/software",
-	"targets/legacy",
+	"targets-software",
+	"targets-legacy",
 	"targets",
 	"root",
 ];

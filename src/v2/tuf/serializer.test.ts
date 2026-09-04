@@ -63,10 +63,10 @@ test("serializes the complete and exact consistent-snapshot filename set", async
 		expect((await readdir(directory)).sort()).toEqual([
 			"1.root.json",
 			"1.snapshot.json",
-			"1.targets%2Flegacy.json",
-			"1.targets%2Fservices.json",
-			"1.targets%2Fsoftware.json",
-			"1.targets%2Fverification.json",
+			"1.targets-legacy.json",
+			"1.targets-services.json",
+			"1.targets-software.json",
+			"1.targets-verification.json",
 			"1.targets.json",
 			"timestamp.json",
 		]);
@@ -88,10 +88,10 @@ test("serializes the complete and exact non-consistent filename set", async () =
 		expect((await readdir(directory)).sort()).toEqual([
 			"1.root.json",
 			"snapshot.json",
-			"targets%2Flegacy.json",
-			"targets%2Fservices.json",
-			"targets%2Fsoftware.json",
-			"targets%2Fverification.json",
+			"targets-legacy.json",
+			"targets-services.json",
+			"targets-software.json",
+			"targets-verification.json",
 			"targets.json",
 			"timestamp.json",
 		]);
@@ -115,17 +115,27 @@ test("rejects an existing planned filename before writing any repository bytes",
 	}
 });
 
-test("round-trips encoded delegated role names and rejects unsafe raw names", () => {
-	const logical = metadataLogicalName("targets/software");
-	expect(logical).toEqual({ ok: true, value: "targets%2Fsoftware.json" });
-	if (logical.ok)
-		expect(decodeURIComponent(logical.value.slice(0, -".json".length))).toBe(
+test("round-trips delegated role names without percent encoding, and preserves old slash encoding as negative control", () => {
+	const logical = metadataLogicalName("targets-software");
+	expect(logical).toEqual({ ok: true, value: "targets-software.json" });
+	expect(metadataFilename("targets-software", 5, true)).toEqual({
+		ok: true,
+		value: "5.targets-software.json",
+	});
+
+	// Negative control / historical comparison: slash-bearing delegated names
+	// used to URL-encode to %2F.
+	const logicalOld = metadataLogicalName("targets/software");
+	expect(logicalOld).toEqual({ ok: true, value: "targets%2Fsoftware.json" });
+	if (logicalOld.ok)
+		expect(decodeURIComponent(logicalOld.value.slice(0, -".json".length))).toBe(
 			"targets/software",
 		);
 	expect(metadataFilename("targets/software", 5, true)).toEqual({
 		ok: true,
 		value: "5.targets%2Fsoftware.json",
 	});
+
 	for (const roleName of [
 		"targets/../software",
 		"targets/%2Fsoftware",
