@@ -50,9 +50,31 @@ Options:
                       Writes <dir>/metadata/ with signed TUF metadata
                       (root, targets, snapshot, timestamp, and delegated
                       roles) and <dir>/targets/ with signed EvidenceRecord
-                      payloads. Requires a complete key-set JSON file and a
-                      64-char hex policy SHA-256 digest (--policy-sha256
-                      is a placeholder pending real policy publication).
+                      payloads.
+                      --product <name> selects which product's committed v1
+                      inventory becomes the migration-manifest half; it must
+                      be one of journal, linux, windows.
+                      Input shapes:
+                        --artifacts <path>: JSON object with fields:
+                          - product (free-form string naming the release;
+                            not limited to journal/linux/windows -- this is
+                            independent of the --product flag above)
+                          - version (string, e.g. 1.0.23)
+                          - artifacts: array of { url, length, sha256 }
+                          - does_prove: non-empty array of strings
+                          - does_not_prove: non-empty array of strings
+                          - _comment: array of explanatory strings
+                        --keys <path>: JSON object with 11 signing keys:
+                          - root: array of 3 key entries
+                          - targets, snapshot, timestamp: array of 1 key each
+                          - delegated: object with 1 key entry for each of
+                            targets-software, targets-services,
+                            targets-verification, targets-legacy
+                          - dsseSigner: 1 key entry
+                          Key entries are { keyid, public, pkcs8 } (hex keyid,
+                          hex public key, base64-encoded PKCS8 private key).
+                        --policy-sha256 <hex>: 64-character lowercase hex
+                          digest (placeholder pending real policy publication).
                       Missing or malformed inputs or an unknown product name
                       fail closed writing nothing.
 
