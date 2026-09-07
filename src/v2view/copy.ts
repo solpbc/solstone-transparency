@@ -42,7 +42,7 @@ export const HOME_REGISTER_SUMMARY_ROW_V1_CLOSED_UNCHECKED =
 	"v1 chain closed at {version} · v2 register not checked";
 
 export const SOFTWARE_COVERAGE_CAVEAT_B =
-	"the products below are the ones with at least one signed record in this register, v1 or v2, and each record lists the exact files it covers. surfaces shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it, which is a fact about the register, not about what we shipped.";
+	"the products below are the ones with at least one signed record in this register, v1 or v2, and each record lists the exact files it covers. surfaces shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it.";
 
 export const PRODUCT_PLAIN_SUMMARY_A =
 	"the v1 chain for {product} closed at {version}. it is history, still signed and still verifiable with the v1 key; nothing in it was re-signed or moved.";
@@ -70,15 +70,15 @@ export const VERSION_RECORD_CLAIMS_LEAD =
 	"the record states what it does and does not prove; both lists below are rendered from the signed record, word for word.";
 
 export const VERIFY_METHOD_INTRO_V2 =
-	"v2 records are checked with verify-v2 against a pinned copy of sol pbc's v2 signing root. a passing check tells you the record's signatures came from the key set that root names, that enough of those keys signed, that the record hasn't been altered since, and that the register's freshness assertion had not expired when you ran it. it does not tell you the root you pinned is the right one; you compare that yourself against the fingerprint lines on the keys page. and it speaks only to the record, not to the software the record names.";
+	"v2 records are covered by verify-v2, which checks the whole register against a pinned copy of sol pbc's v2 signing root. a passing check tells you the register you fetched matches what the keys your pinned root authorizes signed, that every record's bytes match their signed description, and that none of sol pbc's signed validity windows had passed when you ran it. it does not open a record's own signature; that is a separate record-level check, and this page will carry its command when it ships. it does not tell you the root you pinned is the right one; you compare that yourself against the fingerprint lines published elsewhere, listed on the keys page. and it speaks only to the register, not to the software the records name.";
 
 export const VERIFY_TWO_METHODS_LEAD =
-	"there are two ways to check a record here, one per chain. v1 records are checked with minisign and the v1 key; v2 records are checked with verify-v2 against the pinned v2 root, and each record's page says which one it is.";
+	"there are two ways to check a record here, one per chain. v1 records are checked with minisign and the v1 key; v2 records are covered by verify-v2, which checks the whole register against the pinned v2 root, and each record's page says which chain it belongs to.";
 
 export const VERIFY_OUTCOME_V2_ACCEPTED =
-	"the command printed ACCEPTED and exited 0: this record's signatures came from the pinned root's key set, enough of its keys signed, the record hasn't been altered since, and the register's freshness assertion had not expired when you ran it.";
+	"the command printed ACCEPTED and exited 0: the register you fetched matches what the keys your pinned root authorizes signed, every record's bytes match their signed description, and no signed validity window had passed when you ran it.";
 export const VERIFY_OUTCOME_V2_REJECTED =
-	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means the register\'s freshness assertion has lapsed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. any other reason means this copy did not check out and we\'d like to know how you got it.';
+	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "malformed" on the root or "trust-store-corrupt" points at a file on your machine, not at the register. any other reason means what the evidence host served did not check out, and we\'d like to hear about it.';
 export const VERIFY_OUTCOME_V2_COULD_NOT_RUN =
 	"the command exited 2 because the pinned root couldn't be read; the check didn't happen, which is different from a failed check and isn't evidence about the record.";
 
