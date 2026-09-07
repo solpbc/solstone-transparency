@@ -234,11 +234,17 @@ export type V2Model = V2VerifiedModel | V2UnverifiedModel | V2AbsentModel;
  */
 export type V2ModelResult = V2Model;
 
-/** Map a record's product string onto the portal's fixed slugs. Anything else is unmapped, never guessed. */
+/**
+ * Map a record's product string onto the portal's fixed slugs. The release
+ * rail's adapters name products by the v1 catalog key (`journal`, `linux`,
+ * `windows`); the rehearsal records and the evidence-host layout use the
+ * repository names (`solstone-journal`, …). Both forms map; anything else is
+ * unmapped, never guessed.
+ */
 export function slugForProduct(product: string): ProductSlug | undefined {
-	if (product === "solstone-journal") return "journal";
-	if (product === "solstone-linux") return "linux";
-	if (product === "solstone-windows") return "windows";
+	if (product === "journal" || product === "solstone-journal") return "journal";
+	if (product === "linux" || product === "solstone-linux") return "linux";
+	if (product === "windows" || product === "solstone-windows") return "windows";
 	return undefined;
 }
 

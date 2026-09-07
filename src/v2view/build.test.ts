@@ -358,6 +358,17 @@ describe("state (b): a release record", () => {
 		}
 	});
 
+	test("the release rail's bare catalog product names map to slugs (the adapter emits 'journal')", async () => {
+		const fixture = await buildFixture({
+			buildAt: BUILD_AT,
+			releases: [{ product: "journal", version: "2.0.0" }],
+		});
+		const model = await build(fixture);
+		if (model.state !== "verified") throw new Error("expected verified");
+		expect(model.software[0]?.slug).toBe("journal");
+		expect(model.unmappedProducts).toEqual([]);
+	});
+
 	test("a product the portal has no page for is surfaced as unmapped, not dropped", async () => {
 		const fixture = await buildFixture({
 			buildAt: BUILD_AT,
