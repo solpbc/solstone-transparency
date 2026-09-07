@@ -56,6 +56,7 @@ import {
 	validateTargetPath,
 } from "./role-graph";
 import { metadataFilename } from "./serializer";
+import { targetStoragePath } from "./target-storage";
 import { openFileTrustStore } from "./trust-store";
 
 export interface RejectionFixture {
@@ -453,12 +454,13 @@ async function signFixture(
 async function clientFixture() {
 	const keys = await signingKeys();
 	const targetBytes = new TextEncoder().encode("oracle target");
+	const targetSha256 = await sha256(targetBytes);
 	const built = await buildRepository({
 		signingKeys: keys,
 		targets: {
 			"software/release.json": {
 				length: targetBytes.byteLength,
-				hashes: { sha256: await sha256(targetBytes) },
+				hashes: { sha256: targetSha256 },
 			},
 		},
 		consistentSnapshot: true,
@@ -481,7 +483,12 @@ async function clientFixture() {
 		if (!filename.ok) throw new Error("fixture filename failed");
 		objects.set(filename.value, { kind: "ok", bytes: metadata.bytes });
 	}
-	objects.set("software/release.json", { kind: "ok", bytes: targetBytes });
+	const storagePath = targetStoragePath("software/release.json", {
+		sha256: targetSha256,
+		consistentSnapshot: true,
+	});
+	if (!storagePath.ok) throw new Error("fixture target storage path failed");
+	objects.set(storagePath.value, { kind: "ok", bytes: targetBytes });
 	return { built: built.value, keys, objects };
 }
 

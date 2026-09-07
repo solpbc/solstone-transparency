@@ -84,11 +84,6 @@ async function readPreviousRoot(previousRootBytes: Uint8Array) {
 		validateMetadataFreshnessAndSpec(metadata.signed, new Date(expires - 1)),
 	);
 	const declarations = requireResult(parseRootDeclarations(metadata.signed));
-	if (
-		declarations.roles.root.threshold !== 2 ||
-		declarations.roles.root.keyids.length !== 3
-	)
-		throw new RootRenewalError("degenerate-role-configuration");
 	for (const role of Object.values(declarations.roles))
 		requireResult(validateRoleConfiguration(role, declarations.keys));
 	for (const [keyid, keyObject] of Object.entries(declarations.keys)) {

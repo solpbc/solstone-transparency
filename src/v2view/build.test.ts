@@ -100,7 +100,10 @@ describe("negative controls observed first", () => {
 			buildAt: BUILD_AT,
 			releases: [{ product: "solstone-journal", version: "2.0.0" }],
 		});
-		const path = "software/solstone-journal/2.0.0/release-record.json";
+		const path = fixture.targetPaths.get(
+			"software/solstone-journal/2.0.0/release-record.json",
+		);
+		if (!path) throw new Error("missing fixture target path");
 		const model = await build(fixture, {
 			fetcher: fixtureFetcher(fixture.files, {
 				tamper: { path, mutate: flipLastByte },
@@ -330,7 +333,7 @@ describe("state (b): a release record", () => {
 		expect(record.recordLink.status).toBe("linked");
 		if (record.recordLink.status === "linked")
 			expect(record.recordLink.link.url).toBe(
-				`${BASE.targetsBase}/software/solstone-journal/2.0.0/release-record.json`,
+				`${BASE.targetsBase}/software/solstone-journal/2.0.0/${record.targetSha256}.release-record.json`,
 			);
 		expect(model.unmappedProducts).toEqual([]);
 	});
@@ -339,25 +342,24 @@ describe("state (b): a release record", () => {
 		const fixture = await buildFixture({
 			buildAt: BUILD_AT,
 			releases: [{ product: "solstone-journal", version: "2.0.0" }],
-			hashPrefixedTargets: true,
 		});
-		// Serve ONLY the hash-prefixed name, so a client that fetched the logical
-		// name would fail; today's client fetches the logical name, so this test
-		// documents the seam W3a's naming change lands on rather than asserting
-		// which name the client uses.
-		const model = await build(fixture);
+		const logical = "software/solstone-journal/2.0.0/release-record.json";
+		const physical = fixture.targetPaths.get(logical);
+		if (!physical) throw new Error("missing fixture target path");
+		expect(fixture.files.has(logical)).toBe(false);
+		const requested: string[] = [];
+		const model = await build(fixture, {
+			fetcher: fixtureFetcher(fixture.files, { requested }),
+		});
+		expect(requested).toContain(physical);
+		expect(requested).not.toContain(logical);
 		if (model.state !== "verified") throw new Error("expected verified");
 		const record = model.software[0];
 		if (record?.kind !== "release") throw new Error("expected release");
 		expect(record.recordLink.status).toBe("linked");
 		if (record.recordLink.status === "linked") {
-			expect(
-				record.recordLink.link.url.startsWith(
-					`${BASE.targetsBase}/software/solstone-journal/2.0.0/`,
-				),
-			).toBe(true);
-			expect(record.recordLink.link.url.endsWith("release-record.json")).toBe(
-				true,
+			expect(record.recordLink.link.url).toBe(
+				`${BASE.targetsBase}/${physical}`,
 			);
 		}
 	});

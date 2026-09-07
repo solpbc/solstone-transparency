@@ -579,6 +579,34 @@ describe("R2 transport", () => {
 			).rejects.toMatchObject({ reason, status, message: reason });
 		}
 	});
+	test("GET requests identity encoding and retains the strong storage ETag for replacement", async () => {
+		const transport = await adapter(async (_input, init) => {
+			const headers = new Headers(init.headers);
+			if (init.method === "GET") {
+				return new Response("{}", {
+					headers: {
+						etag:
+							headers.get("accept-encoding") === "identity"
+								? '"stored"'
+								: 'W/"stored"',
+					},
+				});
+			}
+			expect(headers.get("if-match")).toBe('"stored"');
+			return new Response(null, { headers: { etag: '"next"' } });
+		});
+		const prior = await transport.get(PREFIX + TIMESTAMP);
+		expect(prior?.etag).toBe('"stored"');
+		if (!prior) throw new Error("expected prior timestamp");
+		await expect(
+			transport.put(
+				PREFIX + TIMESTAMP,
+				encoder.encode("next"),
+				{ ifMatch: prior.etag },
+				{ contentType: "application/json", cacheControl: "no-store" },
+			),
+		).resolves.toEqual({ etag: '"next"' });
+	});
 	test("direct transport rejects missing, mixed or weak conditions before fetch", async () => {
 		let called = false;
 		const transport = await adapter(async () => {

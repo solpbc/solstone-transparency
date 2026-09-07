@@ -28,6 +28,7 @@ try {
 		console.log(`Usage: bun bin/journal-artifacts.ts --manifest FILE [--manifest FILE ...] --version VERSION --lane release|staging|dev --claims FILE [--out FILE]
 
 Prepare release-record input from local journal distribution manifests and their adjacent files.
+Pass the output file directly as --release-record to release prepare.
 Repeat --manifest for every target in the release. Only explicitly supplied targets are included.
 Lengths and SHA256 values are measured from the artifact bytes. The manifest, release declaration,
 and checksum sidecar must agree. Claims JSON supplies _comment, does_prove, and does_not_prove.
@@ -49,7 +50,16 @@ JSON goes to stdout unless --out selects a new file. Existing output files are r
 				await readFile(values.claims, "utf8"),
 			) as JournalClaims,
 		});
-		const output = `${JSON.stringify(result, null, 2)}\n`;
+		const output = `${JSON.stringify(
+			{
+				product: result.product,
+				version: result.version,
+				releasePredicate: result,
+				artifactDescriptors: result.artifacts,
+			},
+			null,
+			2,
+		)}\n`;
 		if (values.out) await writeFile(values.out, output, { flag: "wx" });
 		else process.stdout.write(output);
 	}

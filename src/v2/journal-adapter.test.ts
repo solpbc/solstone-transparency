@@ -11,6 +11,7 @@ import {
 	adaptJournalRelease,
 	adaptJournalReleaseSet,
 } from "./journal-adapter";
+import { validateReleaseRecordPredicate } from "./records/release-record";
 
 const roots: string[] = [];
 const claims = {
@@ -240,7 +241,7 @@ describe("journal distribution evidence adapter", () => {
 		});
 	});
 
-	test("CLI emits publisher input and refuses output collisions", async () => {
+	test("CLI emits release-prepare input with measured descriptors and refuses output collisions", async () => {
 		const f = await fixture();
 		const claimsPath = join(f.root, "claims.json");
 		await writeFile(claimsPath, JSON.stringify(claims));
@@ -262,9 +263,37 @@ describe("journal distribution evidence adapter", () => {
 		const run = Bun.spawn(command, { stdout: "pipe", stderr: "pipe" });
 		expect(await run.exited).toBe(0);
 		const before = await readFile(out, "utf8");
-		expect(JSON.parse(before).artifacts[0].url).toContain(
-			"/solstone-journal/dev/",
-		);
+		const preparedInput = JSON.parse(before);
+		expect(Object.keys(preparedInput).sort()).toEqual([
+			"artifactDescriptors",
+			"product",
+			"releasePredicate",
+			"version",
+		]);
+		expect(preparedInput.product).toBe("journal");
+		expect(preparedInput.version).toBe(f.input.version);
+		const expectedDescriptors = Object.entries({
+			...f.members,
+			[`${f.base}.manifest.json`]: await readFile(f.input.manifestPath, "utf8"),
+		})
+			.map(([name, bytes]) => ({
+				url: `https://updates.solstone.app/solstone-journal/dev/${f.input.version}/${name}`,
+				length: Buffer.byteLength(bytes),
+				sha256: digest(bytes),
+			}))
+			.sort((left, right) => (left.url < right.url ? -1 : 1));
+		expect(preparedInput.artifactDescriptors).toEqual(expectedDescriptors);
+		expect(preparedInput.releasePredicate).toMatchObject({
+			...claims,
+			product: "journal",
+			version: f.input.version,
+			artifacts: expectedDescriptors,
+		});
+		// Exercise the same predicate admission used by release prepare on the
+		// parsed CLI file, with descriptor values derived independently above.
+		expect(
+			(await validateReleaseRecordPredicate(preparedInput.releasePredicate)).ok,
+		).toBe(true);
 		const again = Bun.spawn(command, { stdout: "pipe", stderr: "pipe" });
 		expect(await again.exited).toBe(1);
 		expect(JSON.parse(await new Response(again.stderr).text()).reason).toBe(

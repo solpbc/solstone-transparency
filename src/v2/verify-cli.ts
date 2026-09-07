@@ -15,9 +15,11 @@
  * signs, and holds no credential.
  */
 
+import { readFile, stat } from "node:fs/promises";
 import { DEFAULT_MAX_METADATA_BYTES } from "./tuf/admission";
 import { updateTufRepository } from "./tuf/client";
 import type { TufFetchResponse, TufFetcher } from "./tuf/fetch";
+import { isMetadataFilename } from "./tuf/serializer";
 import { openFileTrustStore } from "./tuf/trust-store";
 
 /**
@@ -37,11 +39,7 @@ export function resolveObjectUrl(
 	targetsBase: string,
 	relativePath: string,
 ): string {
-	const isMetadata =
-		/(^|\.)(root|timestamp|snapshot|targets(-[^.]+)?)\.json$/.test(
-			relativePath,
-		);
-	const base = isMetadata ? metadataBase : targetsBase;
+	const base = isMetadataFilename(relativePath) ? metadataBase : targetsBase;
 	const trimmed = base.endsWith("/") ? base.slice(0, -1) : base;
 	return `${trimmed}/${relativePath.replace(/%/g, "%25")}`;
 }
@@ -87,45 +85,49 @@ export function httpsFetcher(
 export interface VerifyOptions {
 	metadataBase: string;
 	targetsBase: string;
-	rootPath?: string;
+	rootPath: string;
 	storePath: string;
 	json: boolean;
+}
+
+async function readPinnedRoot(path: string): Promise<Uint8Array | undefined> {
+	try {
+		const details = await stat(path);
+		if (details.size > DEFAULT_MAX_METADATA_BYTES) {
+			console.error("pinned root exceeds the metadata byte ceiling");
+			return undefined;
+		}
+		const bytes = new Uint8Array(await readFile(path));
+		if (bytes.byteLength > DEFAULT_MAX_METADATA_BYTES) {
+			console.error("pinned root exceeds the metadata byte ceiling");
+			return undefined;
+		}
+		return bytes;
+	} catch (error) {
+		console.error(
+			`could not read the pinned root file: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		return undefined;
+	}
 }
 
 /** Verifies a repository and prints a human or machine-readable result. */
 export async function verifyRepository(
 	options: VerifyOptions,
 ): Promise<number> {
+	if (!options.rootPath) {
+		console.error(
+			"verify-v2 requires --root <file>; supply --root pointing at a locally-trusted root metadata file; this verifier does not bootstrap trust from the evidence channel it is verifying",
+		);
+		return 2;
+	}
 	const requested: string[] = [];
 	const fetcher = httpsFetcher(options.metadataBase, options.targetsBase, (p) =>
 		requested.push(p),
 	);
 
-	// The pinned root is the one input a verifier must obtain out of band. Fetching
-	// it over the same channel is a convenience for a first look, not a trust
-	// bootstrap -- a real verifier pins it.
-	const rootUrl =
-		options.rootPath ??
-		resolveObjectUrl(options.metadataBase, options.targetsBase, "1.root.json");
-	let bootstrapRoot: Uint8Array;
-	try {
-		const response = await fetch(rootUrl);
-		if (!response.ok) {
-			console.error(`could not fetch the pinned root: HTTP ${response.status}`);
-			return 2;
-		}
-		const bytes = new Uint8Array(await response.arrayBuffer());
-		if (bytes.byteLength > DEFAULT_MAX_METADATA_BYTES) {
-			console.error("pinned root exceeds the metadata byte ceiling");
-			return 2;
-		}
-		bootstrapRoot = bytes;
-	} catch (error) {
-		console.error(
-			`could not fetch the pinned root: ${error instanceof Error ? error.message : String(error)}`,
-		);
-		return 2;
-	}
+	const bootstrapRoot = await readPinnedRoot(options.rootPath);
+	if (bootstrapRoot === undefined) return 2;
 
 	const result = await updateTufRepository({
 		fetcher,
@@ -135,20 +137,19 @@ export async function verifyRepository(
 	});
 
 	if (options.json) {
-		console.log(
-			JSON.stringify(
-				result.ok
-					? { accepted: true, requested, ...result.value }
-					: {
-							accepted: false,
-							requested,
-							reason: (result as { reason: string }).reason,
-							detail: (result as { detail: unknown }).detail,
-						},
-				null,
-				2,
-			),
-		);
+		const output = result.ok
+			? (() => {
+					const { authenticatedMetadata, authenticatedTargets, ...view } =
+						result.value;
+					return { accepted: true, requested, ...view };
+				})()
+			: {
+					accepted: false,
+					requested,
+					reason: (result as { reason: string }).reason,
+					detail: (result as { detail: unknown }).detail,
+				};
+		console.log(JSON.stringify(output, null, 2));
 		return result.ok ? 0 : 1;
 	}
 

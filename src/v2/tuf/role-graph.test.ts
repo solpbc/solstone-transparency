@@ -13,11 +13,13 @@ import {
 	authorizeTargetPath,
 	checkMetadataType,
 	evaluateRoleAuthorization,
+	matchesDelegationPath,
 	resolveDelegation,
 	topLevelOnlyPrefixPartition,
 	validateDelegatedRoleName,
 	validateDelegationChain,
 	validateDelegationConfiguration,
+	validateDelegationPathPattern,
 	validateRoleConfiguration,
 	validateTargetPath,
 	validateTargetPathPolicy,
@@ -108,13 +110,13 @@ describe("target path and prefix resolution", () => {
 		const first = {
 			...roleAt(0),
 			name: "targets/first",
-			pathPrefix: "overlap/",
+			paths: ["overlap/*"],
 			terminating: true,
 		};
 		const second = {
 			...roleAt(1),
 			name: "targets/second",
-			pathPrefix: "overlap/",
+			paths: ["overlap/*"],
 			terminating: true,
 		};
 		const stopped = resolveDelegation(
@@ -287,4 +289,57 @@ describe("role authorization", () => {
 			value: { _type: "timestamp" },
 		});
 	});
+});
+
+test("TUF wildcard vectors match whole segments without recursive authority", () => {
+	for (const [target, pattern, accepted] of [
+		["targets/a.tgz", "targets/*.tgz", true],
+		["targets/dir/a.tgz", "targets/*.tgz", false],
+		["targets/a.tgz", "*.tgz", false],
+		["foo-version-2.tgz", "foo-version-?.tgz", true],
+		["foo-version-22.tgz", "foo-version-?.tgz", false],
+		["software/a/b", "software/**", false],
+		["software/ab", "software/a**b", true],
+		["software/acccb", "software/a*b", true],
+		["software/abc", "software/a*b", false],
+		["software/.hidden", "software/*", true],
+	] as const)
+		expect(matchesDelegationPath(target, pattern)).toBe(accepted);
+	for (const pattern of [
+		"",
+		"/software/*",
+		"software//item",
+		"software/../*",
+		"software/[ab]",
+		"software/\\*",
+	]) {
+		expect(validateDelegationPathPattern(pattern).ok).toBe(false);
+	}
+	const broad = [
+		{ name: "targets-software", paths: ["*/*/*"], terminating: true },
+	];
+	for (const target of [
+		"policy/dsse-authorization/1.json",
+		"keys/dsse/1.json",
+		"commitments/a/b",
+	]) {
+		expectFailure(
+			authorizeTargetPath("targets-software", target, broad),
+			"role-not-authorized",
+		);
+	}
+	expectFailure(
+		authorizeTargetPath(
+			"targets-services",
+			"software/journal/v1/release-record.json",
+		),
+		"role-not-authorized",
+	);
+	expectFailure(
+		authorizeTargetPath(
+			"targets-software",
+			"software/journal/v1/deep/release-record.json",
+		),
+		"role-not-authorized",
+	);
 });

@@ -14,12 +14,7 @@ import { parseInTotoStatementV1 } from "./records/statement";
 import { DEFAULT_MAX_METADATA_BYTES, admitTufJson } from "./tuf/admission";
 import { canonicalizeTufJson } from "./tuf/canonical";
 import { updateTufRepository } from "./tuf/client";
-import {
-	parseClientMetadata,
-	parseDelegations,
-	parseRootDeclarations,
-	parseTargets,
-} from "./tuf/client-metadata";
+import { parseDelegations, parseRootDeclarations } from "./tuf/client-metadata";
 import type { ConsumedVersions } from "./tuf/client-result";
 import type { TufResult } from "./tuf/outcome";
 import { validateTargetPath } from "./tuf/role-graph";
@@ -235,8 +230,7 @@ export async function authenticateRepository(
 	if (options.bootstrapRoot.length > DEFAULT_MAX_METADATA_BYTES)
 		fail("root", "oversized");
 	if (!Number.isFinite(options.now.getTime())) fail("tuf", "invalid-time");
-	// Copies belong to this invocation. Nothing is exposed until the whole client walk succeeds.
-	const consumed = new Map<string, Uint8Array>();
+	// Expose only a successful view tied to this invocation's exact store commit.
 	let written: TrustStoreState | undefined;
 	const result = await updateTufRepository({
 		bootstrapRoot: options.bootstrapRoot.slice(),
@@ -244,8 +238,12 @@ export async function authenticateRepository(
 		trustStore: {
 			read: () => options.trustStore.read(),
 			async replace(revision, state) {
-				const stored = await options.trustStore.replace(revision, state);
-				if (stored.ok) written = structuredClone(state);
+				const proposed = structuredClone(state);
+				const stored = await options.trustStore.replace(
+					revision,
+					structuredClone(proposed),
+				);
+				if (stored.ok) written = proposed;
 				return stored;
 			},
 		},
@@ -258,7 +256,6 @@ export async function authenticateRepository(
 						options,
 						"tuf",
 					);
-					consumed.set(path, response.bytes.slice());
 					return { kind: "ok", bytes: response.bytes };
 				} catch (error) {
 					if (
@@ -281,80 +278,53 @@ export async function authenticateRepository(
 		);
 	if (!written || written.trustedRoot.version !== result.value.versions.root)
 		fail("tuf", "authenticated-view-unavailable");
-	const root = must(
-		parseRootDeclarations(written.trustedRoot.envelope.signed),
-		"root",
-	);
-	const tufKeyids = new Set<string>();
-	for (const role of Object.values(root.roles))
-		for (const id of role.keyids) tufKeyids.add(id);
-	const rootBytes = must(
+	const authenticated = result.value;
+	const rootMetadata = authenticated.authenticatedMetadata.root;
+	if (!rootMetadata || rootMetadata.version !== written.trustedRoot.version)
+		fail("tuf", "authenticated-view-unavailable");
+	const committedRoot = must(
 		canonicalizeTufJson(written.trustedRoot.envelope),
 		"root",
 	);
-	const metadataBytes = new Map<string, Uint8Array>([
-		[
-			must(metadataFilename("root", result.value.versions.root, true), "root"),
-			rootBytes.slice(),
-		],
-	]);
-	for (const name of ["timestamp", "snapshot"] as const) {
-		const filename = must(
-			metadataFilename(
-				name,
-				result.value.versions[name],
-				root.consistentSnapshot,
-			),
-			"tuf",
-		);
-		const raw = consumed.get(filename);
-		if (!raw) fail("tuf", "authenticated-view-unavailable");
-		metadataBytes.set(filename, raw.slice());
+	const authenticatedRoot = must(
+		canonicalizeTufJson(rootMetadata.envelope),
+		"root",
+	);
+	if (!Buffer.from(committedRoot).equals(Buffer.from(authenticatedRoot)))
+		fail("tuf", "authenticated-view-unavailable");
+	const root = must(
+		parseRootDeclarations(rootMetadata.envelope.signed),
+		"root",
+	);
+	const tufKeyids = new Set(Object.keys(root.keys));
+	const rootBytes = rootMetadata.bytes.slice();
+	const metadataBytes = new Map<string, Uint8Array>();
+	for (const metadata of Object.values(authenticated.authenticatedMetadata)) {
+		// Bootstrap and stored roots use internal filenames; captures need the public name.
+		const filename =
+			metadata.roleName === "root"
+				? must(metadataFilename("root", metadata.version, true), "root")
+				: metadata.filename;
+		metadataBytes.set(filename, metadata.bytes.slice());
+		if (metadata.envelope.signed.delegations !== undefined) {
+			const delegations = must(
+				parseDelegations(metadata.envelope.signed.delegations),
+				"tuf",
+			);
+			for (const id of Object.keys(delegations.keys)) tufKeyids.add(id);
+		}
 	}
 	const bytes = new Map<string, Uint8Array>();
 	const topLevelTargets = new Set<string>();
-	const roles = [
-		{ name: "targets", version: result.value.versions.targets },
-		...Object.entries(result.value.versions.delegatedTargets).map(
-			([name, version]) => ({ name, version }),
-		),
-	];
-	for (const role of roles) {
-		const filename = must(
-			metadataFilename(role.name, role.version, root.consistentSnapshot),
-			"tuf",
-		);
-		const raw = consumed.get(filename);
-		if (!raw) fail("tuf", "authenticated-view-unavailable");
-		const metadata = must(parseClientMetadata(role.name, filename, raw), "tuf");
-		if (metadata.version !== role.version)
-			fail("tuf", "authenticated-view-unavailable");
-		metadataBytes.set(filename, raw.slice());
-		if (role.name === "targets") {
-			const delegations = must(
-				parseDelegations(metadata.signed.delegations),
-				"tuf",
-			);
-			for (const delegated of delegations.verificationRoles)
-				for (const id of delegated.keyids) tufKeyids.add(id);
-		}
-		const targets = must(parseTargets(metadata.signed), "tuf");
-		for (const [path, descriptor] of Object.entries(targets)) {
-			const slash = path.lastIndexOf("/");
-			const hashed = `${path.slice(0, slash + 1)}${descriptor.hashes.sha256}.${path.slice(slash + 1)}`;
-			// Supports the existing client and the consistent-snapshot client update:
-			// either way these are exactly the bytes the successful walk consumed.
-			const target =
-				consumed.get(root.consistentSnapshot ? hashed : path) ??
-				consumed.get(path);
-			if (
-				!target ||
-				target.length !== descriptor.length ||
-				sha256(target) !== descriptor.hashes.sha256
-			)
-				fail("tuf", "authenticated-view-unavailable");
-			bytes.set(path, target.slice());
-			if (role.name === "targets") topLevelTargets.add(path);
+	for (const [roleName, targets] of Object.entries(
+		authenticated.authenticatedTargets,
+	)) {
+		for (const [path, target] of Object.entries(targets)) {
+			const existing = bytes.get(path);
+			if (existing && !Buffer.from(existing).equals(Buffer.from(target.bytes)))
+				fail("tuf", "authenticated-target-conflict");
+			bytes.set(path, target.bytes.slice());
+			if (roleName === "targets") topLevelTargets.add(path);
 		}
 	}
 	return {
@@ -364,7 +334,7 @@ export async function authenticateRepository(
 		fingerprint: result.value.fingerprint,
 		rootBytes,
 		metadata: metadataBytes,
-		versions: result.value.versions,
+		versions: structuredClone(authenticated.versions),
 	};
 }
 

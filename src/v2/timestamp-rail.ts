@@ -36,6 +36,7 @@ import {
 } from "./tuf/client-metadata";
 import type { TufResult } from "./tuf/outcome";
 import { TOP_LEVEL_ROLES } from "./tuf/role-config";
+import { targetStoragePath } from "./tuf/target-storage";
 import { openFileTrustStore } from "./tuf/trust-store";
 
 export interface TimestampRailConfig {
@@ -203,6 +204,11 @@ async function capture(
 	view: AuthenticatedRepositoryView,
 	directory: string,
 ): Promise<void> {
+	const root = must(
+		parseRootDeclarations(
+			must(parseClientMetadata("root", "root.json", view.rootBytes)).signed,
+		),
+	);
 	for (const [filename, bytes] of view.metadata) {
 		validatePublicationKey("v2/", `v2/metadata/${filename}`);
 		await mkdir(join(directory, "metadata"), { recursive: true, mode: 0o700 });
@@ -212,10 +218,14 @@ async function capture(
 		});
 	}
 	for (const [logical, bytes] of view.bytes) {
-		const slash = logical.lastIndexOf("/");
-		const hashed = `${logical.slice(0, slash + 1)}${publicationSha256(bytes)}.${logical.slice(slash + 1)}`;
-		validatePublicationKey("v2/", `v2/targets/${hashed}`);
-		const path = join(directory, "targets", hashed);
+		const storage = must(
+			targetStoragePath(logical, {
+				sha256: publicationSha256(bytes),
+				consistentSnapshot: root.consistentSnapshot,
+			}),
+		);
+		validatePublicationKey("v2/", `v2/targets/${storage}`);
+		const path = join(directory, "targets", storage);
 		await mkdir(dirname(path), { recursive: true, mode: 0o700 });
 		await writeFile(path, bytes, { flag: "wx", mode: 0o600 });
 	}

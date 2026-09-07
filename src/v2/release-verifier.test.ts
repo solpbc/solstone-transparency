@@ -15,6 +15,7 @@ import {
 	type PublicFetch,
 	type ReleaseVerifierOptions,
 	auditDeliveryHeads,
+	authenticateRepository,
 	releaseDescriptorBytes,
 	verifyRelease,
 } from "./release-verifier";
@@ -27,6 +28,7 @@ import {
 } from "./tuf/keyset";
 import { type TufJsonValue, type TufResult, rejection } from "./tuf/outcome";
 import { metadataFilename } from "./tuf/serializer";
+import { targetStoragePath } from "./tuf/target-storage";
 import type { TrustStoreState, TufTrustStore } from "./tuf/trust-store";
 
 const now = new Date("2027-06-01T00:00:00.000Z");
@@ -184,10 +186,14 @@ async function fixture(options: FixtureOptions = {}) {
 			metadata.bytes,
 		);
 	for (const [path, bytes] of targetBytes) {
-		objects.set(targetsBase + path, bytes);
-		const slash = path.lastIndexOf("/");
 		objects.set(
-			`${targetsBase}${path.slice(0, slash + 1)}${hash(bytes)}.${path.slice(slash + 1)}`,
+			targetsBase +
+				must(
+					targetStoragePath(path, {
+						sha256: hash(bytes),
+						consistentSnapshot: true,
+					}),
+				),
 			bytes,
 		);
 	}
@@ -209,7 +215,16 @@ async function fixture(options: FixtureOptions = {}) {
 		now,
 		fetch: fetcher,
 	};
-	return { input, objects, requests, artifact, fetcher };
+	return {
+		input,
+		objects,
+		requests,
+		artifact,
+		fetcher,
+		keys,
+		repository,
+		targetBytes,
+	};
 }
 const verify = (input: ReleaseVerifierOptions) =>
 	verifyRelease({ ...input, product: "journal", version: "2.0.0" });
@@ -509,4 +524,95 @@ test("an artifact fetch deadline produces a distinct timeout rejection", async (
 	expect(
 		await verify({ ...built.input, timeoutMs: 5, fetch: injected }),
 	).toMatchObject({ ok: false, link: "artifact", reason: "timeout" });
+});
+
+test("consistent snapshots reject a repository serving only raw target names", async () => {
+	const built = await fixture();
+	for (const [path, bytes] of built.targetBytes) {
+		built.objects.delete(
+			targetsBase +
+				must(
+					targetStoragePath(path, {
+						sha256: hash(bytes),
+						consistentSnapshot: true,
+					}),
+				),
+		);
+		built.objects.set(targetsBase + path, bytes);
+	}
+	expect(await verify(built.input)).toMatchObject({ ok: false, link: "tuf" });
+	for (const path of built.targetBytes.keys())
+		expect(
+			built.requests.some((request) => request.url === targetsBase + path),
+		).toBe(false);
+});
+
+test("authenticated view keeps the exact store commit, every TUF key namespace, and independent byte copies", async () => {
+	const built = await fixture();
+	const store = built.input.trustStore;
+	let reads = 0;
+	const view = await authenticateRepository({
+		...built.input,
+		trustStore: {
+			async read() {
+				if (++reads !== 1)
+					throw new Error("unexpected post-verification store read");
+				return store.read();
+			},
+			async replace(revision, state) {
+				const stored = await store.replace(revision, state);
+				// A store implementation may retain and change its own argument after writing.
+				// It must not mutate the client's authenticated envelope or our captured commit.
+				state.trustedRoot.envelope.signed.version = 999;
+				return stored;
+			},
+		},
+	});
+	expect(reads).toBe(1);
+	expect(
+		JSON.parse(new TextDecoder().decode(view.rootBytes)).signed.version,
+	).toBe(1);
+	expect(view.versions.root).toBe(1);
+	expect(view.metadata.has("1.root.json")).toBe(true);
+	expect(view.metadata.has("bootstrap.root.json")).toBe(false);
+	const expectedKeys = [
+		...built.keys.signingKeys.root,
+		...built.keys.signingKeys.targets,
+		...built.keys.signingKeys.snapshot,
+		...built.keys.signingKeys.timestamp,
+		...Object.values(built.keys.signingKeys.delegated).flat(),
+	].map((key) => key.keyId);
+	expect([...view.tufKeyids].sort()).toEqual(expectedKeys.sort());
+	expect([...view.topLevelTargets].sort()).toEqual([
+		"keys/dsse/1.json",
+		"policy/dsse-authorization/1.json",
+	]);
+	const preservedRoot = view.metadata.get("1.root.json")?.slice();
+	if (!preservedRoot) throw new Error("authenticated root missing");
+	view.rootBytes.fill(0);
+	expect(view.metadata.get("1.root.json")).toEqual(preservedRoot);
+	expect(built.repository.root.bytes).toEqual(preservedRoot);
+	const target = view.bytes.get(targetPath);
+	expect(target).toEqual(built.targetBytes.get(targetPath));
+	target?.fill(0);
+	expect(target).not.toEqual(built.targetBytes.get(targetPath));
+});
+
+test("an unsuccessful trust-store commit cannot expose an authenticated repository view", async () => {
+	const built = await fixture();
+	await expect(
+		authenticateRepository({
+			...built.input,
+			trustStore: {
+				read: () => built.input.trustStore.read(),
+				async replace() {
+					return rejection("malformed", {
+						path: [],
+						expected: "synthetic successful commit",
+						observed: "synthetic refusal",
+					});
+				},
+			},
+		}),
+	).rejects.toThrow("malformed");
 });

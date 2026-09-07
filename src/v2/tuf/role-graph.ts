@@ -44,8 +44,85 @@ export interface TufDelegationRole extends TufRole {
 /** The signed delegation fields needed for target-path resolution. */
 export interface DelegationAuthority {
 	name: string;
-	pathPrefix: string;
+	paths: readonly string[];
 	terminating: boolean;
+}
+
+/** Explicit depths cover the current collection, product and version target layouts. */
+export function delegationPathsForPrefix(prefix: string): readonly string[] {
+	return [`${prefix}*`, `${prefix}*/*`, `${prefix}*/*/*`];
+}
+
+const DEFAULT_DELEGATIONS: readonly DelegationAuthority[] = DELEGATED_ROLES.map(
+	(role) => ({
+		name: role.name,
+		paths: delegationPathsForPrefix(role.pathPrefix),
+		terminating: role.terminating,
+	}),
+);
+
+/** Admit the literal, * and ? subset of TUF path patterns; other syntax fails closed. */
+export function validateDelegationPathPattern(
+	pattern: string,
+): TufResult<string> {
+	if (
+		typeof pattern !== "string" ||
+		pattern.length > 4096 ||
+		pattern
+			.split("/")
+			.some(
+				(segment) =>
+					!segment ||
+					segment === "." ||
+					segment === ".." ||
+					!/^[A-Za-z0-9._*?-]+$/.test(segment),
+			)
+	)
+		return rejection("malformed", {
+			path: ["delegations", "paths"],
+			expected:
+				"relative path patterns using literals, * and ? within segments",
+			observed: pattern,
+		});
+	return { ok: true, value: pattern };
+}
+
+function matchesSegment(value: string, pattern: string): boolean {
+	let valueIndex = 0;
+	let patternIndex = 0;
+	let star = -1;
+	let retry = 0;
+	while (valueIndex < value.length) {
+		if (
+			pattern[patternIndex] === "?" ||
+			pattern[patternIndex] === value[valueIndex]
+		) {
+			valueIndex++;
+			patternIndex++;
+		} else if (pattern[patternIndex] === "*") {
+			star = patternIndex++;
+			retry = valueIndex;
+		} else if (star !== -1) {
+			patternIndex = star + 1;
+			valueIndex = ++retry;
+		} else return false;
+	}
+	while (pattern[patternIndex] === "*") patternIndex++;
+	return patternIndex === pattern.length;
+}
+
+/** TUF wildcards match within one segment, including **; they never consume '/'. */
+export function matchesDelegationPath(
+	targetPath: string,
+	pattern: string,
+): boolean {
+	if (!validateDelegationPathPattern(pattern).ok) return false;
+	const target = targetPath.split("/");
+	const parts = pattern.split("/");
+	return (
+		target.length === parts.length &&
+		parts.every((part, index) => matchesSegment(target[index] ?? "", part))
+	);
 }
 
 export interface TufSignature {
@@ -248,6 +325,16 @@ export function validateDelegationConfiguration(
 			});
 		}
 		names.add(role.name);
+		if (!Array.isArray(role.paths) || role.paths.length === 0)
+			return rejection("malformed", {
+				path: ["delegations", role.name, "paths"],
+				expected: "nonempty signed path patterns",
+				observed: role.paths,
+			});
+		for (const pattern of role.paths) {
+			const valid = validateDelegationPathPattern(pattern);
+			if (!valid.ok) return valid;
+		}
 		const roleResult = validateRoleConfiguration(role, keys);
 		if (!roleResult.ok) return roleResult;
 	}
@@ -366,7 +453,7 @@ export function validateDelegationChain(
  */
 export function resolveDelegation(
 	targetPath: string,
-	delegations: readonly DelegationAuthority[] = DELEGATED_ROLES,
+	delegations: readonly DelegationAuthority[] = DEFAULT_DELEGATIONS,
 	availableRoleNames?: ReadonlySet<string>,
 ): TufResult<DelegationResolution> {
 	const safePath = validateTargetPath(targetPath);
@@ -386,7 +473,10 @@ export function resolveDelegation(
 		};
 	}
 	for (const role of delegations) {
-		if (!targetPath.startsWith(role.pathPrefix)) continue;
+		if (
+			!role.paths.some((pattern) => matchesDelegationPath(targetPath, pattern))
+		)
+			continue;
 		const accepted = availableRoleNames?.has(role.name) ?? true;
 		if (accepted || role.terminating) {
 			return {
@@ -410,7 +500,7 @@ export function resolveDelegation(
 export function authorizeTargetPath(
 	roleName: string,
 	targetPath: string,
-	delegations: readonly DelegationAuthority[] = DELEGATED_ROLES,
+	delegations: readonly DelegationAuthority[] = DEFAULT_DELEGATIONS,
 	availableRoleNames?: ReadonlySet<string>,
 ): TufResult<DelegationResolution> {
 	const resolution = resolveDelegation(

@@ -17,9 +17,10 @@ import {
 } from "./tuf/builder";
 import { updateTufRepository } from "./tuf/client";
 import type { Ed25519SigningKey } from "./tuf/ed25519";
-import { DELEGATED_ROLES } from "./tuf/role-config";
+import { DELEGATED_ROLES, TOP_LEVEL_ROLES } from "./tuf/role-config";
 import { validateTargetPath } from "./tuf/role-graph";
 import { serializeRepository } from "./tuf/serializer";
+import { targetStoragePath } from "./tuf/target-storage";
 import { openFileTrustStore } from "./tuf/trust-store";
 
 export interface CeremonyConfiguration {
@@ -62,7 +63,7 @@ export async function runCeremony(
 	for (const [role, paths] of entries)
 		if (
 			!Array.isArray(paths) ||
-			paths.length !== (role === "root" ? 3 : 1) ||
+			paths.length !== (role === "root" ? TOP_LEVEL_ROLES.root.keyCount : 1) ||
 			paths.some((path) => typeof path !== "string" || !path)
 		)
 			throw new Error("ceremony-key-count-invalid");
@@ -117,9 +118,13 @@ export async function runCeremony(
 	);
 	if (!serialized.ok) throw new Error(`ceremony-write-${serialized.reason}`);
 	for (const [path, bytes] of Object.entries(targetBytes)) {
-		const slash = path.lastIndexOf("/");
-		const storage = `${path.slice(0, slash + 1)}${descriptions[path]?.hashes.sha256}.${path.slice(slash + 1)}`;
-		const destination = join(output, "targets", storage);
+		const storage = targetStoragePath(path, {
+			sha256: descriptions[path]?.hashes.sha256 ?? "",
+			consistentSnapshot: true,
+		});
+		if (!storage.ok)
+			throw new Error(`ceremony-target-storage-${storage.reason}`);
+		const destination = join(output, "targets", storage.value);
 		await mkdir(dirname(destination), { recursive: true });
 		await writeFile(destination, bytes, { flag: "wx" });
 	}

@@ -152,7 +152,7 @@ async function genesisFixture(directory: string) {
 		...DELEGATED_ROLES.map((role) => role.name),
 	]) {
 		const paths = [];
-		for (let i = 0; i < (role === "root" ? 3 : 1); i++)
+		for (let i = 0; i < 1; i++)
 			paths.push((await encryptedKey(directory, `${role}-${i}.pem`)).path);
 		if (role.startsWith("targets-")) config.keys.delegated[role] = paths;
 		else
@@ -187,7 +187,7 @@ test("genesis forwards the callback to every key and verifies persisted output",
 		expect(
 			JSON.parse(await readFile(join(output, "ceremony-receipt.json"), "utf8")),
 		).toEqual(receipt);
-		expect(receipt.keyids.root?.length).toBe(3);
+		expect(receipt.keyids.root?.length).toBe(1);
 	}));
 
 async function cli(script: string, args: string[]) {

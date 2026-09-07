@@ -10,10 +10,8 @@ import {
 } from "./role-config";
 
 /**
- * The security office's table, transcribed a SECOND time and independently.
- *
- * Source: cso/architecture/transparency-v2-tuf-role-key-and-custody-design.md
- * sections 1 and 2. This is deliberately a duplicate literal rather than a derived
+ * The approved role policy, transcribed independently.
+ * This is deliberately a duplicate literal rather than a derived
  * value: comparing the module to itself would prove nothing, and the failure this
  * guards is a transcription slip, which only a second reading catches.
  */
@@ -27,7 +25,7 @@ const CSO_TOP_LEVEL: Record<
 		alert: number,
 	]
 > = {
-	root: [2, 3, 1095, 365, 730],
+	root: [1, 1, 1095, 365, 730],
 	targets: [1, 1, 365, 120, 240],
 	snapshot: [1, 1, 90, 30, 60],
 	timestamp: [1, 1, 7, 1, 2],
@@ -64,12 +62,11 @@ test("top-level roles match the security office's table exactly", () => {
 		];
 		expect(actual).toEqual([threshold, keys, validity, renewal, alert]);
 	}
-	// Root is the only quorum role, and it is the one whose loss nothing else can
-	// recover from. If this ever reads 1-of-1, the custody design has been undone.
+	// Genesis uses the approved single-key root policy.
 	const rootThreshold: number = TOP_LEVEL_ROLES.root.threshold;
 	const rootKeys: number = TOP_LEVEL_ROLES.root.keyCount;
-	expect(rootThreshold).toBe(2);
-	expect(rootKeys).toBe(3);
+	expect(rootThreshold).toBe(1);
+	expect(rootKeys).toBe(1);
 });
 
 test("delegated roles match the table, in delegation list order", () => {

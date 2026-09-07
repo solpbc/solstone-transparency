@@ -494,17 +494,9 @@ export function parseDelegations(value: unknown): TufResult<ParsedDelegations> {
 				observed: typeName(item),
 			});
 		}
-		const path = item.paths[0];
-		if (item.paths.length !== 1 || path === undefined || !path.endsWith("*")) {
-			return rejection("malformed", {
-				path: ["signed", "delegations", "roles", String(index), "paths"],
-				expected: "one wildcard-suffixed delegation path",
-				observed: item.paths,
-			});
-		}
 		roles.push({
 			name: item.name,
-			pathPrefix: path.slice(0, -1),
+			paths: [...item.paths],
 			terminating: item.terminating,
 		});
 		verificationRoles.push({

@@ -9,6 +9,7 @@ import { type RepositorySigningKeys, buildRepository } from "./builder";
 import { generateEd25519SigningKey } from "./ed25519";
 import { DELEGATED_ROLES, TOP_LEVEL_ROLES } from "./role-config";
 import {
+	isMetadataFilename,
 	metadataFilename,
 	metadataLogicalName,
 	serializeRepository,
@@ -147,4 +148,23 @@ test("round-trips delegated role names without percent encoding, and preserves o
 			reason: "degenerate-role-configuration",
 		});
 	}
+});
+
+test("recognizes only flat metadata filenames, never hash-prefixed target paths", () => {
+	for (const filename of [
+		"root.json",
+		"1.root.json",
+		"timestamp.json",
+		"snapshot.json",
+		"1.snapshot.json",
+		"targets.json",
+		"1.targets.json",
+		"targets-software.json",
+		"1.targets-software.json",
+	]) {
+		expect(isMetadataFilename(filename)).toBe(true);
+	}
+	expect(
+		isMetadataFilename(`software/${"a".repeat(64)}.targets-software.json`),
+	).toBe(false);
 });

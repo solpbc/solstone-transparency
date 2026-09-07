@@ -5,6 +5,7 @@ import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { BuiltMetadata, BuiltRepository } from "./builder";
 import { type TufResult, rejection } from "./outcome";
+import { DELEGATED_ROLES } from "./role-config";
 import { validateDelegatedRoleName, validateTargetPath } from "./role-graph";
 
 export interface SerializedRepository {
@@ -15,6 +16,14 @@ export interface SerializedRepository {
 function validVersion(version: number): boolean {
 	return Number.isSafeInteger(version) && version > 0;
 }
+
+const VERSIONED_METADATA_ROLES = new Set([
+	"root",
+	"snapshot",
+	"targets",
+	...DELEGATED_ROLES.map((role) => role.name),
+]);
+const VERSIONED_METADATA_FILENAME = /^(?:[1-9][0-9]*\.)?([A-Za-z0-9-]+)\.json$/;
 
 /** Returns the unversioned logical metadata name used inside signed meta objects. */
 export function metadataLogicalName(roleName: string): TufResult<string> {
@@ -52,6 +61,14 @@ export function metadataFilename(
 		ok: true,
 		value: consistentSnapshot ? `${version}.${logical.value}` : logical.value,
 	};
+}
+
+/** Returns whether a repository-relative object name is TUF metadata. */
+export function isMetadataFilename(relativePath: string): boolean {
+	if (relativePath.includes("/")) return false;
+	if (relativePath === "timestamp.json") return true;
+	const match = VERSIONED_METADATA_FILENAME.exec(relativePath);
+	return match !== null && VERSIONED_METADATA_ROLES.has(match[1] ?? "");
 }
 
 function allMetadata(repository: BuiltRepository): readonly BuiltMetadata[] {

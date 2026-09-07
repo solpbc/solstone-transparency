@@ -20,6 +20,7 @@ import {
 	loadRepositorySigningKeys,
 } from "./tuf/keyset";
 import type { TufResult } from "./tuf/outcome";
+import { DELEGATED_ROLES, TOP_LEVEL_ROLES } from "./tuf/role-config";
 import { metadataFilename } from "./tuf/serializer";
 import { openFileTrustStore } from "./tuf/trust-store";
 
@@ -40,13 +41,27 @@ function json(bytes: Uint8Array): Record<string, unknown> {
 	return JSON.parse(new TextDecoder().decode(bytes));
 }
 
+const quorumConfiguration = {
+	topLevelRoles: {
+		...TOP_LEVEL_ROLES,
+		root: { ...TOP_LEVEL_ROLES.root, threshold: 2, keyCount: 3 },
+	},
+	delegatedRoles: DELEGATED_ROLES,
+};
+
 async function fixture() {
 	// All keys are generated in memory for this test and never persisted.
 	const keys = must(
 		await loadRepositorySigningKeys(await generateSyntheticKeySet()),
 	);
+	keys.signingKeys.root = [
+		...keys.signingKeys.root,
+		must(await generateEd25519SigningKey()),
+		must(await generateEd25519SigningKey()),
+	];
 	const repository = must(
 		await buildRepository({
+			roleConfiguration: quorumConfiguration,
 			signingKeys: keys.signingKeys,
 			targets: {},
 			consistentSnapshot: true,
@@ -442,6 +457,7 @@ test("root renewal CLI distinguishes no signatures from an unmet one-signature t
 	const previous = must(
 		await buildRepository({
 			signingKeys: built.keys.signingKeys,
+			roleConfiguration: quorumConfiguration,
 			targets: {},
 			consistentSnapshot: true,
 			now: new Date(now - 2000),
@@ -482,4 +498,33 @@ test("root renewal CLI distinguishes no signatures from an unmet one-signature t
 	} finally {
 		await rm(directory, { recursive: true, force: true });
 	}
+});
+
+test("single-key root renewal refuses no signature and accepts its declared signer", async () => {
+	const keys = must(
+		await loadRepositorySigningKeys(await generateSyntheticKeySet()),
+	);
+	const repository = must(
+		await buildRepository({
+			signingKeys: keys.signingKeys,
+			targets: {},
+			consistentSnapshot: true,
+			now: genesisTime,
+		}),
+	);
+	const previous = repository.root.bytes;
+	const payload = await prepareRootRenewal(previous, renewalTime);
+	await expect(
+		mergeRootRenewal(previous, payload, [], renewalTime),
+	).rejects.toThrow("threshold-unmet");
+	const key = keys.signingKeys.root[0];
+	if (!key) throw new Error("missing synthetic root");
+	const signature = await signRootRenewal(previous, payload, key);
+	const renewed = await mergeRootRenewal(
+		previous,
+		payload,
+		[signature],
+		renewalTime,
+	);
+	expect(json(renewed).signed).toEqual(json(payload));
 });

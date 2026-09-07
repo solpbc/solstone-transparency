@@ -14,6 +14,7 @@ import {
 	type TufDelegationRole,
 	type TufRole,
 	authorizeTargetPath,
+	delegationPathsForPrefix,
 	resolveDelegation,
 	validateDelegationConfiguration,
 	validateRoleConfiguration,
@@ -190,7 +191,7 @@ function mergeKeyMaps(
 	return { ok: true, value: merged };
 }
 
-function expiresAt(now: Date, validityDays: number): TufResult<string> {
+export function expiresAt(now: Date, validityDays: number): TufResult<string> {
 	if (!Number.isFinite(now.getTime())) {
 		return rejection("malformed", {
 			path: ["now"],
@@ -210,7 +211,7 @@ function hexSignature(bytes: Uint8Array): string {
 	return bytesToHex(bytes);
 }
 
-async function signMetadata(
+export async function signMetadata(
 	roleName: string,
 	version: number,
 	signed: Record<string, unknown>,
@@ -234,7 +235,7 @@ async function signMetadata(
 	};
 }
 
-async function metaDescription(
+export async function metaDescription(
 	metadata: BuiltMetadata,
 ): Promise<TufResult<Record<string, unknown>>> {
 	try {
@@ -407,7 +408,7 @@ export async function buildRepository(
 			name: configurationRole.name,
 			keyids: signingKeys.map((key) => key.keyId),
 			threshold: configurationRole.threshold,
-			paths: [`${configurationRole.pathPrefix}*`],
+			paths: delegationPathsForPrefix(configurationRole.pathPrefix),
 			terminating: configurationRole.terminating,
 		});
 	}
@@ -428,10 +429,7 @@ export async function buildRepository(
 	for (const role of configuration.delegatedRoles)
 		targetBuckets[role.name] = {};
 	for (const [targetPath, target] of Object.entries(input.targets)) {
-		const resolution = resolveDelegation(
-			targetPath,
-			configuration.delegatedRoles,
-		);
+		const resolution = resolveDelegation(targetPath, delegatedRoles);
 		if (!resolution.ok) return resolution;
 		let roleName: string;
 		if (resolution.value.kind === "not-consulted") {
@@ -449,7 +447,7 @@ export async function buildRepository(
 		const authorized = authorizeTargetPath(
 			roleName,
 			targetPath,
-			configuration.delegatedRoles,
+			delegatedRoles,
 		);
 		if (!authorized.ok) return authorized;
 		const bucket = targetBuckets[roleName];

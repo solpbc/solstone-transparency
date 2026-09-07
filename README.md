@@ -1,6 +1,6 @@
 # solstone-transparency
 
-This repository is being bootstrapped as the shared verifier/publisher code, public protocol schemas, and trust-portal source for sol pbc's public trust and transparency surface.
+This repository contains the verifier and publisher code, public protocol schemas, and trust-portal source for sol pbc's public trust and transparency surface.
 
 **Status: read-side legacy verifier and a read-only HTML presentation layer landed; it is deployed and live at `trust.solstone.app`.** `src/legacy/` reads the existing historical (v1) release-transparency register, verifies each record's minisign signature and hash-chain linkage, and builds a typed model of what it found. `src/portal/` renders that already-verified model as server-side HTML (home, software index, per-product history, per-release detail, verify, keys, about, not-found). It does not re-verify, re-fetch, or publish. `src/v2view/` is the portal's build-time view of the v2 register: `make build-model` verifies the v2 repository from a pinned root file and writes a second model beside the v1 one; with no pinned root the portal says nothing about v2; a repository that does not verify is shown as unverified, and never as a fabricated register. The v1 records are historical records of what sol pbc published; this code does not claim they are current, reproducible, or a complete account of every release.
 
@@ -35,6 +35,12 @@ Both commands default to the production `/v2/metadata/` and `/v2/targets/` bases
 
 The production pin is reserved at `protocol/tuf-root.json` and is absent until separately published. A root downloaded beside the metadata is not an independent trust anchor. [Protocol documents](protocol/README.md) describe the record and predicate formats.
 
+To add a release, use `release prepare` with a local copy of the authenticated repository, its independently obtained root, and the expected SHA256 of its current `metadata/timestamp.json`. The signing input contains exactly `targets-software`, `snapshot`, `timestamp`, and `producer.release`; root, top-level targets, and unrelated keys are refused. The command retains existing records and prepares a new repository in a fresh output directory. It verifies that repository before writing `publication-manifest.json`, which describes the changed files for `publish-transaction`.
+
+For `release prepare`, `timestamp refresh`, and `metadata renew`, `--keys` names a JSON object mapping the required role names to encrypted PKCS#8 file paths, resolved from the current working directory. For example, a timestamp refresh uses `{"timestamp":"/path/to/timestamp.enc.pem"}`. Plaintext key files and JSON containing private-key bytes are refused. Each public key and its identifier are derived from the decrypted private key in memory.
+
+`journal-artifacts` measures the explicitly supplied journal distribution files and emits the JSON accepted by `release prepare --release-record`. Run it only after the distribution's own signing and verification checks. Use `timestamp refresh` to renew the timestamp, or `metadata renew ROLE` to renew another non-root role and its dependent metadata. These preparation commands write locally; use the publication transaction to upload their changed bytes. Run the main command with `--help` for the input formats.
+
 | Command | Purpose |
 |---|---|
 | `bun bin/tuf-ceremony.ts --help` | Build and re-verify a repository using encrypted PKCS#8 keys and an explicit passphrase provider or terminal prompts |
@@ -44,7 +50,9 @@ The production pin is reserved at `protocol/tuf-root.json` and is absent until s
 | `bun bin/timestamp-rail.ts --help` | Authenticate the repository, refresh only its timestamp, and report failures through configured alert arguments |
 | `bun bin/discovery.ts --help` | Derive discovery fields from a supplied root envelope |
 
-The ceremony and detached signing commands accept `--passphrase-provider MODULE`. This selects trusted local code whose default export receives an encrypted key's path and returns `Promise<Buffer>` containing its passphrase. The reader takes ownership of that buffer and clears it after use. Without the option, the terminal adapter prompts without echo. Providers determine how to obtain the secret; no vault layout is assumed by the public tool. Keep passphrase values out of command arguments and environment variables.
+The ceremony, detached signing, and preparation commands accept `--passphrase-provider MODULE`. This selects trusted local code whose default export receives an encrypted key's path and returns `Promise<Buffer>` containing its passphrase. The reader takes ownership of that buffer and clears it after use. Without the option, the terminal adapter prompts without echo. Providers determine how to obtain the secret; no vault layout is assumed by the public tool. Keep passphrase values out of command arguments and environment variables.
+
+The ceremony defaults to a single-key root. Detached renewal signs and merges against the existing root's declared threshold, including a multi-key root. Renewal keeps the existing keys and role assignments; changed-key rotation is not supported by this command.
 
 The [timestamp service](systemd/solstone-transparency-timestamp.service) and [calendar timer](systemd/solstone-transparency-timestamp.timer) are templates. Configure and exercise the job against the intended repository before enabling it. The repository ships neither credentials nor an enabled timer.
 

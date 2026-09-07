@@ -52,6 +52,7 @@ import {
 } from "../v2/tuf/keyset";
 import type { TufJsonValue } from "../v2/tuf/outcome";
 import { metadataFilename } from "../v2/tuf/serializer";
+import { targetStoragePath } from "../v2/tuf/target-storage";
 
 export interface FixtureArtifact {
 	url: string;
@@ -80,14 +81,12 @@ export interface FixtureOptions {
 	legacy?: "synthetic" | "real" | "none";
 	includePolicy?: boolean;
 	includeDsseKeys?: boolean;
-	/** Serve targets under their consistent-snapshot name `<dir>/<sha256>.<file>` in addition to the logical path. */
-	hashPrefixedTargets?: boolean;
 }
 
 export interface Fixture {
-	/** Every servable object keyed by the client-relative path (`timestamp.json`, `software/…/release-record.json`). */
+	/** Every servable object keyed by the client-relative path (`timestamp.json`, `software/…/<sha256>.release-record.json`). */
 	files: Map<string, Uint8Array>;
-	/** Logical target path → the consistent-snapshot (hash-prefixed) path, so a test can address whichever name a client fetches. */
+	/** Logical target path to its hash-prefixed storage path. */
 	targetPaths: Map<string, string>;
 	rootBytes: Uint8Array;
 	repository: BuiltRepository;
@@ -166,12 +165,18 @@ export async function buildFixture(options: FixtureOptions): Promise<Fixture> {
 	const targetPaths = new Map<string, string>();
 	const addTarget = async (path: string, bytes: Uint8Array) => {
 		const sha256 = await sha256Hex(bytes);
-		targets[path] = { length: bytes.byteLength, hashes: { sha256 } };
-		files.set(path, bytes);
-		const slash = path.lastIndexOf("/");
-		const physical = `${path.slice(0, slash + 1)}${sha256}.${path.slice(slash + 1)}`;
-		targetPaths.set(path, physical);
-		if (options.hashPrefixedTargets) files.set(physical, bytes);
+		targets[path] = {
+			length: bytes.byteLength,
+			hashes: { sha256 },
+		};
+		const storage = targetStoragePath(path, {
+			sha256,
+			consistentSnapshot: true,
+		});
+		if (!storage.ok)
+			throw new Error(`fixture target path failed: ${storage.reason}`);
+		files.set(storage.value, bytes);
+		targetPaths.set(path, storage.value);
 	};
 
 	let policySha256: string | undefined;
@@ -390,7 +395,7 @@ if (import.meta.main) {
 	const dir = argv[0];
 	if (!dir) {
 		console.error(
-			"usage: bun run src/v2view/fixture.test-support.ts <out-dir> [--releases N] [--real-legacy] [--build-at <iso>] [--hash-prefixed]",
+			"usage: bun run src/v2view/fixture.test-support.ts <out-dir> [--releases N] [--real-legacy] [--build-at <iso>]",
 		);
 		process.exit(1);
 	}
@@ -410,7 +415,6 @@ if (import.meta.main) {
 		buildAt,
 		releases,
 		legacy: argv.includes("--real-legacy") ? "real" : "synthetic",
-		hashPrefixedTargets: argv.includes("--hash-prefixed"),
 	});
 	await writeFixture(fixture, dir);
 	console.log(

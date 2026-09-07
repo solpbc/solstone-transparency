@@ -22,8 +22,10 @@ import {
 } from "./ed25519";
 import type { TufFetchResponse, TufFetcher } from "./fetch";
 import { rejection } from "./outcome";
+import { readRepository } from "./reader";
 import { DELEGATED_ROLES, TOP_LEVEL_ROLES } from "./role-config";
 import { metadataFilename } from "./serializer";
+import { targetStoragePath } from "./target-storage";
 import { type TrustStoreState, openFileTrustStore } from "./trust-store";
 
 const issuedAt = new Date("2030-01-02T03:04:05Z");
@@ -164,20 +166,23 @@ async function fixtureWithKeys(
 		topLevelRoles: TOP_LEVEL_ROLES,
 		delegatedRoles: DELEGATED_ROLES,
 	},
+	targetPath = "software/release.json",
 ): Promise<{
 	repository: BuiltRepository;
 	keys: RepositorySigningKeys;
 	fetch: ScriptedFetcher;
 	targetBytes: Uint8Array;
+	targetStoragePath: string;
 }> {
 	const targetBytes = new TextEncoder().encode("synthetic target bytes");
+	const targetSha256 = await sha256(targetBytes);
 	const keys = await signingKeys(configuration);
 	const repository = await buildRepository({
 		signingKeys: keys,
 		targets: {
-			"software/release.json": {
+			[targetPath]: {
 				length: targetBytes.byteLength,
-				hashes: { sha256: await sha256(targetBytes) },
+				hashes: { sha256: targetSha256 },
 			},
 		},
 		consistentSnapshot: true,
@@ -202,12 +207,18 @@ async function fixtureWithKeys(
 		if (!filename.ok) throw new Error("fixture metadata filename failed");
 		objects.set(filename.value, { kind: "ok", bytes: metadata.bytes });
 	}
-	objects.set("software/release.json", { kind: "ok", bytes: targetBytes });
+	const storagePath = targetStoragePath(targetPath, {
+		sha256: targetSha256,
+		consistentSnapshot: true,
+	});
+	if (!storagePath.ok) throw new Error("fixture target storage path failed");
+	objects.set(storagePath.value, { kind: "ok", bytes: targetBytes });
 	return {
 		repository: repository.value,
 		keys,
 		fetch: createScriptedFetcher(objects),
 		targetBytes,
+		targetStoragePath: storagePath.value,
 	};
 }
 
@@ -339,11 +350,28 @@ test("client completes root look-ahead, verifies every role and persists only af
 		).toBe(true);
 		expect(result.value.fingerprint).toHaveLength(64);
 		expect(
+			result.value.authenticatedMetadata["targets-software"],
+		).toMatchObject({
+			roleName: "targets-software",
+			filename: "1.targets-software.json",
+			version: 1,
+		});
+		expect(
+			result.value.authenticatedTargets["targets-software"]?.[
+				"software/release.json"
+			],
+		).toMatchObject({
+			roleName: "targets-software",
+			logicalPath: "software/release.json",
+			descriptor: { length: built.targetBytes.byteLength },
+			bytes: built.targetBytes,
+		});
+		expect(
 			built.fetch.requests.find(
-				(request) => request.path === "software/release.json",
+				(request) => request.path === built.targetStoragePath,
 			),
 		).toEqual({
-			path: "software/release.json",
+			path: built.targetStoragePath,
 			maxBytes: built.targetBytes.byteLength,
 		});
 		const persisted = await store.read();
@@ -360,6 +388,45 @@ test("client completes root look-ahead, verifies every role and persists only af
 			ok: true,
 			value: { versions: { root: 2 } },
 		});
+	});
+});
+
+test("consistent snapshots succeed when only the hash-prefixed target is available", async () => {
+	const built = await fixtureWithKeys();
+	expect(built.fetch.objects.has("software/release.json")).toBe(false);
+	expect(built.fetch.objects.has(built.targetStoragePath)).toBe(true);
+	await withStore("client-hash-prefixed-target", async (store) => {
+		const result = await updateTufRepository({
+			fetcher: built.fetch.fetcher,
+			bootstrapRoot: built.repository.root.bytes,
+			trustStore: store,
+			now: issuedAt,
+		});
+		expect(result.ok).toBe(true);
+	});
+});
+
+test("consistent snapshots do not fall back to a raw target path", async () => {
+	const built = await fixtureWithKeys();
+	const response = built.fetch.objects.get(built.targetStoragePath);
+	if (response === undefined)
+		throw new Error("fixture target response missing");
+	built.fetch.objects.delete(built.targetStoragePath);
+	built.fetch.objects.set("software/release.json", response);
+	await withStore("client-no-raw-target-fallback", async (store) => {
+		const result = await updateTufRepository({
+			fetcher: built.fetch.fetcher,
+			bootstrapRoot: built.repository.root.bytes,
+			trustStore: store,
+			now: issuedAt,
+		});
+		expect(result).toMatchObject({ ok: false, reason: "unavailable" });
+		expect(built.fetch.requests).toContainEqual(
+			expect.objectContaining({ path: built.targetStoragePath }),
+		);
+		expect(built.fetch.requests).not.toContainEqual(
+			expect.objectContaining({ path: "software/release.json" }),
+		);
 	});
 });
 
@@ -498,7 +565,7 @@ test("client maps fetcher error to retrieval-failed", async () => {
 
 test("target bytes distinguish length and hash mismatches", async () => {
 	const lengthFixture = await fixtureWithKeys();
-	lengthFixture.fetch.objects.set("software/release.json", {
+	lengthFixture.fetch.objects.set(lengthFixture.targetStoragePath, {
 		kind: "ok",
 		bytes: new Uint8Array(),
 	});
@@ -513,7 +580,7 @@ test("target bytes distinguish length and hash mismatches", async () => {
 	});
 
 	const hashFixture = await fixtureWithKeys();
-	hashFixture.fetch.objects.set("software/release.json", {
+	hashFixture.fetch.objects.set(hashFixture.targetStoragePath, {
 		kind: "ok",
 		bytes: new TextEncoder().encode(
 			"x".repeat(hashFixture.targetBytes.byteLength),
@@ -874,7 +941,7 @@ test("a failed later target check leaves the persisted trust store byte-identica
 		});
 		expect(accepted.ok).toBe(true);
 		const before = await readFile(path);
-		built.fetch.objects.set("software/release.json", {
+		built.fetch.objects.set(built.targetStoragePath, {
 			kind: "ok",
 			bytes: new Uint8Array(),
 		});
@@ -1107,5 +1174,83 @@ test("client rejects a corrupt trust store before retrieving repository metadata
 		expect(built.fetch.requests).toEqual([]);
 	} finally {
 		await rm(directory, { recursive: true, force: true });
+	}
+});
+
+test("client and persisted reader enforce signed segment patterns for nested release targets", async () => {
+	const targetPath = "software/journal/2.0.0-w3a-synthetic/release-record.json";
+	for (const scenario of [
+		{ paths: ["software/*", "software/*/*", "software/*/*/*"], accepted: true },
+		{ paths: [targetPath], accepted: true },
+		{ paths: ["software/journ?l/*/release-*.json"], accepted: true },
+		{ paths: ["software/*"], accepted: false },
+		{ paths: ["software/**"], accepted: false },
+		{ paths: ["software/linux/*/release-record.json"], accepted: false },
+		{ paths: ["services/*/*/*"], accepted: false },
+	]) {
+		const built = await fixtureWithKeys(undefined, targetPath);
+		const top = built.repository.targets.envelope.signed;
+		const delegations = top.delegations as {
+			keys: Record<string, unknown>;
+			roles: { name: string; paths: string[] }[];
+		};
+		await replaceMetadataAndAncestors(
+			built,
+			"targets",
+			{
+				...top,
+				delegations: {
+					...delegations,
+					roles: delegations.roles.map((role) =>
+						role.name === "targets-software"
+							? { ...role, paths: scenario.paths }
+							: role,
+					),
+				},
+			},
+			built.keys.targets,
+		);
+		await withStore("signed-path-authority", async (trustStore) => {
+			const result = await updateTufRepository({
+				fetcher: built.fetch.fetcher,
+				bootstrapRoot: built.repository.root.bytes,
+				trustStore,
+				now: issuedAt,
+			});
+			if (scenario.accepted) {
+				expect(result.ok).toBe(true);
+				if (result.ok)
+					expect(
+						Object.keys(
+							result.value.authenticatedTargets["targets-software"] ?? {},
+						),
+					).toContain(targetPath);
+			} else {
+				expect(result).toMatchObject({
+					ok: false,
+					reason: "role-not-authorized",
+				});
+				expect(
+					built.fetch.requests.some(
+						(request) => request.path === built.targetStoragePath,
+					),
+				).toBe(false);
+			}
+		});
+		const directory = await mkdtemp(join(tmpdir(), "signed-path-reader-"));
+		try {
+			for (const [path, response] of built.fetch.objects) {
+				if (!path.includes("/") && response.kind === "ok")
+					await writeFile(join(directory, path), response.bytes);
+			}
+			const result = await readRepository(directory);
+			expect(result).toMatchObject(
+				scenario.accepted
+					? { ok: true }
+					: { ok: false, reason: "role-not-authorized" },
+			);
+		} finally {
+			await rm(directory, { recursive: true, force: true });
+		}
 	}
 });

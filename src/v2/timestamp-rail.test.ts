@@ -47,7 +47,7 @@ async function fixture(nearExpiry = false) {
 	scratch.push(path);
 	const generate = async () => must(await generateEd25519SigningKey());
 	const keys: RepositorySigningKeys = {
-		root: await Promise.all([generate(), generate(), generate()]),
+		root: [await generate()],
 		targets: [await generate()],
 		timestamp: [await generate()],
 		snapshot: [await generate()],

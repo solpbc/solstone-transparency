@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { publishRepository } from "./publish-cli";
 import { RELEASE_RECORD_SCHEMA } from "./records/release-record";
 import { generateSyntheticKeySet } from "./tuf/keyset";
+import { targetStoragePath } from "./tuf/target-storage";
 import { verifyRepository } from "./verify-cli";
 
 describe("publish-cli and end-to-end TUF round-trip", () => {
@@ -99,6 +100,37 @@ describe("publish-cli and end-to-end TUF round-trip", () => {
 		expect(code).toBe(1);
 		expect(await readdir(testDir)).not.toContain("out-bad-keys");
 	});
+	test("malformed private-key JSON never appears in CLI diagnostics", async () => {
+		const marker = "synthetic-private-key-marker";
+		await writeFile(keysPath, `{${marker}`);
+		const child = Bun.spawn(
+			[
+				"bun",
+				"bin/solstone-transparency.ts",
+				"publish-v2",
+				"--artifacts",
+				artifactsPath,
+				"--product",
+				"journal",
+				"--keys",
+				keysPath,
+				"--policy-sha256",
+				dummyPolicyHex,
+				"--out",
+				join(testDir, "refused-output"),
+			],
+			{ stdout: "pipe", stderr: "pipe" },
+		);
+		const [code, stdout, stderr] = await Promise.all([
+			child.exited,
+			new Response(child.stdout).text(),
+			new Response(child.stderr).text(),
+		]);
+		expect(code).toBe(1);
+		expect(stdout + stderr).not.toContain(marker);
+		expect(stderr).toContain("could not read or parse keys file");
+		expect(await readdir(testDir)).not.toContain("refused-output");
+	});
 
 	test("AC 7 & AC 8: publishes v2 TUF repository and verifies end-to-end via verify-v2", async () => {
 		const outDir = join(testDir, "out-repo");
@@ -124,13 +156,42 @@ describe("publish-cli and end-to-end TUF round-trip", () => {
 		expect(metadataFiles).toContain("1.targets-legacy.json");
 
 		// Confirm targets directory has target payloads
-		const releaseRecordPath = join(
-			outDir,
-			"targets/software/journal/1.0.23/release-record.json",
-		);
+		const softwareMetadata = JSON.parse(
+			await readFile(
+				join(outDir, "metadata", "1.targets-software.json"),
+				"utf-8",
+			),
+		) as {
+			signed: { targets: Record<string, { hashes: { sha256: string } }> };
+		};
+		const legacyMetadata = JSON.parse(
+			await readFile(
+				join(outDir, "metadata", "1.targets-legacy.json"),
+				"utf-8",
+			),
+		) as {
+			signed: { targets: Record<string, { hashes: { sha256: string } }> };
+		};
+		const releaseTargetPath = "software/journal/1.0.23/release-record.json";
+		const migrationTargetPath = "legacy/journal/migration-manifest.json";
+		const releaseStoragePath = targetStoragePath(releaseTargetPath, {
+			sha256:
+				softwareMetadata.signed.targets[releaseTargetPath]?.hashes.sha256 ?? "",
+			consistentSnapshot: true,
+		});
+		const migrationStoragePath = targetStoragePath(migrationTargetPath, {
+			sha256:
+				legacyMetadata.signed.targets[migrationTargetPath]?.hashes.sha256 ?? "",
+			consistentSnapshot: true,
+		});
+		if (!releaseStoragePath.ok || !migrationStoragePath.ok) {
+			throw new Error("published target storage path derivation failed");
+		}
+		const releaseRecordPath = join(outDir, "targets", releaseStoragePath.value);
 		const migrationManifestPath = join(
 			outDir,
-			"targets/legacy/journal/migration-manifest.json",
+			"targets",
+			migrationStoragePath.value,
 		);
 		const releaseContent = await readFile(releaseRecordPath, "utf-8");
 		const migrationContent = await readFile(migrationManifestPath, "utf-8");
@@ -181,6 +242,7 @@ describe("publish-cli and end-to-end TUF round-trip", () => {
 		const verifyCode = await verifyRepository({
 			metadataBase: `${serverBase}/metadata`,
 			targetsBase: `${serverBase}/targets`,
+			rootPath: join(outDir, "metadata", "1.root.json"),
 			storePath,
 			json: true,
 		});

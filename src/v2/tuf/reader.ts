@@ -156,21 +156,9 @@ function parseDelegations(value: unknown): TufResult<{
 			paths: item.paths,
 			terminating: item.terminating,
 		};
-		const path = verificationRole.paths[0];
-		if (
-			verificationRole.paths.length !== 1 ||
-			path === undefined ||
-			!path.endsWith("*")
-		) {
-			return rejection("malformed", {
-				path: ["signed", "delegations", "roles", String(index), "paths"],
-				expected: "one path ending in a wildcard",
-				observed: verificationRole.paths,
-			});
-		}
 		roles.push({
 			name: verificationRole.name,
-			pathPrefix: path.slice(0, -1),
+			paths: [...verificationRole.paths],
 			terminating: verificationRole.terminating,
 		});
 		verificationRoles.push(verificationRole);

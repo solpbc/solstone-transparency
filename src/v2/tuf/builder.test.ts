@@ -239,3 +239,37 @@ describe("buildRepository", () => {
 		expect(accepted.ok).toBe(true);
 	});
 });
+
+test("builder emits explicit admitted depths and refuses deeper targets at source", async () => {
+	const signingKeys = await keysFor();
+	const target = { length: 1, hashes: { sha256: "a".repeat(64) } };
+	const common = {
+		signingKeys,
+		consistentSnapshot: true,
+		now: new Date("2030-01-02T03:04:05Z"),
+	};
+	const result = await buildRepository({
+		...common,
+		targets: {
+			"software/journal/2.0.0/release-record.json": target,
+			"legacy/journal/migration-manifest.json": target,
+		},
+	});
+	expect(result.ok).toBe(true);
+	if (!result.ok) return;
+	const delegations = result.value.targets.envelope.signed.delegations as {
+		roles: { name: string; paths: string[] }[];
+	};
+	expect(
+		delegations.roles.find((role) => role.name === "targets-software")?.paths,
+	).toEqual(["software/*", "software/*/*", "software/*/*/*"]);
+	expect(
+		delegations.roles.find((role) => role.name === "targets-legacy")?.paths,
+	).toEqual(["legacy/*", "legacy/*/*", "legacy/*/*/*"]);
+	expect(
+		await buildRepository({
+			...common,
+			targets: { "software/journal/2.0.0/deep/release-record.json": target },
+		}),
+	).toMatchObject({ ok: false, reason: "role-not-authorized" });
+});

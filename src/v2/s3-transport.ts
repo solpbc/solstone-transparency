@@ -142,7 +142,11 @@ export async function loadR2Transport(
 		try {
 			return await fetcher(`${endpoint.origin}${path}`, {
 				method,
-				headers,
+				// Content coding can weaken the storage ETag needed for If-Match.
+				headers:
+					method === "GET"
+						? { ...headers, "accept-encoding": "identity" }
+						: headers,
 				body: method === "PUT" ? new Uint8Array(body) : undefined,
 				redirect: "error",
 				signal: AbortSignal.timeout(30_000),

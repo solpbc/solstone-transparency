@@ -23,8 +23,8 @@ export interface BuildEvidenceRecordInput {
 	subjectName: string;
 	subjectSha256: string;
 	/**
-	 * Placeholder policy SHA-256 digest pending the next lode's real authorization-policy publication.
-	 * In this lode, full record-level policy evaluation requires an out-of-band policy fixture.
+	 * Caller-supplied policy SHA-256: genesis publishing accepts an operator value, while release
+	 * preparation supplies the authenticated digest from the repository's published policy target.
 	 */
 	policySha256: string;
 	issuedAt: string;

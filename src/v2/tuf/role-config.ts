@@ -4,26 +4,10 @@
 /**
  * The v2 TUF role graph, thresholds, validity windows and renewal cadences.
  *
- * This module is a TRANSCRIPTION of a decided design, not an engineering choice.
- * The source is sol pbc's security office:
- * `cso/architecture/transparency-v2-tuf-role-key-and-custody-design.md`, sections
- * 1 and 2. `role-config.test.ts` asserts every value here against that table as a
- * committed literal, so a transcription error fails a test rather than shipping a
- * repository whose policy quietly differs from the one that was approved.
- *
- * ⛔ Nothing here is a default anyone should tune to make a test pass. If a shorter
- * window ever looks necessary, the test is wrong, not the policy. Time is injected
- * into the builder; no window is shortened for convenience.
- *
- * These values are FOUNDER-APPROVED PRODUCTION POLICY as of 2026-09-02, not a
- * staging-effective determination -- approved in the same gate as the root custody
- * map. Changing one is a security decision that goes back through that gate, not a
- * code change.
- *
- * The organising idea, in the security office's own framing: a key gets separated
- * custody exactly when no higher authority can recover from its loss or compromise.
- * Root is recoverable only from itself, so it gets a quorum and separation. Every
- * other role is rotatable by a root ceremony.
+ * Genesis policy approved on 2026-09-07: one root key with threshold one.
+ * Root renewal remains able to honor a trusted root's multi-key threshold.
+ * These values define signed metadata; changing them requires operator approval,
+ * never a test convenience. Tests inject time instead of shortening validity.
  *
  * ⚠ The staging and production graphs are IDENTICAL. Only the keys and the object
  * prefix differ. The discriminator between the two repositories is the pinned root
@@ -74,13 +58,13 @@ export interface DelegatedRoleConfig extends RoleWindow {
  */
 export const TOP_LEVEL_ROLES = {
 	root: {
-		threshold: 2,
-		keyCount: 3,
+		threshold: 1,
+		keyCount: 1,
 		validityDays: 1095,
 		renewalDays: 365,
 		alertAtRemainingDays: 730,
-		owner: "founder",
-		keyLabel: "solpbc-tuf-root-1a",
+		owner: "cso",
+		keyLabel: "solpbc-tuf-root-1",
 	},
 	targets: {
 		threshold: 1,
