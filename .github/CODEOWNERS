@@ -1,6 +1,4 @@
-# Required reviewers for specific paths. See CONTRIBUTING.md for why
-# protocol/ carries an additional licensing term that a reviewer must see
-# before a pull request touching it can merge.
+# Required reviewers for protocol contracts. See CONTRIBUTING.md.
 
 /protocol/ @quartzjer
 

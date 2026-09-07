@@ -34,10 +34,10 @@ make test
 | `src/legacy/` | Read-side v1 verifier and typed portal model |
 | `src/portal/` | Read-only HTML presentation over that model; not a live host |
 | `bin/` | The CLI executable |
-| `protocol/` | Reserved for the public schemas, predicate/semantics documents, and conformance fixtures that later work will add. See [`protocol/README.md`](protocol/README.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md) for the licensing note that applies to this directory specifically. |
+| `protocol/` | Public evidence-record and predicate documents for independent verifiers. See [`protocol/README.md`](protocol/README.md). |
 
 ## License
 
-AGPL-3.0-only. See [`LICENSE`](LICENSE) for the full text and [`CONTRIBUTING.md`](CONTRIBUTING.md) for contribution terms, including a narrow forward-designation clause that applies only to `protocol/`.
+AGPL-3.0-only, including `protocol/`. See [`LICENSE`](LICENSE) for the full text and [`CONTRIBUTING.md`](CONTRIBUTING.md) for contribution terms.
 
 "solstone" is a trademark of sol pbc. This license does not grant rights to use the solstone name or marks.
