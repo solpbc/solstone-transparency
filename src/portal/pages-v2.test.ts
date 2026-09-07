@@ -194,7 +194,7 @@ describe("state (a): root and legacy binding, no release record", () => {
 		// The synthetic manifest binds one made-up product, so the "whole register" declaration must NOT render; the scoped one does.
 		expect(body).not.toContain(trustedText(HOME_PUBLICATION_DECLARATION_A));
 		expect(body).toContain(
-			"bound the v1 release records for legacy-corpus into it",
+			"bound the v1 release records of legacy-corpus into it",
 		);
 		expect(body).toContain(
 			"the rest of the v1 release records are not yet bound",
@@ -278,7 +278,7 @@ describe("state (a): root and legacy binding, no release record", () => {
 describe("state (b): a release record", () => {
 	test("home declares the first record; the journal row shows the latest recorded v2 release", () => {
 		const body = handle("/", v1, stateB).body;
-		expect(body).toContain("the first is solstone journal 2.0.0");
+		expect(body).toContain("the first is the journal 2.0.0");
 		expect(body).toContain("newest recorded release 2.0.0");
 		expect(body).toContain(trustedText(AXIS_PUBLICATION_B));
 		expect(body).toContain("v1 chain closed at"); // linux, no v2 record
@@ -320,9 +320,20 @@ describe("state (b): a release record", () => {
 		const record = stateB.software[0];
 		if (record?.kind !== "release") throw new Error("expected release");
 		for (const k of record.signerKeyids) expect(body).toContain(k);
-		expect(body).toContain(
-			"https://transparency.solstone.app/staging/v2/targets/software/solstone-journal/2.0.0/release-record.json",
+		// The link is whichever name the client actually fetched: the logical
+		// path today, the hash-prefixed name once consistent-snapshot target
+		// naming lands in the client; both end in the record's filename.
+		if (record.recordLink.status !== "linked")
+			throw new Error("expected a linked record");
+		expect(
+			record.recordLink.link.url.startsWith(
+				"https://transparency.solstone.app/staging/v2/targets/software/solstone-journal/2.0.0/",
+			),
+		).toBe(true);
+		expect(record.recordLink.link.url.endsWith("release-record.json")).toBe(
+			true,
 		);
+		expect(body).toContain(record.recordLink.link.url);
 	});
 
 	test("a v1 record page in the v2 era drops the pause sentence for the closed-chain one", () => {
@@ -433,7 +444,7 @@ describe("the verifier's own report", () => {
 		const body = handle("/software/journal/", v1, model).body;
 		expect(body).toContain("expected record missing");
 		expect(body).toContain(
-			"a record for solstone journal 2.0.0 was expected (the release lane listing)",
+			"a record of the journal 2.0.0 was expected (the release lane listing)",
 		);
 		expect(handle("/software/journal/2.0.0/", v1, model).status).toBe(404);
 		assertCeiling(renderAll(v1, model));

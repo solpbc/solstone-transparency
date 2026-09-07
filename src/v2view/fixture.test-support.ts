@@ -87,6 +87,8 @@ export interface FixtureOptions {
 export interface Fixture {
 	/** Every servable object keyed by the client-relative path (`timestamp.json`, `software/…/release-record.json`). */
 	files: Map<string, Uint8Array>;
+	/** Logical target path → the consistent-snapshot (hash-prefixed) path, so a test can address whichever name a client fetches. */
+	targetPaths: Map<string, string>;
 	rootBytes: Uint8Array;
 	repository: BuiltRepository;
 	policySha256: string | undefined;
@@ -161,18 +163,15 @@ export async function buildFixture(options: FixtureOptions): Promise<Fixture> {
 
 	const targets: Record<string, TufTargetDescription> = {};
 	const files = new Map<string, Uint8Array>();
+	const targetPaths = new Map<string, string>();
 	const addTarget = async (path: string, bytes: Uint8Array) => {
-		targets[path] = {
-			length: bytes.byteLength,
-			hashes: { sha256: await sha256Hex(bytes) },
-		};
+		const sha256 = await sha256Hex(bytes);
+		targets[path] = { length: bytes.byteLength, hashes: { sha256 } };
 		files.set(path, bytes);
-		if (options.hashPrefixedTargets) {
-			const slash = path.lastIndexOf("/");
-			const dir = path.slice(0, slash + 1);
-			const file = path.slice(slash + 1);
-			files.set(`${dir}${targets[path]?.hashes.sha256}.${file}`, bytes);
-		}
+		const slash = path.lastIndexOf("/");
+		const physical = `${path.slice(0, slash + 1)}${sha256}.${path.slice(slash + 1)}`;
+		targetPaths.set(path, physical);
+		if (options.hashPrefixedTargets) files.set(physical, bytes);
 	};
 
 	let policySha256: string | undefined;
@@ -294,6 +293,7 @@ export async function buildFixture(options: FixtureOptions): Promise<Fixture> {
 	}
 	return {
 		files,
+		targetPaths,
 		rootBytes: repository.root.bytes,
 		repository,
 		policySha256,
@@ -303,7 +303,7 @@ export async function buildFixture(options: FixtureOptions): Promise<Fixture> {
 }
 
 export interface FixtureFetcherOptions {
-	/** Mutate the bytes served for one path (a tamper control). */
+	/** Mutate the bytes served for one target (a tamper control). `path` is the logical target path; the tamper fires whether the client fetches that name or its hash-prefixed form. */
 	tamper?: { path: string; mutate: (bytes: Uint8Array) => Uint8Array };
 	/** Serve nothing at all (an empty base). */
 	unreachable?: boolean;
@@ -325,13 +325,27 @@ export function fixtureFetcher(
 			if (options.unreachable) return { kind: "not-found" };
 			let bytes = files.get(relativePath);
 			if (bytes === undefined) return { kind: "not-found" };
-			if (options.tamper !== undefined && options.tamper.path === relativePath)
+			if (
+				options.tamper !== undefined &&
+				tamperMatches(options.tamper.path, relativePath)
+			)
 				bytes = options.tamper.mutate(bytes);
 			if (bytes.byteLength > maxBytes)
 				return { kind: "error", error: new Error("over ceiling") };
 			return { kind: "ok", bytes };
 		},
 	};
+}
+
+/** True when `requested` is the logical `target` or its `<dir>/<sha256>.<file>` form. */
+function tamperMatches(target: string, requested: string): boolean {
+	if (requested === target) return true;
+	const slash = target.lastIndexOf("/");
+	const dir = target.slice(0, slash + 1);
+	const file = target.slice(slash + 1);
+	return new RegExp(
+		`^${dir.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[0-9a-f]{64}\\.${file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+	).test(requested);
 }
 
 /** A MigrationObjectFetcher over the synthetic manifest's objects. */

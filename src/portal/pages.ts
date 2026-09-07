@@ -91,12 +91,13 @@ import {
 	VERSION_RECORD_CLAIMS_LEAD,
 	WINDOWS_ABSENCE_EXPLAINER_STATE_A,
 } from "../v2view/copy";
-import type {
-	V2Model,
-	V2ReleaseRecord,
-	V2SoftwareEntry,
-	V2UnverifiedModel,
-	V2VerifiedModel,
+import {
+	type V2Model,
+	type V2ReleaseRecord,
+	type V2SoftwareEntry,
+	type V2UnverifiedModel,
+	type V2VerifiedModel,
+	slugForProduct,
 } from "../v2view/types";
 import { substituteCopy } from "./copyfill";
 import { escapeHtml, trustedText, untrustedText } from "./escape";
@@ -125,6 +126,7 @@ import {
 	HEADING_WITNESS_LINES,
 	KEYS_PAGE_TITLE_V2,
 	PRODUCT_DISPLAY,
+	SOFTWARE_SCOPE_LINE,
 	STATE_COULD_NOT_BE_CHECKED,
 	STATE_DID_NOT_VERIFY,
 	STATE_NO_RECORD_YET,
@@ -329,15 +331,13 @@ function unverifiedCallout(v2: V2UnverifiedModel): string {
 /** The products a legacy binding covers, as display names for `{products}`. */
 function boundProducts(v2: V2VerifiedModel): string {
 	if (v2.legacy.state !== "bound") return "";
-	return v2.legacy.products
-		.map((p) =>
-			p.product === "journal" ||
-			p.product === "linux" ||
-			p.product === "windows"
-				? PRODUCT_DISPLAY[p.product]
-				: p.product,
-		)
-		.join(", ");
+	const names = v2.legacy.products.map((p) => {
+		const slug = slugForProduct(p.product);
+		return slug === undefined ? p.product : PRODUCT_DISPLAY[slug];
+	});
+	return names.length <= 1
+		? (names[0] ?? "")
+		: `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
 function legacyBindingLine(v2: V2VerifiedModel): string {
@@ -851,6 +851,7 @@ export function renderSoftwareIndex(
 	const main = `
 <h1>${trustedText("the software register")}</h1>
 <p>${trustedText(SOFTWARE_INDEX_LEAD)}</p>
+<p>${trustedText(SOFTWARE_SCOPE_LINE)}</p>
 ${coverage}${unmapped}
 <h2>${trustedText("products")}</h2>
 <div class="card-grid">
@@ -1189,6 +1190,7 @@ ${heading}
 		}
 	}
 	const tech = `<details class="tech" open><summary>${trustedText("technical fields")}</summary><div class="body"><div class="table-scroll"><table class="evidence-table"><tbody>
+<tr><td>${trustedText("record product")}</td><td class="mono">${untrustedText(record.product)}</td></tr>
 <tr><td>${trustedText("subject")}</td><td class="mono">${untrustedText(`software/${record.product}/${record.version}`)}</td></tr>
 <tr><td>${trustedText("target path")}</td><td class="mono">${untrustedText(record.targetPath)}</td></tr>
 <tr><td>${trustedText("target sha256")}</td><td class="mono">${untrustedText(record.targetSha256)}</td></tr>

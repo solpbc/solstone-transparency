@@ -19,11 +19,21 @@ export const KIND_REGISTER = "▤ register";
 export const KIND_DECLARATION = "◆ sol pbc says";
 export const KIND_VERIFIER = "⟳ verifier";
 
+/**
+ * Display names, per brand canon (2026-09-07 CMO ruling): the journal is
+ * "the journal", never "solstone journal"; an app for a platform is
+ * "solstone for <os>", never a "solstone <noun>" compound. Future surfaces
+ * follow the same rule; the operated-services layer is named by mechanism.
+ */
 export const PRODUCT_DISPLAY: Record<ProductSlug, string> = {
-	journal: "solstone journal",
-	linux: "solstone linux",
-	windows: "solstone windows",
+	journal: "the journal",
+	linux: "solstone for linux",
+	windows: "solstone for windows",
 };
+
+/** One line above the coverage caveat on /software/: this portal is for all of solstone. */
+export const SOFTWARE_SCOPE_LINE =
+	"this portal is for all of solstone, not only the journal. surfaces are listed as they publish release records here, and a listed surface with no records says so.";
 
 export const WINDOWS_ONE_FACT =
 	"this page shows one fact rather than four separate axes: with no records, there is no freshness window, nothing to verify, and nothing to rebuild.";
