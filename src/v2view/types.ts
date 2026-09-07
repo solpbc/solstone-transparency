@@ -44,7 +44,7 @@ export interface V2RootView {
 	threshold: number;
 	/** sha256 over the exact bytes of `<version>.root.json` as pinned. */
 	rootSha256: string;
-	/** The two witness lines exactly as `cso/playbooks/tuf-root-key-ceremony.md` § witnesses defines them. */
+	/** The two witness lines in the form the root ceremony runbook publishes them: the key ids with their threshold, and the version-scoped digest of the root file. */
 	witnessLines: readonly [string, string];
 	/** Where the witness lines are published. Organizational declaration: the builder is told these, it does not verify them. */
 	witnesses: readonly { label: string; url: string }[];

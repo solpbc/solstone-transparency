@@ -61,6 +61,7 @@ import {
 	HOME_PUBLICATION_DECLARATION_B,
 	HOME_PUBLICATION_DECLARATION_UNVERIFIED,
 	HOME_REGISTER_SUMMARY_ROW_V1_CLOSED,
+	HOME_REGISTER_SUMMARY_ROW_V1_CLOSED_UNCHECKED,
 	HOME_REGISTER_SUMMARY_ROW_V2,
 	KEYS_V1_ROLE_STATEMENT_A,
 	KEYS_V1_STATUS,
@@ -110,8 +111,10 @@ import {
 import { STYLESHEET_PATH, versionPath } from "./routes";
 import {
 	HEADING_RECORD_CLAIMS,
+	HEADING_V1_DOES_NOT_PROVE,
 	HEADING_V1_KEY,
 	HEADING_V1_METHOD,
+	HEADING_V1_PROVES,
 	HEADING_V1_TIMELINE_CLOSED,
 	HEADING_V2_METHOD,
 	HEADING_V2_RECORDS,
@@ -120,13 +123,17 @@ import {
 	KEYS_PAGE_TITLE_V2,
 	PRODUCT_DISPLAY,
 	STATE_COULD_NOT_BE_CHECKED,
+	STATE_NO_RECORD_YET,
+	STATE_V2_NOT_CHECKED,
 	V1_RECORD_TAG,
 	V2_RECORD_TAG,
 	VERIFY_LEAD_IN,
 	VERIFY_V2_LEAD_IN,
 	VERSION_SUMMARY_NOT_TIME_BOUND,
+	VERSION_SUMMARY_NOT_TIME_BOUND_V2,
 	VERSION_SUMMARY_UNAVAILABLE,
 	WINDOWS_ONE_FACT,
+	readerReason,
 	verifyCommand,
 	verifyV2Command,
 } from "./vocab";
@@ -269,26 +276,38 @@ function displayFor(record: {
 		: PRODUCT_DISPLAY[record.slug];
 }
 
-/** How the publication axis reads once a v2 root is known. Undefined keeps the v1 `paused` row. */
-function publicationOverride(v2: V2Model): PublicationOverride | undefined {
+/**
+ * How the publication axis reads for one subject once a v2 root is known.
+ * Undefined keeps the v1 `paused` row. The axis answers "is sol pbc
+ * publishing records for THIS subject right now?", so the register-wide
+ * state (b) declaration is never rendered as a per-subject fact: a subject
+ * without a v2 record reads "no record yet" while another has one.
+ */
+function publicationOverride(
+	v2: V2Model,
+	slug?: ProductSlug,
+): PublicationOverride | undefined {
 	if (v2.state === "absent") return undefined;
 	if (v2.state === "unverified") {
 		return {
-			kind: "verifier",
-			label: STATE_COULD_NOT_BE_CHECKED,
-			tone: "warn",
-			basis: `${v2.failure.roleName ?? "repository"}: ${v2.failure.reason}`,
+			kind: "declaration",
+			label: STATE_V2_NOT_CHECKED,
+			tone: "neutral",
+			basis: unverifiedReason(v2),
 		};
 	}
-	return {
-		kind: "declaration",
-		label: anyValidV2(v2) ? AXIS_PUBLICATION_B : AXIS_PUBLICATION_A,
-		tone: "neutral",
-	};
+	if (!anyValidV2(v2)) {
+		return { kind: "declaration", label: AXIS_PUBLICATION_A, tone: "neutral" };
+	}
+	if (slug !== undefined && latestV2(v2, slug) === undefined) {
+		return { kind: "declaration", label: STATE_NO_RECORD_YET, tone: "neutral" };
+	}
+	return { kind: "declaration", label: AXIS_PUBLICATION_B, tone: "neutral" };
 }
 
+/** The verifier's reason in reader words; the reason code stays in the model. */
 function unverifiedReason(v2: V2UnverifiedModel): string {
-	return `${v2.failure.roleName ?? "repository"}: ${v2.failure.reason}`;
+	return readerReason(v2.failure.reason);
 }
 
 /** The verifier's own report about a repository that did not verify; rendered wherever the v2 register would otherwise appear. */
@@ -398,8 +417,15 @@ function axesForProduct(
 	};
 }
 
-function proveColumns(does: string, doesNot: string): string {
-	return `<div class="prove-columns"><div class="does"><h3>${trustedText("what this proves")}</h3><p>${does}</p></div><div class="does-not"><h3>${trustedText("what this does not prove")}</h3><p>${doesNot}</p></div></div>`;
+function proveColumns(
+	does: string,
+	doesNot: string,
+	headings: { does: string; doesNot: string } = {
+		does: "what this proves",
+		doesNot: "what this does not prove",
+	},
+): string {
+	return `<div class="prove-columns"><div class="does"><h3>${trustedText(headings.does)}</h3><p>${does}</p></div><div class="does-not"><h3>${trustedText(headings.doesNot)}</h3><p>${doesNot}</p></div></div>`;
 }
 
 function pushLink(
@@ -611,7 +637,7 @@ function v2RecordsSection(
 		const href = versionPath(slug, entry.version);
 		if (entry.verification.state === "valid") {
 			items.push(
-				`<li><span class="v">${untrustedText(entry.version)}</span> · ${untrustedText(entry.issuedAt)} · ${kindTag("verifier")} ${stateSpan("success", trustedText("valid"))} · ${kindTag("signed")} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`,
+				`<li><span class="v">${untrustedText(entry.version)}</span> · ${untrustedText(entry.issuedAt)} · ${kindTag("verifier")} ${stateSpan("success", trustedText("valid"))} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`,
 			);
 			continue;
 		}
@@ -659,13 +685,13 @@ export function renderHome(
 		return `<div class="declaration">${kindTag("declaration")}<p>${text}</p></div>${legacyBindingLine(v2)}`;
 	})();
 
-	const publicationCell = (() => {
+	const publicationCell = (slug: ProductSlug): string => {
 		if (v2.state === "absent")
 			return `${kindTag("declaration")} ${stateSpan("neutral", trustedText("paused"))}`;
-		const override = publicationOverride(v2);
+		const override = publicationOverride(v2, slug);
 		if (override === undefined) return "";
 		return `${kindTag(override.kind)} ${stateSpan(override.tone, trustedText(override.label))}`;
-	})();
+	};
 
 	const rowFor = (
 		slug: ProductSlug,
@@ -674,7 +700,7 @@ export function renderHome(
 		const latest = latestV2(v2, slug);
 		if (latest !== undefined) {
 			return {
-				publication: publicationCell,
+				publication: publicationCell(slug),
 				latest: substituteCopy(HOME_REGISTER_SUMMARY_ROW_V2, {
 					version: latest.version,
 					date: latest.issuedAt,
@@ -686,7 +712,7 @@ export function renderHome(
 				publication:
 					slug === "windows"
 						? `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`
-						: publicationCell,
+						: publicationCell(slug),
 				latest: tip
 					? substituteCopy(homeRegisterSummaryRow(true), {
 							version: tip.version,
@@ -702,10 +728,13 @@ export function renderHome(
 			};
 		}
 		return {
-			publication: publicationCell,
-			latest: substituteCopy(HOME_REGISTER_SUMMARY_ROW_V1_CLOSED, {
-				version: tip.version,
-			}),
+			publication: publicationCell(slug),
+			latest: substituteCopy(
+				v2.state === "unverified"
+					? HOME_REGISTER_SUMMARY_ROW_V1_CLOSED_UNCHECKED
+					: HOME_REGISTER_SUMMARY_ROW_V1_CLOSED,
+				{ version: tip.version },
+			),
 		};
 	};
 	const j = rowFor("journal", jTip);
@@ -761,10 +790,16 @@ export function renderSoftwareIndex(
 			? `${kindTag("signed")} <span class="mono">${untrustedText(tip.version)}</span> ${trustedText("latest recorded")}`
 			: kindTag("register");
 	};
-	const coverageB =
-		anyValidV2(v2) && v2.state === "verified"
-			? declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT_B })
-			: "";
+	const coverage = declaration({
+		kind: "declaration",
+		text:
+			anyValidV2(v2) && v2.state === "verified"
+				? SOFTWARE_COVERAGE_CAVEAT_B
+				: SOFTWARE_COVERAGE_CAVEAT,
+	}).replace(
+		'<div class="declaration">',
+		'<div class="declaration" id="coverage">',
+	);
 	const unmapped = (() => {
 		if (v2.state !== "verified" || v2.unmappedProducts.length === 0) return "";
 		const note = substituteCopy(SOFTWARE_UNMAPPED_PRODUCTS, {
@@ -782,7 +817,7 @@ export function renderSoftwareIndex(
 	const main = `
 <h1>${trustedText("the software register")}</h1>
 <p>${trustedText(SOFTWARE_INDEX_LEAD)}</p>
-${declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT }).replace('<div class="declaration">', '<div class="declaration" id="coverage">')}${coverageB}${unmapped}
+${coverage}${unmapped}
 <h2>${trustedText("products")}</h2>
 <div class="card-grid">
 <div class="card"><a class="card-link" href="/software/journal/"><h3>${trustedText(PRODUCT_DISPLAY.journal)}</h3><p>${card("journal", jTip)}</p></a></div>
@@ -819,13 +854,13 @@ function productAxes(
 				sourceUrl: v2.freshness.provenance.sourceUrl,
 			},
 			verification: latest.verification,
-			links: { verifyHref: "/verify/" },
+			links: { verifyHref: "/verify/#v2" },
 		});
 	}
 	return axisBlock(
 		axesForProduct(model, subject),
 		{ verifyHref: "/verify/" },
-		publicationOverride(v2),
+		publicationOverride(v2, slug),
 	);
 }
 
@@ -858,7 +893,7 @@ ${v2AxisBlock({
 		sourceUrl: v2.freshness.provenance.sourceUrl,
 	},
 	verification: latest.verification,
-	links: { verifyHref: "/verify/" },
+	links: { verifyHref: "/verify/#v2" },
 })}
 ${v2RecordsSection(v2, "windows", undefined)}
 <p><a href="/software/">${trustedText("back to the software register")}</a></p>`;
@@ -899,7 +934,13 @@ ${declaration({ kind: "register", text: explainer, tone: "neutral" })}
 <h1>${trustedText(PRODUCT_DISPLAY[product])}</h1>
 <p>${summaryForProduct(product, subject.timeline, v2)}</p>
 ${productAxes(model, v2, product, subject)}
-${proveColumns(trustedText(productDoesProve(product)), trustedText(productDoesNotProve(product)))}${v2RecordsSection(v2, product, tip?.version)}
+${proveColumns(
+	trustedText(productDoesProve(product)),
+	trustedText(productDoesNotProve(product)),
+	latestV2(v2, product) === undefined
+		? undefined
+		: { does: HEADING_V1_PROVES, doesNot: HEADING_V1_DOES_NOT_PROVE },
+)}${v2RecordsSection(v2, product, tip?.version)}
 <h2>${trustedText(timelineHeading)}</h2>
 ${timelineHtml(product, subject.timeline)}
 <h2>${trustedText("the derived chain ledger")}</h2>
@@ -948,11 +989,16 @@ function versionSummary(
 		);
 	}
 	if (entry.axes.freshness.state === "not-time-bound") {
-		return fillStructural(VERSION_SUMMARY_NOT_TIME_BOUND, {
-			product,
-			version,
-			published_utc: published,
-		});
+		return fillStructural(
+			v2Known(v2)
+				? VERSION_SUMMARY_NOT_TIME_BOUND_V2
+				: VERSION_SUMMARY_NOT_TIME_BOUND,
+			{
+				product,
+				version,
+				published_utc: published,
+			},
+		);
 	}
 	return fillStructural(VERSION_SUMMARY_UNAVAILABLE, {
 		product,
@@ -971,7 +1017,7 @@ export function renderVersion(
 	const display = PRODUCT_DISPLAY[entry.product];
 	const summary = versionSummary(entry, display, v2);
 	const tag = v2Known(v2)
-		? ` <span class="kind kind-register">${trustedText(V1_RECORD_TAG)}</span>`
+		? ` <span class="chain-tag">${trustedText(V1_RECORD_TAG)}</span>`
 		: "";
 	const tech = `<details class="tech" open><summary>${trustedText("technical fields")}</summary><div class="body"><div class="table-scroll"><table class="evidence-table"><tbody>
 <tr><td>${trustedText("subject")}</td><td>${untrustedText(display)} ${untrustedText(entry.version)}</td></tr>
@@ -982,7 +1028,7 @@ export function renderVersion(
 	const main = `
 <h1>${trustedText(display)} <span class="mono">${untrustedText(entry.version)}</span>${tag}</h1>
 <p>${summary}</p>
-${axisBlock(entry.axes, { keysHref: "/keys/" }, publicationOverride(v2))}
+${axisBlock(entry.axes, { keysHref: "/keys/" }, publicationOverride(v2, entry.product))}
 ${proveColumns(trustedText(VERSION_DOES_PROVE), trustedText(VERSION_DOES_NOT_PROVE))}
 <h2>${trustedText("raw evidence")}</h2>
 ${evidenceTable(evidenceRows(model, entry))}
@@ -1018,7 +1064,7 @@ export function renderV2Version(
 		{ label: record.version },
 	];
 	const title = `${display} ${record.version} — trust.solstone.app`;
-	const heading = `<h1>${trustedText(display)} <span class="mono">${untrustedText(record.version)}</span> <span class="kind kind-signed">${trustedText(V2_RECORD_TAG)}</span></h1>`;
+	const heading = `<h1>${trustedText(display)} <span class="mono">${untrustedText(record.version)}</span> <span class="chain-tag">${trustedText(V2_RECORD_TAG)}</span></h1>`;
 	if (record.verification.state !== "valid" || v2.state !== "verified") {
 		const reason =
 			record.verification.state === "valid"
@@ -1060,7 +1106,7 @@ ${heading}
 			sourceUrl: v2.freshness.provenance.sourceUrl,
 		},
 		verification: record.verification,
-		links: { keysHref: "/keys/", verifyHref: "/verify/" },
+		links: { keysHref: "/keys/", verifyHref: "/verify/#v2" },
 	});
 	const list = (items: readonly string[]) =>
 		`<ul>${items.map((i) => `<li>${untrustedText(i)}</li>`).join("")}</ul>`;
@@ -1186,13 +1232,13 @@ ${v1Table}
 	const main = `
 <h1>${trustedText("verify a record yourself")}</h1>
 <p>${trustedText(VERIFY_TWO_METHODS_LEAD)}</p>
-<h2>${trustedText(HEADING_V1_METHOD)}</h2>
+<h2 id="v1">${trustedText(HEADING_V1_METHOD)}</h2>
 <p>${trustedText(VERIFY_METHOD_INTRO)}</p>
 <p>${trustedText(VERIFY_LEAD_IN)}</p>
 <pre class="mono">${trustedText(cmd)}</pre>
 <h3>${trustedText("reading the result")}</h3>
 ${v1Table}
-<h2>${trustedText(HEADING_V2_METHOD)}</h2>
+<h2 id="v2">${trustedText(HEADING_V2_METHOD)}</h2>
 <p>${trustedText(VERIFY_METHOD_INTRO_V2)}</p>
 <p>${trustedText(VERIFY_V2_LEAD_IN)}</p>
 <pre class="mono">${untrustedText(v2cmd)}</pre>

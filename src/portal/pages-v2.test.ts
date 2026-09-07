@@ -250,7 +250,7 @@ describe("state (b): a release record", () => {
 	test("home declares the first record; the journal row shows the latest recorded v2 release", () => {
 		const body = handle("/", v1, stateB).body;
 		expect(body).toContain("the first is solstone journal 2.0.0");
-		expect(body).toContain("latest recorded release 2.0.0");
+		expect(body).toContain("newest recorded release 2.0.0");
 		expect(body).toContain(trustedText(AXIS_PUBLICATION_B));
 		expect(body).toContain("v1 chain closed at"); // linux, no v2 record
 	});
@@ -260,7 +260,7 @@ describe("state (b): a release record", () => {
 		expect(body).toContain("v2 release records");
 		expect(body).toContain("asserted until");
 		expect(body).not.toContain("current until");
-		expect(body).toContain("the chain moves from the v1 tip");
+		expect(body).toContain("the register moves from the v1 tip");
 		expect(body).toContain("v1 release timeline (closed chain)");
 		expect(body).toContain('href="/software/journal/2.0.0/"');
 	});
@@ -342,7 +342,7 @@ describe("the verifier's own report", () => {
 		expect(body).toContain("did not verify when this page was built");
 		expect(body).toContain("freshness assertion expired 2026-08-08T00:00:00Z");
 		expect(body).toContain(KIND_VERIFIER);
-		expect(body).not.toContain("latest recorded release 2.0.0");
+		expect(body).not.toContain("recorded release 2.0.0");
 		expect(text(body)).not.toMatch(/\b(tampered|insecure|invalid)\b/);
 		expect(handle("/software/journal/2.0.0/", v1, expired).status).toBe(404);
 	});
@@ -350,8 +350,10 @@ describe("the verifier's own report", () => {
 	test("expired: product pages read publication as could-not-be-checked; /keys/ still shows the pinned root", () => {
 		if (expired.state !== "unverified") throw new Error("expected unverified");
 		const body = handle("/software/journal/", v1, expired).body;
-		expect(body).toContain("could not be checked");
-		expect(body).toContain("timestamp: expired");
+		expect(body).toContain("v2 register not checked");
+		expect(body).toContain("its freshness assertion had expired");
+		expect(text(body)).not.toMatch(/timestamp: expired/);
+		expect(handle("/", v1, expired).body).toContain("v2 register not checked");
 		const keys = handle("/keys/", v1, expired).body;
 		for (const keyid of expired.root.keyids) expect(keys).toContain(keyid);
 	});
@@ -360,7 +362,10 @@ describe("the verifier's own report", () => {
 		expect(tampered.state).toBe("unverified");
 		const pages = renderAll(v1, tampered);
 		for (const [, res] of pages) expect(res.body).not.toContain("2.0.0");
-		expect(handle("/", v1, tampered).body).toContain("hash-mismatch");
+		expect(handle("/", v1, tampered).body).toContain(
+			"a file did not match its signed description",
+		);
+		expect(text(handle("/", v1, tampered).body)).not.toMatch(/hash-mismatch/);
 		assertCeiling(pages);
 	});
 

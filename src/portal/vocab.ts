@@ -61,9 +61,41 @@ export const V1_RECORD_TAG = "v1 record";
 export const STATE_ASSERTED_UNTIL = "asserted until";
 export const STATE_EXPIRED = "expired";
 export const STATE_NO_RECORD_YET = "no record yet";
+export const STATE_V2_NOT_CHECKED = "v2 register not checked";
+export const HEADING_V1_PROVES = "what the v1 records prove";
+export const HEADING_V1_DOES_NOT_PROVE = "what the v1 records do not prove";
+
+/** Structural summary for a non-tip v1 version page once a v2 root exists: chain position without a status word on the chain. Placeholders: product, version, published_utc. */
+export const VERSION_SUMMARY_NOT_TIME_BOUND_V2 =
+	"this is the signed record for {product} {version}, published {published_utc}. it is not the last entry in the v1 chain, so it carries no freshness window of its own; only the chain's last entry does. its signature remains exactly as published and is verifiable today.";
+
+/** The verifier's rejection reason in reader words. The code itself stays in the model and the packet, never on the page. */
+export function readerReason(reason: string): string {
+	switch (reason) {
+		case "expired":
+			return "its freshness assertion had expired";
+		case "unavailable":
+		case "retrieval-failed":
+			return "part of the repository could not be fetched";
+		case "hash-mismatch":
+		case "length-mismatch":
+		case "snapshot-mismatch":
+			return "a file did not match its signed description";
+		case "signature-invalid":
+		case "threshold-unmet":
+		case "key-not-in-role":
+		case "unknown-key":
+		case "keyid-mismatch":
+			return "a signature did not check out";
+		case "version-rollback":
+			return "an older version was served than one already seen";
+		default:
+			return `the check reported "${reason}"`;
+	}
+}
 
 export const VERIFY_V2_LEAD_IN =
-	"save the pinned root shown on /keys/ as tuf-root.json (compare its two fingerprint lines against the published copies first), then run:";
+	"save the root shown on /keys/ as tuf-root.json; that saved copy is your pin. compare its two fingerprint lines against the published copies first, then run:";
 
 export function verifyV2Command(
 	metadataBase: string,

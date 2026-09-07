@@ -44,6 +44,9 @@ clean:
 #   make build-model V2_ROOT=/path/to/1.root.json #     V2_METADATA_BASE=https://transparency.solstone.app/staging/v2/metadata #     V2_TARGETS_BASE=https://transparency.solstone.app/staging/v2/targets
 # V2_EXPECT names releases the register is expected to carry
 # (`product@version[:basis]`, space-separated); a missing one renders as a gap.
+# The basis is READER-FACING: it is printed on the portal as the reason the
+# record was expected (e.g. "the release lane lists it"), so write it in
+# plain words, never an internal reference.
 V2_ROOT ?= protocol/tuf-root.json
 V2_METADATA_BASE ?= https://transparency.solstone.app/v2/metadata
 V2_TARGETS_BASE ?= https://transparency.solstone.app/v2/targets

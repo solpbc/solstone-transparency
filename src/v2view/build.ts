@@ -102,7 +102,7 @@ export interface BuildV2ModelOptions {
 	migrationFetcher?: MigrationObjectFetcher;
 }
 
-/** The two witness locations the runbook requires. Bluesky is a founder decision and is not listed until made. */
+/** The two witness locations the runbook requires. A third location is a pending decision and is not listed until made. */
 export const DEFAULT_WITNESSES: readonly V2Witness[] = [
 	{
 		label: "the pinned root in the public verifier repository",

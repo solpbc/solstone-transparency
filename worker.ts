@@ -37,7 +37,11 @@ import { buildSitemap } from "./src/portal/sitemap";
 import type { V2Model } from "./src/v2view/types";
 
 const result = model as PortalModelResult;
-const v2 = modelV2 as V2Model;
+// `as unknown` first: when the generated file exists locally, TypeScript
+// infers its literal JSON shape (arrays, not tuples) and the direct cast to
+// the model type is rejected; the ambient declaration supplies the type when
+// the file is absent. The builder wrote this file, so the shape is its own.
+const v2 = modelV2 as unknown as V2Model;
 
 interface Env {
 	ASSETS: { fetch(request: Request): Promise<Response> };
