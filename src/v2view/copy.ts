@@ -125,4 +125,4 @@ export const SOFTWARE_UNMAPPED_PRODUCTS =
  * string, not a code change.
  */
 export const WINDOWS_ABSENCE_EXPLAINER_STATE_A =
-	"the v1 chain recorded no windows release and is closed, so it never will. any windows record will appear under the v2 root and this page will show it.";
+	"the v1 chain recorded no windows release and is closed, so it never will record one. any windows record will appear under the v2 root and this page will show it.";
