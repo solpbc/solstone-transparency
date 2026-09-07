@@ -5,7 +5,11 @@ import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { readCeremonyKey } from "./ceremony-key";
+import {
+	type PassphraseSource,
+	readCeremonyKey,
+	terminalPassphrase,
+} from "./ceremony-key";
 import {
 	type RepositorySigningKeys,
 	type TufTargetDescription,
@@ -34,6 +38,7 @@ export async function runCeremony(
 	config: CeremonyConfiguration,
 	output: string,
 	now = new Date(),
+	source: PassphraseSource = terminalPassphrase,
 ): Promise<{ rootSha256: string; keyids: Record<string, string[]> }> {
 	const expectedRoles = DELEGATED_ROLES.map((role) => role.name).sort();
 	if (
@@ -82,7 +87,7 @@ export async function runCeremony(
 		loaded[role] = [];
 		keyids[role] = [];
 		for (const path of paths) {
-			const key = await readCeremonyKey(path);
+			const key = await readCeremonyKey(path, source);
 			loaded[role]?.push(key);
 			keyids[role]?.push(key.keyId);
 			process.stderr.write(`${role} keyid ${key.keyId}\n`);

@@ -37,12 +37,14 @@ The production pin is reserved at `protocol/tuf-root.json` and is absent until s
 
 | Command | Purpose |
 |---|---|
-| `bun bin/tuf-ceremony.ts --help` | Build and re-verify a repository using encrypted PKCS#8 keys and terminal passphrase prompts |
+| `bun bin/tuf-ceremony.ts --help` | Build and re-verify a repository using encrypted PKCS#8 keys and an explicit passphrase provider or terminal prompts |
 | `bun bin/root-renew.ts --help` | Prepare a renewal, sign it in separate one-key invocations, and merge the threshold signatures |
 | `bun bin/journal-artifacts.ts --help` | Measure journal distribution files against their manifests and construct release input |
 | `bun bin/publish-transaction.ts --help` | Publish a verified candidate with conditional writes, timestamp last, and a durable receipt; supports `--dry-run` |
 | `bun bin/timestamp-rail.ts --help` | Authenticate the repository, refresh only its timestamp, and report failures through configured alert arguments |
 | `bun bin/discovery.ts --help` | Derive discovery fields from a supplied root envelope |
+
+The ceremony and detached signing commands accept `--passphrase-provider MODULE`. This selects trusted local code whose default export receives an encrypted key's path and returns `Promise<Buffer>` containing its passphrase. The reader takes ownership of that buffer and clears it after use. Without the option, the terminal adapter prompts without echo. Providers determine how to obtain the secret; no vault layout is assumed by the public tool. Keep passphrase values out of command arguments and environment variables.
 
 The [timestamp service](systemd/solstone-transparency-timestamp.service) and [calendar timer](systemd/solstone-transparency-timestamp.timer) are templates. Configure and exercise the job against the intended repository before enabling it. The repository ships neither credentials nor an enabled timer.
 

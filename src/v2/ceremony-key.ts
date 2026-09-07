@@ -5,7 +5,10 @@ import { createPrivateKey, createPublicKey } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { type Ed25519SigningKey, computeKeyId } from "./tuf/ed25519";
 
-/** Read a passphrase from the controlling terminal without echo or alternative inputs. */
+/** Return a fresh Buffer; the key reader owns and clears it after use. */
+export type PassphraseSource = (keyPath: string) => Promise<Buffer>;
+
+/** Read a passphrase from the controlling terminal without echo. */
 export async function terminalPassphrase(label: string): Promise<Buffer> {
 	if (!process.stdin.isTTY || !process.stderr.isTTY)
 		throw new Error("tty-required: run at an interactive terminal");
@@ -87,6 +90,7 @@ export async function terminalPassphrase(label: string): Promise<Buffer> {
 /** Only encrypted PKCS#8 is admitted; public identity is derived from the private key. */
 export async function readCeremonyKey(
 	path: string,
+	source: PassphraseSource = terminalPassphrase,
 ): Promise<Ed25519SigningKey> {
 	const encrypted = await readFile(path, "utf8");
 	if (
@@ -96,7 +100,17 @@ export async function readCeremonyKey(
 	) {
 		throw new Error("encrypted-key-required: plaintext root keys are refused");
 	}
-	const passphrase = await terminalPassphrase(path);
+	let passphrase: Buffer;
+	try {
+		passphrase = await source(path);
+	} catch (error) {
+		// The terminal adapter emits only fixed diagnostics. Operator providers may
+		// throw secret-bearing values, which must never reach CLI diagnostics.
+		if (source === terminalPassphrase) throw error;
+		throw new Error("passphrase-source-failed");
+	}
+	if (!Buffer.isBuffer(passphrase))
+		throw new Error("passphrase-source-invalid: return a Buffer");
 	try {
 		const privateKey = createPrivateKey({
 			key: encrypted,
