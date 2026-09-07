@@ -262,6 +262,7 @@ describe("state (a): root, legacy binding, no release record", () => {
 		expect(model.software).toEqual([]);
 		expect(model.legacy.state).toBe("bound");
 		if (model.legacy.state === "bound") {
+			expect(model.legacy.coverage).toBe("partial");
 			expect(model.legacy.objectCount).toBe(1);
 			expect(model.legacy.products[0]?.product).toBe("legacy-corpus");
 		}

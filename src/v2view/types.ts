@@ -142,6 +142,8 @@ export type V2SoftwareEntry = V2ReleaseRecord | V2GapRecord;
 export type V2LegacyBinding =
 	| {
 			state: "bound";
+			/** `complete` when every product the v1 register catalogs has a verified manifest; `partial` otherwise, so the page can scope its claim. */
+			coverage: "complete" | "partial";
 			/** Products the manifest covers, with their chain tips as the manifest states them. */
 			products: readonly {
 				product: string;

@@ -50,7 +50,7 @@ export const STATE_PAUSED = "paused";
 export const HEADING_V2_RECORDS = "v2 release records";
 export const HEADING_V1_TIMELINE_CLOSED = "v1 release timeline (closed chain)";
 export const HEADING_V1_METHOD = "method 1: a v1 record, with minisign";
-export const HEADING_V2_METHOD = "method 2: a v2 record, with verify-v2";
+export const HEADING_V2_METHOD = "method 2: the v2 register, with verify-v2";
 export const HEADING_V1_KEY = "the v1 signing key";
 export const HEADING_V2_ROOT = "the v2 signing root";
 export const HEADING_WITNESS_LINES = "the two fingerprint lines";
@@ -73,7 +73,7 @@ export const VERSION_SUMMARY_NOT_TIME_BOUND_V2 =
 export function readerReason(reason: string): string {
 	switch (reason) {
 		case "expired":
-			return "its freshness assertion had expired";
+			return "one of its signed validity windows had passed";
 		case "unavailable":
 		case "retrieval-failed":
 			return "part of the repository could not be fetched";

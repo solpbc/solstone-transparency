@@ -58,6 +58,7 @@ import {
 	AXIS_PUBLICATION_A,
 	AXIS_PUBLICATION_B,
 	HOME_PUBLICATION_DECLARATION_A,
+	HOME_PUBLICATION_DECLARATION_A_PARTIAL,
 	HOME_PUBLICATION_DECLARATION_B,
 	HOME_PUBLICATION_DECLARATION_UNVERIFIED,
 	HOME_REGISTER_SUMMARY_ROW_V1_CLOSED,
@@ -69,6 +70,7 @@ import {
 	KEYS_WITNESS_LEAD,
 	LEGACY_BINDING_BOUND,
 	LEGACY_BINDING_NOT_VERIFIED,
+	LEGACY_BINDING_PARTIAL,
 	PRODUCT_EXPECTED_GAP,
 	PRODUCT_GAP_NOTE_V1_TO_V2,
 	PRODUCT_PLAIN_SUMMARY_A,
@@ -322,9 +324,31 @@ function unverifiedCallout(v2: V2UnverifiedModel): string {
 	return `<div class="declaration state-warn">${kindTag("verifier")}<p>${unverified}</p>${expired}</div>`;
 }
 
+/** The products a legacy binding covers, as display names for `{products}`. */
+function boundProducts(v2: V2VerifiedModel): string {
+	if (v2.legacy.state !== "bound") return "";
+	return v2.legacy.products
+		.map((p) =>
+			p.product === "journal" ||
+			p.product === "linux" ||
+			p.product === "windows"
+				? PRODUCT_DISPLAY[p.product]
+				: p.product,
+		)
+		.join(", ");
+}
+
 function legacyBindingLine(v2: V2VerifiedModel): string {
 	if (v2.legacy.state === "bound") {
-		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_BOUND, { count: String(v2.legacy.objectCount) })}</p>`;
+		const count = String(v2.legacy.objectCount);
+		const text =
+			v2.legacy.coverage === "complete"
+				? substituteCopy(LEGACY_BINDING_BOUND, { count })
+				: substituteCopy(LEGACY_BINDING_PARTIAL, {
+						count,
+						products: boundProducts(v2),
+					});
+		return `<p>${kindTag("verifier")} ${text}</p>`;
 	}
 	if (v2.legacy.state === "not-verified") {
 		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_NOT_VERIFIED, { reason: v2.legacy.reason })}</p>`;
@@ -675,9 +699,15 @@ export function renderHome(
 			return `${declaration({ kind: "declaration", text: HOME_PUBLICATION_DECLARATION_UNVERIFIED })}${unverifiedCallout(v2)}`;
 		}
 		const first = firstValidV2(v2);
+		const fullyBound =
+			v2.legacy.state === "bound" && v2.legacy.coverage === "complete";
 		const text =
 			first === undefined
-				? trustedText(HOME_PUBLICATION_DECLARATION_A)
+				? fullyBound
+					? trustedText(HOME_PUBLICATION_DECLARATION_A)
+					: substituteCopy(HOME_PUBLICATION_DECLARATION_A_PARTIAL, {
+							products: boundProducts(v2),
+						})
 				: substituteCopy(HOME_PUBLICATION_DECLARATION_B, {
 						product: displayFor(first),
 						version: first.version,

@@ -190,7 +190,10 @@ describe("absent: no pinned root", () => {
 describe("state (a): root and legacy binding, no release record", () => {
 	test("home carries the one permitted declaration, the legacy binding, and no release", () => {
 		const body = handle("/", v1, stateA).body;
-		expect(body).toContain(trustedText(HOME_PUBLICATION_DECLARATION_A));
+		// The synthetic manifest binds one made-up product, so the "whole register" declaration must NOT render; the scoped one does.
+		expect(body).not.toContain(trustedText(HOME_PUBLICATION_DECLARATION_A));
+		expect(body).toContain("bound the v1 register for legacy-corpus into it");
+		expect(body).toContain("the rest of the v1 register is not yet bound");
 		expect(body).not.toContain(trustedText(HOME_PUBLICATION_DECLARATION));
 		expect(body).toContain("bound into the v2 root by a signed manifest");
 		expect(body).toContain(trustedText(AXIS_PUBLICATION_A));
@@ -340,7 +343,7 @@ describe("the verifier's own report", () => {
 			trustedText(HOME_PUBLICATION_DECLARATION_UNVERIFIED),
 		);
 		expect(body).toContain("did not verify when this page was built");
-		expect(body).toContain("freshness assertion expired 2026-08-08T00:00:00Z");
+		expect(body).toContain("had passed by 2026-08-08T00:00:00Z");
 		expect(body).toContain(KIND_VERIFIER);
 		expect(body).not.toContain("recorded release 2.0.0");
 		expect(text(body)).not.toMatch(/\b(tampered|insecure|invalid)\b/);
@@ -351,7 +354,7 @@ describe("the verifier's own report", () => {
 		if (expired.state !== "unverified") throw new Error("expected unverified");
 		const body = handle("/software/journal/", v1, expired).body;
 		expect(body).toContain("v2 register not checked");
-		expect(body).toContain("its freshness assertion had expired");
+		expect(body).toContain("one of its signed validity windows had passed");
 		expect(text(body)).not.toMatch(/timestamp: expired/);
 		expect(handle("/", v1, expired).body).toContain("v2 register not checked");
 		const keys = handle("/keys/", v1, expired).body;
