@@ -24,6 +24,8 @@ const TOKENS = [
 	"products",
 	"reason",
 	"root_version",
+	"key_count",
+	"threshold",
 ] as const;
 
 export type CopyToken = (typeof TOKENS)[number];
