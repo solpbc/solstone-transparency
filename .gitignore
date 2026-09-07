@@ -36,6 +36,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Generated portal-model snapshot (`make build-model`) -- never committed,
 # never hand-edited; always rebuilt fresh immediately before a deploy.
 model.generated.json
+model-v2.generated.json
 
 # Finder (MacOS) folder config
 .DS_Store

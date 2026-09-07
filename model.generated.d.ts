@@ -11,3 +11,11 @@ declare module "*model.generated.json" {
 	const value: PortalModelResult;
 	export default value;
 }
+
+// The v2 half of the same build (`src/v2view/build-cli.ts`), written beside
+// the v1 model by `make build-model` and embedded the same way.
+declare module "*model-v2.generated.json" {
+	import type { V2Model } from "./src/v2view/types";
+	const value: V2Model;
+	export default value;
+}
