@@ -206,9 +206,9 @@ describe("negative controls observed first", () => {
 		});
 		const model = await build(fixture);
 		if (model.state !== "verified") throw new Error("expected verified");
-		expect(
-			model.policy.state === "failed" ? model.policy.reason : "",
-		).toContain("dangling-keyid");
+		expect(model.policy.state).toBe("failed");
+		if (model.policy.state === "failed")
+			expect(model.policy.reason).toContain("dangling-keyid");
 		const record = model.software[0];
 		if (record?.kind !== "release") throw new Error("expected release");
 		expect(record.verification.state).toBe("unavailable");
@@ -280,10 +280,10 @@ describe("state (a): root, legacy binding, no release record", () => {
 			`solpbc-tuf-root v1  sha256:    ${model.root.rootSha256}`,
 		);
 		expect(model.root.rootLink.status).toBe("linked");
-		expect(model.policy.state === "failed").toBe(false);
-		expect("sha256" in model.policy && model.policy.sha256).toBe(
-			fixture.policySha256,
-		);
+		expect(model.policy.state).toBe("loaded");
+		if (model.policy.state === "loaded")
+			expect(model.policy.sha256).toBe(fixture.policySha256 ?? "");
+		expect(model.dsseKeys?.targetPath).toBe("keys/dsse/1.json");
 	});
 
 	test("the legacy walk failing (an object missing) → legacy not-verified with the reason; software untouched", async () => {
