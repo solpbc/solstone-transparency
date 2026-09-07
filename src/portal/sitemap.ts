@@ -10,13 +10,17 @@
  */
 
 import type { PortalModelResult } from "../legacy/types";
+import { ABSENT_NO_PIN, type V2Model } from "../v2view/types";
 import { renderAll } from "./handle";
 import { STYLESHEET_PATH } from "./routes";
 
 const BASE_URL = "https://trust.solstone.app";
 
-export function buildSitemap(result: PortalModelResult): string {
-	const pages = renderAll(result);
+export function buildSitemap(
+	result: PortalModelResult,
+	v2: V2Model = ABSENT_NO_PIN,
+): string {
+	const pages = renderAll(result, v2);
 	const urls: string[] = [];
 	for (const [path, res] of pages) {
 		if (path === STYLESHEET_PATH) continue;

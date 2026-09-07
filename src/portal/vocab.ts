@@ -44,6 +44,33 @@ export function verifyCommand(filename: string): string {
 }
 
 export const STATE_PAUSED = "paused";
+
+// ---- v2 structural vocabulary (not CMO copy; headings, labels, command shapes) ----
+
+export const HEADING_V2_RECORDS = "v2 release records";
+export const HEADING_V1_TIMELINE_CLOSED = "v1 release timeline (closed chain)";
+export const HEADING_V1_METHOD = "method 1: a v1 record, with minisign";
+export const HEADING_V2_METHOD = "method 2: a v2 record, with verify-v2";
+export const HEADING_V1_KEY = "the v1 signing key";
+export const HEADING_V2_ROOT = "the v2 signing root";
+export const HEADING_WITNESS_LINES = "the two fingerprint lines";
+export const HEADING_RECORD_CLAIMS = "what the record says it proves";
+export const KEYS_PAGE_TITLE_V2 = "signing keys";
+export const V2_RECORD_TAG = "v2 record";
+export const V1_RECORD_TAG = "v1 record";
+export const STATE_ASSERTED_UNTIL = "asserted until";
+export const STATE_EXPIRED = "expired";
+export const STATE_NO_RECORD_YET = "no record yet";
+
+export const VERIFY_V2_LEAD_IN =
+	"save the pinned root shown on /keys/ as tuf-root.json (compare its two fingerprint lines against the published copies first), then run:";
+
+export function verifyV2Command(
+	metadataBase: string,
+	targetsBase: string,
+): string {
+	return `solstone-transparency verify-v2 --root tuf-root.json --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
+}
 export const STATE_NOT_TIME_BOUND = "not time-bound";
 export const STATE_NOT_ATTEMPTED = "not attempted";
 export const STATE_COULD_NOT_BE_CHECKED = "could not be checked";

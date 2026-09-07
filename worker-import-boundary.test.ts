@@ -30,16 +30,20 @@ async function reachableInputs(entrypoint: string): Promise<Set<string>> {
 			{
 				name: "model-generated-json-stub",
 				setup(build) {
+					// Both build-time model snapshots are gitignored and may not
+					// exist in a checkout; the graph check is about what the
+					// Worker imports, not about their contents.
 					build.onResolve(
-						{ filter: /^\.\/model\.generated\.json$/ },
+						{ filter: /^\.\/model(-v2)?\.generated\.json$/ },
 						(args) => {
+							const target = args.path.replace(/^\.\//, "");
 							if (
 								resolve(args.resolveDir, args.path) !==
-								resolve(repoRoot, "model.generated.json")
+								resolve(repoRoot, target)
 							) {
 								return undefined;
 							}
-							return { path: "model.generated.json", namespace: "model-stub" };
+							return { path: target, namespace: "model-stub" };
 						},
 					);
 					build.onLoad({ filter: /.*/, namespace: "model-stub" }, () => ({

@@ -18,7 +18,9 @@ import {
 	KIND_REGISTER,
 	KIND_SIGNED,
 	KIND_VERIFIER,
+	STATE_ASSERTED_UNTIL,
 	STATE_COULD_NOT_BE_CHECKED,
+	STATE_EXPIRED,
 	STATE_NOT_ATTEMPTED,
 	STATE_NOT_TIME_BOUND,
 	STATE_PAUSED,
@@ -58,16 +60,40 @@ function axisRow(
 	return `<div class="axis-row"><div class="axis-name">${trustedText(name)}</div><div class="axis-value">${kindTag(kind)} ${state}${extra}</div></div>`;
 }
 
+/**
+ * How the publication axis reads on a v1 record once a v2 root exists. The
+ * v1 model still says `paused` (it is the frozen v1 register's own state);
+ * the portal-level truth about publication now comes from the v2 model, so
+ * the caller supplies the label and its provenance kind.
+ */
+export interface PublicationOverride {
+	kind: "declaration" | "verifier";
+	label: string;
+	tone: StateTone;
+	basis?: string;
+}
+
 export function axisBlock(
 	axes: AxisBlock,
 	links?: { verifyHref?: string; keysHref?: string },
+	publication?: PublicationOverride,
 ): string {
-	const pub = axisRow(
-		AXIS_PUBLICATION,
-		kindFromProvenance(axes.publication.provenance),
-		stateSpan("neutral", trustedText(STATE_PAUSED)),
-		`<span class="basis">${trustedText(axes.publication.basis)}</span>`,
-	);
+	const pub =
+		publication === undefined
+			? axisRow(
+					AXIS_PUBLICATION,
+					kindFromProvenance(axes.publication.provenance),
+					stateSpan("neutral", trustedText(STATE_PAUSED)),
+					`<span class="basis">${trustedText(axes.publication.basis)}</span>`,
+				)
+			: axisRow(
+					AXIS_PUBLICATION,
+					publication.kind,
+					stateSpan(publication.tone, trustedText(publication.label)),
+					publication.basis === undefined
+						? ""
+						: `<span class="basis">${trustedText(publication.basis)}</span>`,
+				);
 
 	let freshnessState: string;
 	let freshnessExtra = "";
@@ -137,6 +163,84 @@ export function axisBlock(
 		"",
 	);
 
+	return `<div class="axis-block">${pub}${freshness}${verification}${rebuild}</div>`;
+}
+
+/** The four axes for a v2 release record: publication (declaration), freshness (the timestamp assertion, signed), verification (the verifier's report), rebuild (not attempted). */
+export function v2AxisBlock(args: {
+	publication: PublicationOverride;
+	freshness:
+		| { state: "asserted"; assertedUntil: string; sourceUrl: string }
+		| { state: "expired"; expiredAt: string };
+	verification:
+		| { state: "valid"; checkedAt: string }
+		| { state: "invalid"; reason: string; checkedAt: string }
+		| { state: "unavailable"; reason: string; checkedAt: string };
+	links?: { verifyHref?: string; keysHref?: string };
+}): string {
+	const pub = axisRow(
+		AXIS_PUBLICATION,
+		args.publication.kind,
+		stateSpan(args.publication.tone, trustedText(args.publication.label)),
+		args.publication.basis === undefined
+			? ""
+			: `<span class="basis">${trustedText(args.publication.basis)}</span>`,
+	);
+	let freshness: string;
+	if (args.freshness.state === "asserted") {
+		freshness = axisRow(
+			AXIS_FRESHNESS,
+			"signed",
+			stateSpan(
+				"success",
+				`${trustedText(STATE_ASSERTED_UNTIL)} ${untrustedText(args.freshness.assertedUntil)}`,
+			),
+			` <a class="raw-link" href="${escapeHtml(args.freshness.sourceUrl)}">${untrustedText(args.freshness.sourceUrl)}</a>`,
+		);
+	} else {
+		freshness = axisRow(
+			AXIS_FRESHNESS,
+			"verifier",
+			stateSpan(
+				"neutral",
+				`${trustedText(STATE_EXPIRED)} ${untrustedText(args.freshness.expiredAt)}`,
+			),
+			"",
+		);
+	}
+	let verifyState: string;
+	let verifyExtra = "";
+	if (args.verification.state === "valid") {
+		verifyState = stateSpan(
+			"success",
+			`${trustedText("verified")} ${untrustedText(args.verification.checkedAt)}`,
+		);
+	} else if (args.verification.state === "invalid") {
+		verifyState = stateSpan(
+			"danger",
+			trustedText(STATE_SIGNATURE_DID_NOT_VERIFY),
+		);
+		verifyExtra = `<span class="basis">${untrustedText(args.verification.reason)}</span>`;
+	} else {
+		verifyState = stateSpan("warn", trustedText(STATE_COULD_NOT_BE_CHECKED));
+		verifyExtra = `<span class="basis">${untrustedText(args.verification.reason)}</span>`;
+	}
+	if (args.links?.verifyHref)
+		verifyExtra += ` <a href="${escapeHtml(args.links.verifyHref)}">${trustedText("how this was checked")}</a>`;
+	if (args.links?.keysHref)
+		verifyExtra += ` <a href="${escapeHtml(args.links.keysHref)}">${trustedText("key")}</a>`;
+	const verification = axisRow(
+		AXIS_VERIFICATION,
+		"verifier",
+		verifyState,
+		verifyExtra,
+	);
+	const rebuild = axisRow(
+		AXIS_REBUILD,
+		"register",
+		stateSpan("neutral", trustedText(STATE_NOT_ATTEMPTED)),
+		"",
+	);
 	return `<div class="axis-block">${pub}${freshness}${verification}${rebuild}</div>`;
 }
 

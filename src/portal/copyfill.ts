@@ -18,6 +18,12 @@ const TOKENS = [
 	"next",
 	"published_utc",
 	"valid_until",
+	"asserted_until",
+	"issued_at",
+	"basis",
+	"products",
+	"reason",
+	"root_version",
 ] as const;
 
 export type CopyToken = (typeof TOKENS)[number];

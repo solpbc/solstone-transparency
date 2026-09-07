@@ -8,6 +8,7 @@
 
 import { ASSET_HEADERS, HTML_HEADERS } from "../legacy/response-policy";
 import type { PortalModel, PortalModelResult } from "../legacy/types";
+import { ABSENT_NO_PIN, type V2Model } from "../v2view/types";
 import {
 	renderAbout,
 	renderCollision,
@@ -17,6 +18,7 @@ import {
 	renderNotFound,
 	renderProduct,
 	renderSoftwareIndex,
+	renderV2Version,
 	renderVerify,
 	renderVersion,
 	renderVersionFailure,
@@ -77,6 +79,7 @@ type HtmlParsed = Exclude<ParsedPath, { page: "stylesheet" }>;
 export function handle(
 	path: string,
 	result: PortalModelResult,
+	v2: V2Model = ABSENT_NO_PIN,
 ): PortalResponse {
 	const parsed = parsePath(path);
 	if (parsed.page === "stylesheet") return stylesheetResponse();
@@ -87,7 +90,7 @@ export function handle(
 			renderDegraded(result.degraded, canonicalPath),
 		);
 	}
-	const table = buildRouteTable(result.model);
+	const table = buildRouteTable(result.model, v2);
 	if (!table.ok) {
 		return failClosed(
 			500,
@@ -98,36 +101,32 @@ export function handle(
 			),
 		);
 	}
-	return dispatch(canonicalPath, parsed, result.model, table.versions);
+	return dispatch(canonicalPath, parsed, result.model, v2, table.versions);
 }
 
 function dispatch(
 	canonicalPath: string,
 	parsed: HtmlParsed,
 	model: PortalModel,
+	v2: V2Model,
 	versions: Map<string, VersionTarget>,
 ): PortalResponse {
 	switch (parsed.page) {
 		case "home":
-			return ok(renderHome(model, canonicalPath));
+			return ok(renderHome(model, v2, canonicalPath));
 		case "software":
-			return ok(renderSoftwareIndex(model, canonicalPath));
+			return ok(renderSoftwareIndex(model, v2, canonicalPath));
 		case "product":
-			return ok(renderProduct(model, parsed.product, canonicalPath));
+			return ok(renderProduct(model, v2, parsed.product, canonicalPath));
 		case "verify":
-			return ok(renderVerify(model, canonicalPath));
+			return ok(renderVerify(model, v2, canonicalPath));
 		case "keys":
-			return ok(renderKeys(model, canonicalPath));
+			return ok(renderKeys(model, v2, canonicalPath));
 		case "about":
-			return ok(renderAbout(canonicalPath));
+			return ok(renderAbout(v2, canonicalPath));
 		case "not-found-generic":
 			return notFound(renderNotFound("generic", canonicalPath));
 		case "version": {
-			if (parsed.product === "windows") {
-				return notFound(
-					renderNotFound("version-shaped", canonicalPath, "windows"),
-				);
-			}
 			const key = versionPath(parsed.product, parsed.version);
 			const target = versions.get(key);
 			if (target === undefined) {
@@ -135,8 +134,10 @@ function dispatch(
 					renderNotFound("version-shaped", canonicalPath, parsed.product),
 				);
 			}
+			if (target.kind === "v2-release")
+				return ok(renderV2Version(model, v2, target.record, canonicalPath));
 			if (target.kind === "entry")
-				return ok(renderVersion(model, target.entry, canonicalPath));
+				return ok(renderVersion(model, v2, target.entry, canonicalPath));
 			return ok(renderVersionFailure(model, target.failure, canonicalPath));
 		}
 	}
@@ -155,20 +156,21 @@ const STATIC_PATHS = [
 
 export function renderAll(
 	result: PortalModelResult,
+	v2: V2Model = ABSENT_NO_PIN,
 ): Map<string, PortalResponse> {
 	const out = new Map<string, PortalResponse>();
 	out.set(STYLESHEET_PATH, stylesheetResponse());
 	if (!result.ok) {
-		for (const p of STATIC_PATHS) out.set(p, handle(p, result));
+		for (const p of STATIC_PATHS) out.set(p, handle(p, result, v2));
 		return out;
 	}
-	const table = buildRouteTable(result.model);
+	const table = buildRouteTable(result.model, v2);
 	if (!table.ok) {
-		for (const p of STATIC_PATHS) out.set(p, handle(p, result));
+		for (const p of STATIC_PATHS) out.set(p, handle(p, result, v2));
 		return out;
 	}
-	for (const p of STATIC_PATHS) out.set(p, handle(p, result));
-	for (const p of table.versions.keys()) out.set(p, handle(p, result));
+	for (const p of STATIC_PATHS) out.set(p, handle(p, result, v2));
+	for (const p of table.versions.keys()) out.set(p, handle(p, result, v2));
 	return out;
 }
 
@@ -184,9 +186,13 @@ export function collectHrefs(html: string): string[] {
 	return hrefs;
 }
 
+/** sol pbc's own witness page for the v2 root fingerprint lines: first-party, linked, never walked as a portal route. */
+const OWN_WITNESS_HOST = "https://solpbc.org/";
+
 function resolveHref(href: string, fromPath: string): string | null {
 	if (href.startsWith("https://transparency.solstone.app")) return null;
 	if (href.startsWith("https://trust.solstone.app")) return null;
+	if (href.startsWith(OWN_WITNESS_HOST)) return null;
 	if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(href)) return null;
 	const hash = href.indexOf("#");
 	const withoutHash = hash >= 0 ? href.slice(0, hash) : href;
@@ -215,6 +221,7 @@ export function foreignHrefs(html: string): string[] {
 			href.startsWith("https://trust.solstone.app/")
 		)
 			return false;
+		if (href.startsWith(OWN_WITNESS_HOST)) return false;
 		if (href.startsWith("/") || href.startsWith("#")) return false;
 		if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(href)) return false;
 		return true;

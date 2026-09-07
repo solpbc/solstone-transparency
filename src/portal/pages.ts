@@ -2,9 +2,16 @@
 // Copyright (c) 2026 sol pbc
 
 /**
- * Per-route HTML renderers for the Wave 1 portal. No JavaScript ships; CSS
- * is served from the model-independent /static/portal.css route. No
- * third-party URLs except already-allowlisted evidence links.
+ * Per-route HTML renderers for the portal. No JavaScript ships; CSS is
+ * served from the model-independent /static/portal.css route. No
+ * third-party URLs except already-allowlisted evidence links and sol pbc's
+ * own witness page.
+ *
+ * Two models feed every page: the v1 register (`PortalModel`) and the v2
+ * register view (`V2Model`). When the v2 model is `absent` every renderer
+ * produces exactly the Wave 1 page; the v2 branches below are reached only
+ * when a pinned v2 root exists, so nothing on the live portal can say a v2
+ * root exists before one does.
  */
 
 import {
@@ -32,7 +39,7 @@ import {
 	productDoesProve,
 	productPlainSummary,
 } from "../legacy/copy";
-import { aboutUrl } from "../legacy/rawlink";
+import { aboutUrl, validateRawLink } from "../legacy/rawlink";
 import type {
 	ArtifactRef,
 	AxisBlock,
@@ -46,25 +53,82 @@ import type {
 	SubjectModel,
 	TimelineEntry,
 } from "../legacy/types";
+import {
+	ABOUT_READABLE_BODY_LEAD,
+	AXIS_PUBLICATION_A,
+	AXIS_PUBLICATION_B,
+	HOME_PUBLICATION_DECLARATION_A,
+	HOME_PUBLICATION_DECLARATION_B,
+	HOME_PUBLICATION_DECLARATION_UNVERIFIED,
+	HOME_REGISTER_SUMMARY_ROW_V1_CLOSED,
+	HOME_REGISTER_SUMMARY_ROW_V2,
+	KEYS_V1_ROLE_STATEMENT_A,
+	KEYS_V1_STATUS,
+	KEYS_V2_ROOT_INTRO,
+	KEYS_WITNESS_LEAD,
+	LEGACY_BINDING_BOUND,
+	LEGACY_BINDING_NOT_VERIFIED,
+	PRODUCT_EXPECTED_GAP,
+	PRODUCT_GAP_NOTE_V1_TO_V2,
+	PRODUCT_PLAIN_SUMMARY_A,
+	PRODUCT_PLAIN_SUMMARY_B,
+	PRODUCT_RECORD_FAILED,
+	SOFTWARE_COVERAGE_CAVEAT_B,
+	SOFTWARE_UNMAPPED_PRODUCTS,
+	V2_EXPIRED,
+	V2_UNVERIFIED,
+	VERIFY_METHOD_INTRO_V2,
+	VERIFY_OUTCOME_V2_ACCEPTED,
+	VERIFY_OUTCOME_V2_COULD_NOT_RUN,
+	VERIFY_OUTCOME_V2_REJECTED,
+	VERIFY_TWO_METHODS_LEAD,
+	VERSION_PLAIN_SUMMARY_V1_CLOSED,
+	VERSION_PLAIN_SUMMARY_V2,
+	VERSION_RECORD_CLAIMS_LEAD,
+	WINDOWS_ABSENCE_EXPLAINER_STATE_A,
+} from "../v2view/copy";
+import type {
+	V2Model,
+	V2ReleaseRecord,
+	V2SoftwareEntry,
+	V2UnverifiedModel,
+	V2VerifiedModel,
+} from "../v2view/types";
 import { substituteCopy } from "./copyfill";
 import { escapeHtml, trustedText, untrustedText } from "./escape";
 import {
 	type EvidenceRow,
+	type PublicationOverride,
 	type StateTone,
 	axisBlock,
 	declaration,
 	evidenceTable,
 	kindTag,
 	stateSpan,
+	v2AxisBlock,
 } from "./primitives";
 import { STYLESHEET_PATH, versionPath } from "./routes";
 import {
+	HEADING_RECORD_CLAIMS,
+	HEADING_V1_KEY,
+	HEADING_V1_METHOD,
+	HEADING_V1_TIMELINE_CLOSED,
+	HEADING_V2_METHOD,
+	HEADING_V2_RECORDS,
+	HEADING_V2_ROOT,
+	HEADING_WITNESS_LINES,
+	KEYS_PAGE_TITLE_V2,
 	PRODUCT_DISPLAY,
+	STATE_COULD_NOT_BE_CHECKED,
+	V1_RECORD_TAG,
+	V2_RECORD_TAG,
 	VERIFY_LEAD_IN,
+	VERIFY_V2_LEAD_IN,
 	VERSION_SUMMARY_NOT_TIME_BOUND,
 	VERSION_SUMMARY_UNAVAILABLE,
 	WINDOWS_ONE_FACT,
 	verifyCommand,
+	verifyV2Command,
 } from "./vocab";
 
 type NavCurrent = "home" | "software" | "verify" | "keys" | "about" | "none";
@@ -149,6 +213,122 @@ ${crumbs}
 </body>
 </html>`;
 }
+
+// ---- v2 model helpers ------------------------------------------------------
+
+function v2Known(v2: V2Model): v2 is V2VerifiedModel | V2UnverifiedModel {
+	return v2.state !== "absent";
+}
+
+/** Valid v2 release records for a portal slug, in builder order (product, then numeric version). */
+function v2ValidReleases(v2: V2Model, slug: ProductSlug): V2ReleaseRecord[] {
+	if (v2.state !== "verified") return [];
+	return v2.software.filter(
+		(s): s is V2ReleaseRecord =>
+			s.kind === "release" &&
+			s.slug === slug &&
+			s.verification.state === "valid",
+	);
+}
+
+function v2EntriesFor(v2: V2Model, slug: ProductSlug): V2SoftwareEntry[] {
+	if (v2.state !== "verified") return [];
+	return v2.software.filter((s) => s.slug === slug);
+}
+
+function latestV2(v2: V2Model, slug: ProductSlug): V2ReleaseRecord | undefined {
+	const valid = v2ValidReleases(v2, slug);
+	return valid[valid.length - 1];
+}
+
+function anyValidV2(v2: V2Model): boolean {
+	return (
+		v2.state === "verified" &&
+		v2.software.some(
+			(s) => s.kind === "release" && s.verification.state === "valid",
+		)
+	);
+}
+
+/** The earliest-issued valid record: the one the state (b) declaration names as "the first". */
+function firstValidV2(v2: V2Model): V2ReleaseRecord | undefined {
+	if (v2.state !== "verified") return undefined;
+	const valid = v2.software.filter(
+		(s): s is V2ReleaseRecord =>
+			s.kind === "release" && s.verification.state === "valid",
+	);
+	return [...valid].sort((a, b) => a.issuedAt.localeCompare(b.issuedAt))[0];
+}
+
+function displayFor(record: {
+	slug: ProductSlug | undefined;
+	product: string;
+}): string {
+	return record.slug === undefined
+		? record.product
+		: PRODUCT_DISPLAY[record.slug];
+}
+
+/** How the publication axis reads once a v2 root is known. Undefined keeps the v1 `paused` row. */
+function publicationOverride(v2: V2Model): PublicationOverride | undefined {
+	if (v2.state === "absent") return undefined;
+	if (v2.state === "unverified") {
+		return {
+			kind: "verifier",
+			label: STATE_COULD_NOT_BE_CHECKED,
+			tone: "warn",
+			basis: `${v2.failure.roleName ?? "repository"}: ${v2.failure.reason}`,
+		};
+	}
+	return {
+		kind: "declaration",
+		label: anyValidV2(v2) ? AXIS_PUBLICATION_B : AXIS_PUBLICATION_A,
+		tone: "neutral",
+	};
+}
+
+function unverifiedReason(v2: V2UnverifiedModel): string {
+	return `${v2.failure.roleName ?? "repository"}: ${v2.failure.reason}`;
+}
+
+/** The verifier's own report about a repository that did not verify; rendered wherever the v2 register would otherwise appear. */
+function unverifiedCallout(v2: V2UnverifiedModel): string {
+	const unverified = substituteCopy(V2_UNVERIFIED, {
+		reason: unverifiedReason(v2),
+	});
+	const expired =
+		v2.freshness === undefined
+			? ""
+			: `<p>${substituteCopy(V2_EXPIRED, { date: v2.freshness.expiredAt })}</p>`;
+	return `<div class="declaration state-warn">${kindTag("verifier")}<p>${unverified}</p>${expired}</div>`;
+}
+
+function legacyBindingLine(v2: V2VerifiedModel): string {
+	if (v2.legacy.state === "bound") {
+		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_BOUND, { count: String(v2.legacy.objectCount) })}</p>`;
+	}
+	if (v2.legacy.state === "not-verified") {
+		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_NOT_VERIFIED, { reason: v2.legacy.reason })}</p>`;
+	}
+	return "";
+}
+
+function rawLinkCell(link: EvidenceLinkStatus): string {
+	if (link.status === "linked")
+		return `<a class="raw-link" href="${escapeHtml(link.link.url)}">${untrustedText(link.link.url)}</a>`;
+	if (link.status === "rejected")
+		return `${trustedText("unavailable")} ${untrustedText(link.rejected.reason)}`;
+	return trustedText("not a raw link");
+}
+
+function linkFromUrl(url: string): EvidenceLinkStatus {
+	const checked = validateRawLink(url);
+	return checked.status === "linked"
+		? { status: "linked", link: { url: checked.url } }
+		: { status: "rejected", rejected: { reason: checked.reason } };
+}
+
+// ---- v1 model helpers ------------------------------------------------------
 
 type ProductHistory = Extract<SubjectModel, { timeline: TimelineEntry[] }>;
 
@@ -336,9 +516,24 @@ function evidenceRows(model: PortalModel, entry: EntryRecord): EvidenceRow[] {
 function summaryForProduct(
 	product: "journal" | "linux",
 	timeline: TimelineEntry[],
+	v2: V2Model,
 ): string {
 	const tip = tipEntry(timeline);
 	const count = String(entryCount(timeline));
+	const latest = latestV2(v2, product);
+	if (latest !== undefined) {
+		return substituteCopy(PRODUCT_PLAIN_SUMMARY_B, {
+			product: PRODUCT_DISPLAY[product],
+			version: latest.version,
+			issued_at: latest.issuedAt,
+		});
+	}
+	if (v2Known(v2) && tip) {
+		return substituteCopy(PRODUCT_PLAIN_SUMMARY_A, {
+			product: PRODUCT_DISPLAY[product],
+			version: tip.version,
+		});
+	}
 	if (!tip) {
 		return trustedText(productPlainSummary(product));
 	}
@@ -382,44 +577,161 @@ function gapRow(gap: GapRecord): string {
 	return `<li class="is-gap"><span class="v">${untrustedText(gap.absentVersion)}</span> · ${kindTag("register")} ${stateSpan("neutral", trustedText("no record"))}<div class="gap-note">${note} <a href="/software/#coverage">${trustedText("why coverage is stated, not implied")}</a></div></li>`;
 }
 
-export function renderHome(model: PortalModel, path: string): string {
+/** The v2 records section of a product page: the v1→v2 gap note, then every record and gap the register carries for this product. */
+function v2RecordsSection(
+	v2: V2Model,
+	slug: ProductSlug,
+	v1Tip: string | undefined,
+): string {
+	const entries = v2EntriesFor(v2, slug);
+	if (v2.state !== "verified" || entries.length === 0) return "";
+	const items: string[] = [];
+	const firstValid = v2ValidReleases(v2, slug)[0];
+	if (v1Tip !== undefined && firstValid !== undefined) {
+		const note = substituteCopy(PRODUCT_GAP_NOTE_V1_TO_V2, {
+			prev: v1Tip,
+			next: firstValid.version,
+		});
+		items.push(
+			`<li class="is-gap">${kindTag("register")} ${stateSpan("neutral", trustedText("v1 tip to first v2 record"))}<div class="gap-note">${note} <a href="/software/#coverage">${trustedText("why coverage is stated, not implied")}</a></div></li>`,
+		);
+	}
+	for (const entry of entries) {
+		if (entry.kind === "gap") {
+			const note = substituteCopy(PRODUCT_EXPECTED_GAP, {
+				product: displayFor(entry),
+				version: entry.version,
+				basis: entry.basis,
+			});
+			items.push(
+				`<li class="is-gap"><span class="v">${untrustedText(entry.version)}</span> · ${kindTag("declaration")} ${stateSpan("warn", trustedText("expected record missing"))}<div class="gap-note">${note}</div></li>`,
+			);
+			continue;
+		}
+		const href = versionPath(slug, entry.version);
+		if (entry.verification.state === "valid") {
+			items.push(
+				`<li><span class="v">${untrustedText(entry.version)}</span> · ${untrustedText(entry.issuedAt)} · ${kindTag("verifier")} ${stateSpan("success", trustedText("valid"))} · ${kindTag("signed")} · <a href="${escapeHtml(href)}">${trustedText("record")}</a></li>`,
+			);
+			continue;
+		}
+		const reason = entry.verification.reason;
+		const failed = substituteCopy(PRODUCT_RECORD_FAILED, {
+			version: entry.version,
+			reason,
+		});
+		items.push(
+			`<li><span class="v">${untrustedText(entry.version)}</span> · ${kindTag("verifier")} ${stateSpan(verificationTone(entry.verification.state), trustedText(entry.verification.state === "invalid" ? "signature did not verify" : STATE_COULD_NOT_BE_CHECKED))}<div class="gap-note">${failed} <a href="${escapeHtml(href)}">${trustedText("record")}</a></div></li>`,
+		);
+	}
+	return `<h2>${trustedText(HEADING_V2_RECORDS)}</h2><ol class="timeline">${items.join("")}</ol>`;
+}
+
+// ---- pages -------------------------------------------------------------------
+
+export function renderHome(
+	model: PortalModel,
+	v2: V2Model,
+	path: string,
+): string {
 	const journal = historySubject(model, "journal");
 	const linux = historySubject(model, "linux");
 	const jTip = tipEntry(journal.timeline);
 	const lTip = tipEntry(linux.timeline);
-	const jRow = jTip
-		? substituteCopy(homeRegisterSummaryRow(true), {
-				version: jTip.version,
-				date: jTip.publishedUtc,
-			})
-		: trustedText(homeRegisterSummaryRow(false));
-	const lRow = lTip
-		? substituteCopy(homeRegisterSummaryRow(true), {
-				version: lTip.version,
-				date: lTip.publishedUtc,
-			})
-		: trustedText(homeRegisterSummaryRow(false));
-	const wRow = trustedText(homeRegisterSummaryRow(false));
+
+	const declarationBlock = (() => {
+		if (v2.state === "absent")
+			return declaration({
+				kind: "declaration",
+				text: HOME_PUBLICATION_DECLARATION,
+			});
+		if (v2.state === "unverified") {
+			return `${declaration({ kind: "declaration", text: HOME_PUBLICATION_DECLARATION_UNVERIFIED })}${unverifiedCallout(v2)}`;
+		}
+		const first = firstValidV2(v2);
+		const text =
+			first === undefined
+				? trustedText(HOME_PUBLICATION_DECLARATION_A)
+				: substituteCopy(HOME_PUBLICATION_DECLARATION_B, {
+						product: displayFor(first),
+						version: first.version,
+					});
+		return `<div class="declaration">${kindTag("declaration")}<p>${text}</p></div>${legacyBindingLine(v2)}`;
+	})();
+
+	const publicationCell = (() => {
+		if (v2.state === "absent")
+			return `${kindTag("declaration")} ${stateSpan("neutral", trustedText("paused"))}`;
+		const override = publicationOverride(v2);
+		if (override === undefined) return "";
+		return `${kindTag(override.kind)} ${stateSpan(override.tone, trustedText(override.label))}`;
+	})();
+
+	const rowFor = (
+		slug: ProductSlug,
+		tip: EntryRecord | undefined,
+	): { publication: string; latest: string } => {
+		const latest = latestV2(v2, slug);
+		if (latest !== undefined) {
+			return {
+				publication: publicationCell,
+				latest: substituteCopy(HOME_REGISTER_SUMMARY_ROW_V2, {
+					version: latest.version,
+					date: latest.issuedAt,
+				}),
+			};
+		}
+		if (v2.state === "absent") {
+			return {
+				publication:
+					slug === "windows"
+						? `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`
+						: publicationCell,
+				latest: tip
+					? substituteCopy(homeRegisterSummaryRow(true), {
+							version: tip.version,
+							date: tip.publishedUtc,
+						})
+					: trustedText(homeRegisterSummaryRow(false)),
+			};
+		}
+		if (slug === "windows" || tip === undefined) {
+			return {
+				publication: `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`,
+				latest: trustedText("no records in this register"),
+			};
+		}
+		return {
+			publication: publicationCell,
+			latest: substituteCopy(HOME_REGISTER_SUMMARY_ROW_V1_CLOSED, {
+				version: tip.version,
+			}),
+		};
+	};
+	const j = rowFor("journal", jTip);
+	const l = rowFor("linux", lTip);
+	const w = rowFor("windows", undefined);
+
 	const main = `
 <h1>${trustedText("trust.solstone.app")}</h1>
 <p>${trustedText(HOME_HERO_EXPLAINER)}</p>
-${declaration({ kind: "declaration", text: HOME_PUBLICATION_DECLARATION })}
+${declarationBlock}
 <h2>${trustedText("the register, at a glance")}</h2>
 <p>${trustedText(HOME_REGISTER_SUMMARY_LEAD)}</p>
 <table class="register-table">
 <caption class="sr-only">${trustedText("software publication register summary")}</caption>
 <thead><tr><th scope="col">${trustedText("product")}</th><th scope="col">${trustedText("publication")}</th><th scope="col">${trustedText("latest recorded release")}</th></tr></thead>
 <tbody>
-<tr><td><a href="/software/journal/">${trustedText(PRODUCT_DISPLAY.journal)}</a></td><td>${kindTag("declaration")} ${stateSpan("neutral", trustedText("paused"))}</td><td>${jRow}</td></tr>
-<tr><td><a href="/software/linux/">${trustedText(PRODUCT_DISPLAY.linux)}</a></td><td>${kindTag("declaration")} ${stateSpan("neutral", trustedText("paused"))}</td><td>${lRow}</td></tr>
-<tr><td><a href="/software/windows/">${trustedText(PRODUCT_DISPLAY.windows)}</a></td><td>${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}</td><td>${wRow}</td></tr>
+<tr><td><a href="/software/journal/">${trustedText(PRODUCT_DISPLAY.journal)}</a></td><td>${j.publication}</td><td>${j.latest}</td></tr>
+<tr><td><a href="/software/linux/">${trustedText(PRODUCT_DISPLAY.linux)}</a></td><td>${l.publication}</td><td>${l.latest}</td></tr>
+<tr><td><a href="/software/windows/">${trustedText(PRODUCT_DISPLAY.windows)}</a></td><td>${w.publication}</td><td>${w.latest}</td></tr>
 </tbody>
 </table>
 <h2>${trustedText("go deeper")}</h2>
 <ul>
 <li><a href="/software/">${trustedText("software register")}</a></li>
 <li><a href="/verify/">${trustedText("how to verify a record yourself")}</a></li>
-<li><a href="/keys/">${trustedText("the public key")}</a></li>
+<li><a href="/keys/">${trustedText(v2Known(v2) ? "the signing keys" : "the public key")}</a></li>
 <li><a href="/about/">${trustedText("about this register")}</a></li>
 </ul>`;
 	return shell({
@@ -430,20 +742,52 @@ ${declaration({ kind: "declaration", text: HOME_PUBLICATION_DECLARATION })}
 	});
 }
 
-export function renderSoftwareIndex(model: PortalModel, path: string): string {
+export function renderSoftwareIndex(
+	model: PortalModel,
+	v2: V2Model,
+	path: string,
+): string {
 	const journal = historySubject(model, "journal");
 	const linux = historySubject(model, "linux");
 	const jTip = tipEntry(journal.timeline);
 	const lTip = tipEntry(linux.timeline);
+	const card = (slug: ProductSlug, tip: EntryRecord | undefined): string => {
+		const latest = latestV2(v2, slug);
+		if (latest !== undefined)
+			return `${kindTag("signed")} <span class="mono">${untrustedText(latest.version)}</span> ${trustedText("latest recorded")}`;
+		if (slug === "windows")
+			return `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`;
+		return tip
+			? `${kindTag("signed")} <span class="mono">${untrustedText(tip.version)}</span> ${trustedText("latest recorded")}`
+			: kindTag("register");
+	};
+	const coverageB =
+		anyValidV2(v2) && v2.state === "verified"
+			? declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT_B })
+			: "";
+	const unmapped = (() => {
+		if (v2.state !== "verified" || v2.unmappedProducts.length === 0) return "";
+		const note = substituteCopy(SOFTWARE_UNMAPPED_PRODUCTS, {
+			products: v2.unmappedProducts.join(", "),
+		});
+		const links = v2.software
+			.filter((s) => s.slug === undefined && s.kind === "release")
+			.map(
+				(s) =>
+					`<li>${untrustedText(`${s.product} ${s.version}`)} ${s.kind === "release" ? rawLinkCell(s.recordLink) : ""}</li>`,
+			)
+			.join("");
+		return `<div class="declaration">${kindTag("register")}<p>${note}</p>${links === "" ? "" : `<ul>${links}</ul>`}</div>`;
+	})();
 	const main = `
 <h1>${trustedText("the software register")}</h1>
 <p>${trustedText(SOFTWARE_INDEX_LEAD)}</p>
-${declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT }).replace('<div class="declaration">', '<div class="declaration" id="coverage">')}
+${declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT }).replace('<div class="declaration">', '<div class="declaration" id="coverage">')}${coverageB}${unmapped}
 <h2>${trustedText("products")}</h2>
 <div class="card-grid">
-<div class="card"><a class="card-link" href="/software/journal/"><h3>${trustedText(PRODUCT_DISPLAY.journal)}</h3><p>${jTip ? `${kindTag("signed")} <span class="mono">${untrustedText(jTip.version)}</span> ${trustedText("latest recorded")}` : kindTag("register")}</p></a></div>
-<div class="card"><a class="card-link" href="/software/linux/"><h3>${trustedText(PRODUCT_DISPLAY.linux)}</h3><p>${lTip ? `${kindTag("signed")} <span class="mono">${untrustedText(lTip.version)}</span> ${trustedText("latest recorded")}` : kindTag("register")}</p></a></div>
-<div class="card"><a class="card-link" href="/software/windows/"><h3>${trustedText(PRODUCT_DISPLAY.windows)}</h3><p>${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}</p></a></div>
+<div class="card"><a class="card-link" href="/software/journal/"><h3>${trustedText(PRODUCT_DISPLAY.journal)}</h3><p>${card("journal", jTip)}</p></a></div>
+<div class="card"><a class="card-link" href="/software/linux/"><h3>${trustedText(PRODUCT_DISPLAY.linux)}</h3><p>${card("linux", lTip)}</p></a></div>
+<div class="card"><a class="card-link" href="/software/windows/"><h3>${trustedText(PRODUCT_DISPLAY.windows)}</h3><p>${card("windows", undefined)}</p></a></div>
 </div>`;
 	return shell({
 		title: "software — trust.solstone.app",
@@ -454,41 +798,109 @@ ${declaration({ kind: "declaration", text: SOFTWARE_COVERAGE_CAVEAT }).replace('
 	});
 }
 
+/** The axis block a product page shows: the latest valid v2 record's axes when one exists, else the v1 tip's with the publication row re-read against the v2 model. */
+function productAxes(
+	model: PortalModel,
+	v2: V2Model,
+	slug: "journal" | "linux",
+	subject: ProductHistory,
+): string {
+	const latest = latestV2(v2, slug);
+	if (latest !== undefined && v2.state === "verified") {
+		return v2AxisBlock({
+			publication: {
+				kind: "declaration",
+				label: AXIS_PUBLICATION_B,
+				tone: "neutral",
+			},
+			freshness: {
+				state: "asserted",
+				assertedUntil: v2.freshness.assertedUntil,
+				sourceUrl: v2.freshness.provenance.sourceUrl,
+			},
+			verification: latest.verification,
+			links: { verifyHref: "/verify/" },
+		});
+	}
+	return axisBlock(
+		axesForProduct(model, subject),
+		{ verifyHref: "/verify/" },
+		publicationOverride(v2),
+	);
+}
+
 export function renderProduct(
 	model: PortalModel,
+	v2: V2Model,
 	product: ProductSlug,
 	path: string,
 ): string {
+	const crumbs = [
+		{ href: "/", label: "home" },
+		{ href: "/software/", label: "software" },
+		{ label: PRODUCT_DISPLAY[product] },
+	];
 	if (product === "windows") {
+		const latest = latestV2(v2, "windows");
+		if (latest !== undefined && v2.state === "verified") {
+			const main = `
+<h1>${trustedText(PRODUCT_DISPLAY.windows)}</h1>
+<p>${substituteCopy(PRODUCT_PLAIN_SUMMARY_B, { product: PRODUCT_DISPLAY.windows, version: latest.version, issued_at: latest.issuedAt })}</p>
+${v2AxisBlock({
+	publication: {
+		kind: "declaration",
+		label: AXIS_PUBLICATION_B,
+		tone: "neutral",
+	},
+	freshness: {
+		state: "asserted",
+		assertedUntil: v2.freshness.assertedUntil,
+		sourceUrl: v2.freshness.provenance.sourceUrl,
+	},
+	verification: latest.verification,
+	links: { verifyHref: "/verify/" },
+})}
+${v2RecordsSection(v2, "windows", undefined)}
+<p><a href="/software/">${trustedText("back to the software register")}</a></p>`;
+			return shell({
+				title: `${PRODUCT_DISPLAY.windows} — trust.solstone.app`,
+				current: "software",
+				path,
+				breadcrumbs: crumbs,
+				main,
+			});
+		}
+		const explainer = v2Known(v2)
+			? WINDOWS_ABSENCE_EXPLAINER_STATE_A
+			: WINDOWS_ABSENCE_EXPLAINER;
 		const main = `
 <h1>${trustedText(PRODUCT_DISPLAY.windows)}</h1>
-${declaration({ kind: "register", text: WINDOWS_ABSENCE_EXPLAINER, tone: "neutral" })}
-<p>${trustedText(WINDOWS_ONE_FACT)}</p>
+${declaration({ kind: "register", text: explainer, tone: "neutral" })}
+<p>${trustedText(WINDOWS_ONE_FACT)}</p>${v2RecordsSection(v2, "windows", undefined)}
 <p><a href="/software/">${trustedText("back to the software register")}</a></p>`;
 		return shell({
 			title: `${PRODUCT_DISPLAY.windows} — trust.solstone.app`,
 			current: "software",
 			path,
-			breadcrumbs: [
-				{ href: "/", label: "home" },
-				{ href: "/software/", label: "software" },
-				{ label: PRODUCT_DISPLAY.windows },
-			],
+			breadcrumbs: crumbs,
 			main,
 		});
 	}
 	const subject = historySubject(model, product);
-	const axes = axesForProduct(model, subject);
+	const tip = tipEntry(subject.timeline);
 	const ledgerCell =
 		subject.ledger.link.status === "linked"
 			? `<a class="raw-link" href="${escapeHtml(subject.ledger.link.link.url)}">${untrustedText(subject.ledger.link.link.url)}</a>`
 			: trustedText("unavailable");
+	const timelineHeading = v2Known(v2)
+		? HEADING_V1_TIMELINE_CLOSED
+		: "release timeline";
 	const main = `
 <h1>${trustedText(PRODUCT_DISPLAY[product])}</h1>
-<p>${summaryForProduct(product, subject.timeline)}</p>
-${axisBlock(axes, { verifyHref: "/verify/" })}
-${proveColumns(trustedText(productDoesProve(product)), trustedText(productDoesNotProve(product)))}
-<h2>${trustedText("release timeline")}</h2>
+<p>${summaryForProduct(product, subject.timeline, v2)}</p>
+${productAxes(model, v2, product, subject)}
+${proveColumns(trustedText(productDoesProve(product)), trustedText(productDoesNotProve(product)))}${v2RecordsSection(v2, product, tip?.version)}
+<h2>${trustedText(timelineHeading)}</h2>
 ${timelineHtml(product, subject.timeline)}
 <h2>${trustedText("the derived chain ledger")}</h2>
 ${kindTag("signed")}
@@ -497,11 +909,7 @@ ${kindTag("signed")}
 		title: `${PRODUCT_DISPLAY[product]} — trust.solstone.app`,
 		current: "software",
 		path,
-		breadcrumbs: [
-			{ href: "/", label: "home" },
-			{ href: "/software/", label: "software" },
-			{ label: PRODUCT_DISPLAY[product] },
-		],
+		breadcrumbs: crumbs,
 		main,
 	});
 }
@@ -517,7 +925,11 @@ function fillStructural(
 		.join("");
 }
 
-function versionSummary(entry: EntryRecord, display: string): string {
+function versionSummary(
+	entry: EntryRecord,
+	display: string,
+	v2: V2Model,
+): string {
 	const product = untrustedText(display);
 	const version = untrustedText(entry.version);
 	const published = untrustedText(entry.publishedUtc);
@@ -525,12 +937,15 @@ function versionSummary(entry: EntryRecord, display: string): string {
 		entry.axes.freshness.state === "fresh" ||
 		entry.axes.freshness.state === "expired"
 	) {
-		return substituteCopy(VERSION_PLAIN_SUMMARY, {
-			product: display,
-			version: entry.version,
-			published_utc: entry.publishedUtc,
-			valid_until: entry.axes.freshness.validUntil,
-		});
+		return substituteCopy(
+			v2Known(v2) ? VERSION_PLAIN_SUMMARY_V1_CLOSED : VERSION_PLAIN_SUMMARY,
+			{
+				product: display,
+				version: entry.version,
+				published_utc: entry.publishedUtc,
+				valid_until: entry.axes.freshness.validUntil,
+			},
+		);
 	}
 	if (entry.axes.freshness.state === "not-time-bound") {
 		return fillStructural(VERSION_SUMMARY_NOT_TIME_BOUND, {
@@ -549,11 +964,15 @@ function versionSummary(entry: EntryRecord, display: string): string {
 
 export function renderVersion(
 	model: PortalModel,
+	v2: V2Model,
 	entry: EntryRecord,
 	path: string,
 ): string {
 	const display = PRODUCT_DISPLAY[entry.product];
-	const summary = versionSummary(entry, display);
+	const summary = versionSummary(entry, display, v2);
+	const tag = v2Known(v2)
+		? ` <span class="kind kind-register">${trustedText(V1_RECORD_TAG)}</span>`
+		: "";
 	const tech = `<details class="tech" open><summary>${trustedText("technical fields")}</summary><div class="body"><div class="table-scroll"><table class="evidence-table"><tbody>
 <tr><td>${trustedText("subject")}</td><td>${untrustedText(display)} ${untrustedText(entry.version)}</td></tr>
 <tr><td>${trustedText("entry sha256")}</td><td class="mono">${untrustedText(entry.entrySha256)}</td></tr>
@@ -561,9 +980,9 @@ export function renderVersion(
 <tr><td>${trustedText("chain position")}</td><td>${trustedText("seq")} ${trustedText(String(entry.seq))}${entry.prevVersion ? ` ${trustedText("previous")} ${untrustedText(entry.prevVersion)}` : ` ${trustedText("genesis")}`}</td></tr>
 </tbody></table></div></div></details>`;
 	const main = `
-<h1>${trustedText(display)} <span class="mono">${untrustedText(entry.version)}</span></h1>
+<h1>${trustedText(display)} <span class="mono">${untrustedText(entry.version)}</span>${tag}</h1>
 <p>${summary}</p>
-${axisBlock(entry.axes, { keysHref: "/keys/" })}
+${axisBlock(entry.axes, { keysHref: "/keys/" }, publicationOverride(v2))}
 ${proveColumns(trustedText(VERSION_DOES_PROVE), trustedText(VERSION_DOES_NOT_PROVE))}
 <h2>${trustedText("raw evidence")}</h2>
 ${evidenceTable(evidenceRows(model, entry))}
@@ -581,6 +1000,128 @@ ${tech}
 		],
 		main,
 	});
+}
+
+/** A v2 release record's page. A record that did not verify shows its identity, the verifier's reason, and its raw link — none of its claims. */
+export function renderV2Version(
+	_model: PortalModel,
+	v2: V2Model,
+	record: V2ReleaseRecord,
+	path: string,
+): string {
+	const display = displayFor(record);
+	const slug = record.slug ?? "journal";
+	const crumbs = [
+		{ href: "/", label: "home" },
+		{ href: "/software/", label: "software" },
+		{ href: `/software/${slug}/`, label: display },
+		{ label: record.version },
+	];
+	const title = `${display} ${record.version} — trust.solstone.app`;
+	const heading = `<h1>${trustedText(display)} <span class="mono">${untrustedText(record.version)}</span> <span class="kind kind-signed">${trustedText(V2_RECORD_TAG)}</span></h1>`;
+	if (record.verification.state !== "valid" || v2.state !== "verified") {
+		const reason =
+			record.verification.state === "valid"
+				? "the register did not verify"
+				: record.verification.reason;
+		const failed = substituteCopy(PRODUCT_RECORD_FAILED, {
+			version: record.version,
+			reason,
+		});
+		const main = `
+${heading}
+<p>${kindTag("verifier")} ${stateSpan(record.verification.state === "invalid" ? "danger" : "warn", trustedText(record.verification.state === "invalid" ? "signature did not verify" : STATE_COULD_NOT_BE_CHECKED))}</p>
+<p>${failed}</p>
+<div class="table-scroll"><table class="evidence-table"><tbody><tr><td>${trustedText("release record")}</td><td>${rawLinkCell(record.recordLink)}</td></tr></tbody></table></div>
+<p><a href="/software/${escapeHtml(slug)}/">${trustedText("back to")} ${trustedText(display)}</a></p>`;
+		return shell({
+			title,
+			current: "software",
+			path,
+			breadcrumbs: crumbs,
+			main,
+		});
+	}
+	const summary = substituteCopy(VERSION_PLAIN_SUMMARY_V2, {
+		product: display,
+		version: record.version,
+		issued_at: record.issuedAt,
+		asserted_until: v2.freshness.assertedUntil,
+	});
+	const axes = v2AxisBlock({
+		publication: {
+			kind: "declaration",
+			label: AXIS_PUBLICATION_B,
+			tone: "neutral",
+		},
+		freshness: {
+			state: "asserted",
+			assertedUntil: v2.freshness.assertedUntil,
+			sourceUrl: v2.freshness.provenance.sourceUrl,
+		},
+		verification: record.verification,
+		links: { keysHref: "/keys/", verifyHref: "/verify/" },
+	});
+	const list = (items: readonly string[]) =>
+		`<ul>${items.map((i) => `<li>${untrustedText(i)}</li>`).join("")}</ul>`;
+	const claims = `<h2>${trustedText(HEADING_RECORD_CLAIMS)}</h2><p>${trustedText(VERSION_RECORD_CLAIMS_LEAD)}</p><div class="prove-columns"><div class="does"><h3>${trustedText("what this proves")}</h3>${list(record.doesProve)}</div><div class="does-not"><h3>${trustedText("what this does not prove")}</h3>${list(record.doesNotProve)}</div></div>`;
+	const rows: EvidenceRow[] = [];
+	pushLink(
+		rows,
+		"release record",
+		"signed record (DSSE envelope inside)",
+		record.recordLink,
+	);
+	if (v2.policy.state === "loaded")
+		pushLink(
+			rows,
+			"authorization policy",
+			`version ${v2.policy.version}`,
+			v2.policy.link,
+		);
+	if (v2.dsseKeys !== undefined)
+		pushLink(rows, "signing key set", v2.dsseKeys.targetPath, v2.dsseKeys.link);
+	pushLink(rows, "pinned root", `version ${v2.root.version}`, v2.root.rootLink);
+	pushLink(
+		rows,
+		"freshness assertion",
+		"timestamp role",
+		linkFromUrl(v2.freshness.provenance.sourceUrl),
+	);
+	for (const artifact of record.artifacts) {
+		if (artifact.link.status === "linked") {
+			rows.push({
+				type: "linked",
+				item: "recorded bytes",
+				detail: `sha256 ${artifact.sha256} · ${artifact.length} bytes`,
+				url: artifact.link.link.url,
+			});
+		} else if (artifact.link.status === "rejected") {
+			rows.push({
+				type: "rejected",
+				item: artifact.url,
+				reason: artifact.link.rejected.reason,
+			});
+		}
+	}
+	const tech = `<details class="tech" open><summary>${trustedText("technical fields")}</summary><div class="body"><div class="table-scroll"><table class="evidence-table"><tbody>
+<tr><td>${trustedText("subject")}</td><td class="mono">${untrustedText(`software/${record.product}/${record.version}`)}</td></tr>
+<tr><td>${trustedText("target path")}</td><td class="mono">${untrustedText(record.targetPath)}</td></tr>
+<tr><td>${trustedText("target sha256")}</td><td class="mono">${untrustedText(record.targetSha256)}</td></tr>
+<tr><td>${trustedText("issued at")}</td><td>${untrustedText(record.issuedAt)}</td></tr>
+<tr><td>${trustedText("signer key ids")}</td><td class="mono">${record.signerKeyids.map((k) => untrustedText(k)).join("<br>")}</td></tr>
+${v2.policy.state === "loaded" ? `<tr><td>${trustedText("policy sha256")}</td><td class="mono">${untrustedText(v2.policy.sha256)}</td></tr>` : ""}
+</tbody></table></div></div></details>`;
+	const main = `
+${heading}
+<p>${summary}</p>
+${axes}
+${claims}
+<h2>${trustedText("raw evidence")}</h2>
+${evidenceTable(rows)}
+${tech}
+<p><a href="/verify/">${trustedText("verify this record yourself")}</a></p>`;
+	return shell({ title, current: "software", path, breadcrumbs: crumbs, main });
 }
 
 export function renderVersionFailure(
@@ -608,25 +1149,63 @@ export function renderVersionFailure(
 	});
 }
 
-export function renderVerify(model: PortalModel, path: string): string {
+export function renderVerify(
+	model: PortalModel,
+	v2: V2Model,
+	path: string,
+): string {
 	const filename = model.keys[0]?.filename ?? "solpbc-transparency-1.pub";
 	const cmd = verifyCommand(filename);
-	const main = `
-<h1>${trustedText("verify a record yourself")}</h1>
-<p>${trustedText(VERIFY_METHOD_INTRO)}</p>
-<h2>${trustedText("the command")}</h2>
-<p>${trustedText(VERIFY_LEAD_IN)}</p>
-<pre class="mono">${trustedText(cmd)}</pre>
-<h2>${trustedText("reading the result")}</h2>
-<table class="evidence-table">
+	const v1Table = `<table class="evidence-table">
 <thead><tr><th>${trustedText("outcome")}</th><th>${trustedText("what it means")}</th></tr></thead>
 <tbody>
 <tr><td>${trustedText("signature verifies")}</td><td>${trustedText(VERIFY_OUTCOME_PASS)}</td></tr>
 <tr><td>${trustedText("signature fails to verify")}</td><td>${trustedText(VERIFY_OUTCOME_FAIL)}</td></tr>
 <tr><td>${trustedText("curl or fetch fails")}</td><td>${trustedText(VERIFY_OUTCOME_UNREACHABLE)}</td></tr>
 </tbody>
-</table>
+</table>`;
+	if (!v2Known(v2)) {
+		const main = `
+<h1>${trustedText("verify a record yourself")}</h1>
+<p>${trustedText(VERIFY_METHOD_INTRO)}</p>
+<h2>${trustedText("the command")}</h2>
+<p>${trustedText(VERIFY_LEAD_IN)}</p>
+<pre class="mono">${trustedText(cmd)}</pre>
+<h2>${trustedText("reading the result")}</h2>
+${v1Table}
 <p><a href="/keys/">${trustedText("the public key")}</a></p>`;
+		return shell({
+			title: "verify — trust.solstone.app",
+			current: "verify",
+			path,
+			breadcrumbs: [{ href: "/", label: "home" }, { label: "verify" }],
+			main,
+		});
+	}
+	const v2cmd = verifyV2Command(v2.metadataBase, v2.targetsBase);
+	const main = `
+<h1>${trustedText("verify a record yourself")}</h1>
+<p>${trustedText(VERIFY_TWO_METHODS_LEAD)}</p>
+<h2>${trustedText(HEADING_V1_METHOD)}</h2>
+<p>${trustedText(VERIFY_METHOD_INTRO)}</p>
+<p>${trustedText(VERIFY_LEAD_IN)}</p>
+<pre class="mono">${trustedText(cmd)}</pre>
+<h3>${trustedText("reading the result")}</h3>
+${v1Table}
+<h2>${trustedText(HEADING_V2_METHOD)}</h2>
+<p>${trustedText(VERIFY_METHOD_INTRO_V2)}</p>
+<p>${trustedText(VERIFY_V2_LEAD_IN)}</p>
+<pre class="mono">${untrustedText(v2cmd)}</pre>
+<h3>${trustedText("reading the result")}</h3>
+<table class="evidence-table">
+<thead><tr><th>${trustedText("outcome")}</th><th>${trustedText("what it means")}</th></tr></thead>
+<tbody>
+<tr><td>${trustedText("ACCEPTED, exit 0")}</td><td>${trustedText(VERIFY_OUTCOME_V2_ACCEPTED)}</td></tr>
+<tr><td>${trustedText("REJECTED, exit 1")}</td><td>${trustedText(VERIFY_OUTCOME_V2_REJECTED)}</td></tr>
+<tr><td>${trustedText("could not run, exit 2")}</td><td>${trustedText(VERIFY_OUTCOME_V2_COULD_NOT_RUN)}</td></tr>
+</tbody>
+</table>
+<p><a href="/keys/">${trustedText("the signing keys")}</a></p>`;
 	return shell({
 		title: "verify — trust.solstone.app",
 		current: "verify",
@@ -636,7 +1215,11 @@ export function renderVerify(model: PortalModel, path: string): string {
 	});
 }
 
-export function renderKeys(model: PortalModel, path: string): string {
+export function renderKeys(
+	model: PortalModel,
+	v2: V2Model,
+	path: string,
+): string {
 	const key = model.keys[0];
 	const fingerprint =
 		key === undefined
@@ -650,8 +1233,10 @@ export function renderKeys(model: PortalModel, path: string): string {
 			: trustedText("unavailable");
 	const keyText = key ? untrustedText(key.publicKeyText) : trustedText("");
 	const algorithm = key ? trustedText(key.algorithm) : trustedText("ed25519");
-	const status = key ? trustedText(key.status) : trustedText("active");
-	const main = `
+	const crumbs = [{ href: "/", label: "home" }, { label: "keys" }];
+	if (!v2Known(v2)) {
+		const status = key ? trustedText(key.status) : trustedText("active");
+		const main = `
 <h1>${trustedText("the v1 signing key")}</h1>
 ${declaration({ kind: "declaration", text: KEYS_ROLE_STATEMENT })}
 <div class="table-scroll"><table class="evidence-table"><tbody>
@@ -661,24 +1246,73 @@ ${declaration({ kind: "declaration", text: KEYS_ROLE_STATEMENT })}
 <tr><td>${trustedText("raw key file")}</td><td>${raw}</td></tr>
 </tbody></table></div>
 <details class="tech" open><summary>${trustedText("full public key text")}</summary><div class="body"><pre class="mono">${keyText}</pre></div></details>`;
+		return shell({
+			title: "keys — trust.solstone.app",
+			current: "keys",
+			path,
+			breadcrumbs: crumbs,
+			main,
+		});
+	}
+	const root = v2.root;
+	const witnessItems = root.witnesses
+		.map((w) => {
+			// sol pbc's own host is linked; any other location is named and
+			// shown as text, so this surface adds no third-party href.
+			const own =
+				w.url === "https://solpbc.org" ||
+				w.url.startsWith("https://solpbc.org/");
+			const location = own
+				? `<a class="raw-link" href="${escapeHtml(w.url)}">${untrustedText(w.url)}</a>`
+				: `<span class="mono">${untrustedText(w.url)}</span>`;
+			return `<li>${untrustedText(w.label)}: ${location}</li>`;
+		})
+		.join("");
+	const main = `
+<h1>${trustedText(KEYS_PAGE_TITLE_V2)}</h1>
+<h2>${trustedText(HEADING_V1_KEY)}</h2>
+${declaration({ kind: "declaration", text: KEYS_V1_ROLE_STATEMENT_A })}
+<div class="table-scroll"><table class="evidence-table"><tbody>
+<tr><td>${trustedText("algorithm")}</td><td>${algorithm}</td></tr>
+<tr><td>${trustedText("fingerprint")}</td><td class="mono">${fingerprint}</td></tr>
+<tr><td>${trustedText("status")}</td><td>${trustedText(KEYS_V1_STATUS)}</td></tr>
+<tr><td>${trustedText("raw key file")}</td><td>${raw}</td></tr>
+</tbody></table></div>
+<details class="tech" open><summary>${trustedText("full public key text")}</summary><div class="body"><pre class="mono">${keyText}</pre></div></details>
+<h2 id="v2">${trustedText(HEADING_V2_ROOT)}</h2>
+<div class="declaration">${kindTag("declaration")}<p>${substituteCopy(KEYS_V2_ROOT_INTRO, { root_version: String(root.version) })}</p></div>
+<div class="table-scroll"><table class="evidence-table"><tbody>
+<tr><td>${trustedText("root version")}</td><td>${untrustedText(String(root.version))}</td></tr>
+<tr><td>${trustedText("signing threshold")}</td><td>${untrustedText(`${root.threshold} of ${root.keyids.length}`)}</td></tr>
+<tr><td>${trustedText("root key ids")}</td><td class="mono">${root.keyids.map((k) => untrustedText(k)).join("<br>")}</td></tr>
+<tr><td>${trustedText("root file sha256")}</td><td class="mono">${untrustedText(root.rootSha256)}</td></tr>
+<tr><td>${trustedText("raw root file")}</td><td>${rawLinkCell(root.rootLink)}</td></tr>
+</tbody></table></div>
+<h3>${trustedText(HEADING_WITNESS_LINES)}</h3>
+<pre class="mono">${untrustedText(root.witnessLines[0])}
+${untrustedText(root.witnessLines[1])}</pre>
+<div class="declaration">${kindTag("declaration")}<p>${trustedText(KEYS_WITNESS_LEAD)}</p><ul>${witnessItems}</ul></div>`;
 	return shell({
 		title: "keys — trust.solstone.app",
 		current: "keys",
 		path,
-		breadcrumbs: [{ href: "/", label: "home" }, { label: "keys" }],
+		breadcrumbs: crumbs,
 		main,
 	});
 }
 
-export function renderAbout(path: string): string {
+export function renderAbout(v2: V2Model, path: string): string {
 	const link = aboutUrl();
 	const raw =
 		link.status === "linked"
 			? `<a class="raw-link" href="${escapeHtml(link.url)}">${untrustedText(link.url)}</a>`
 			: trustedText("unavailable");
+	const lead = v2Known(v2)
+		? `<p>${kindTag("declaration")} ${trustedText(ABOUT_READABLE_BODY_LEAD)}</p>`
+		: "";
 	const main = `
 <h1>${trustedText("about this register")}</h1>
-<pre class="mono">${trustedText(ABOUT_READABLE_BODY)}</pre>
+${lead}<pre class="mono">${trustedText(ABOUT_READABLE_BODY)}</pre>
 <p>${raw}</p>`;
 	return shell({
 		title: "about this register — trust.solstone.app",
