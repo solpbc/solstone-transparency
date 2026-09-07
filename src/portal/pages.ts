@@ -1012,8 +1012,12 @@ function versionSummary(
 		entry.axes.freshness.state === "fresh" ||
 		entry.axes.freshness.state === "expired"
 	) {
+		// The closed-chain sentence says the window "has since passed", so it is
+		// used only when it has; a still-fresh v1 tip keeps the Wave 1 sentence.
 		return substituteCopy(
-			v2Known(v2) ? VERSION_PLAIN_SUMMARY_V1_CLOSED : VERSION_PLAIN_SUMMARY,
+			v2Known(v2) && entry.axes.freshness.state === "expired"
+				? VERSION_PLAIN_SUMMARY_V1_CLOSED
+				: VERSION_PLAIN_SUMMARY,
 			{
 				product: display,
 				version: entry.version,

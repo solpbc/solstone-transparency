@@ -42,7 +42,7 @@ export const HOME_REGISTER_SUMMARY_ROW_V1_CLOSED_UNCHECKED =
 	"v1 chain closed at {version} · v2 register not checked";
 
 export const SOFTWARE_COVERAGE_CAVEAT_B =
-	"each product below shows whether it has a signed record in this register, v1 or v2, and each record lists the exact files it covers. surfaces shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it.";
+	"each product below shows whether it has a signed record in this register, v1 or v2, and each record lists the exact files it covers. apps shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it.";
 
 export const PRODUCT_PLAIN_SUMMARY_A =
 	"the v1 chain for {product} closed at {version}. it is history, still signed and still verifiable with the v1 key; nothing in it was re-signed or moved.";
@@ -70,15 +70,15 @@ export const VERSION_RECORD_CLAIMS_LEAD =
 	"the record states what it does and does not prove; both lists below are rendered from the signed record, word for word.";
 
 export const VERIFY_METHOD_INTRO_V2 =
-	"v2 records are covered by verify-v2, which checks the whole register against a pinned copy of sol pbc's v2 signing root. a passing check tells you the register you fetched matches what the keys your pinned root authorizes signed, that every record's bytes match their signed description, and that none of sol pbc's signed validity windows had passed when you ran it. it does not open a record's own signature; that is a separate record-level check, and this page will carry its command when it ships. it does not tell you the root you pinned is the right one; you compare that yourself against the fingerprint lines published elsewhere, listed on the keys page. and it speaks only to the register, not to the software the records name.";
+	"v2 records are covered by verify-v2, which checks the whole register against a pinned copy of sol pbc's v2 signing root. a passing check tells you the register you fetched matches what was signed by the keys your pinned root authorizes, that every record's bytes match their signed description, and that none of sol pbc's signed validity windows had passed when you ran it. it does not open a record's own signature; that is a separate record-level check, and this page will carry its command when it ships. it does not tell you the root you pinned is the right one; you compare that yourself against the fingerprint lines published elsewhere, listed on the keys page. and it speaks only to the register, not to the software the records name.";
 
 export const VERIFY_TWO_METHODS_LEAD =
 	"there are two ways to check what is here, one per chain. v1 records are checked with minisign and the v1 key; v2 records are covered by verify-v2, which checks the whole register against the pinned v2 root, and each record's page says which chain it belongs to.";
 
 export const VERIFY_OUTCOME_V2_ACCEPTED =
-	"the command printed ACCEPTED and exited 0: the register you fetched matches what the keys your pinned root authorizes signed, every record's bytes match their signed description, and no signed validity window had passed when you ran it.";
+	"the command printed ACCEPTED and exited 0: the register you fetched matches what was signed by the keys your pinned root authorizes, every record's bytes match their signed description, and no signed validity window had passed when you ran it.";
 export const VERIFY_OUTCOME_V2_REJECTED =
-	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" means a file could not be read or did not parse; the detail line names the field, not always the file, so on a first run check the root file you saved first. any other reason means what transparency.solstone.app served did not check out.';
+	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about sol pbc\'s assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" means a file could not be read or did not parse; the detail line names the field, not always the file, so on a first run check the root file you saved first. any other reason means what transparency.solstone.app served did not check out.';
 export const VERIFY_OUTCOME_V2_COULD_NOT_RUN =
 	"the command exited 2 because the pinned root couldn't be read; the check didn't happen, which is different from a failed check and isn't evidence about the register.";
 
@@ -112,13 +112,13 @@ export const HOME_PUBLICATION_DECLARATION_A_PARTIAL =
 	"sol pbc has created its v2 signing root and bound the v1 release records for {products} into it; the rest of the v1 release records are not yet bound. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
 
 export const LEGACY_BINDING_NOT_VERIFIED =
-	"a manifest binding the v1 release records into the v2 root did not verify when this page was built ({reason}); that is a result for this check, not a result for any one v1 record; each record's own check is on its page.";
+	"a manifest binding the v1 release records into the v2 root did not verify when this page was built ({reason}); this check stopped there, and it is not a verdict on any v1 record; each record's own check is on its page.";
 
 export const V2_UNVERIFIED =
 	"the v2 register did not verify when this page was built ({reason}), so nothing from it is shown here. that is a statement about this check, not about any record.";
 
 export const V2_EXPIRED =
-	"a signed validity window on this register had passed by {date}; records have not been re-checked past that date. that is a statement about how old our assertion is, not about any record's signature.";
+	"a signed validity window on this register had passed by {date}; records have not been re-checked past that date. that is a statement about how old sol pbc's assertion is, not about any record's signature.";
 
 export const SOFTWARE_UNMAPPED_PRODUCTS =
 	"this register also holds records for {products}; this portal has no page for them yet, so it links the raw records instead.";
