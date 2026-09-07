@@ -100,7 +100,32 @@ export function readerReason(reason: string): string {
 		case "unrecognized-predicate":
 		case "predicate-malformed":
 		case "malformed":
+		case "oversized":
+		case "too-deep":
+		case "duplicate-key":
+		case "invalid-encoding":
+		case "byte-length-changed":
+		case "unpaired-surrogate":
+		case "non-finite-number":
+		case "non-integer-number":
+		case "undefined-value":
+		case "integer-not-round-trippable":
+		case "malformed-key":
+		case "wrong-key-length":
+		case "wrong-signature-length":
+		case "unsupported-key-type":
+		case "unsupported-spec-version":
 			return "a file did not parse";
+		case "metadata-type-mismatch":
+		case "payload-type-mismatch":
+		case "filename-version-mismatch":
+		case "snapshot-role-dropped":
+			return "a file did not match its signed description";
+		case "dangling-keyid":
+		case "degenerate-role-configuration":
+		case "unsafe-target-path":
+		case "delegation-too-deep":
+			return "the root's role setup did not check out";
 		case "outside-issuance-window":
 		case "role-not-authorized":
 			return "the signing key was not authorized for this record";
@@ -121,4 +146,5 @@ export function verifyV2Command(
 export const STATE_NOT_TIME_BOUND = "not time-bound";
 export const STATE_NOT_ATTEMPTED = "not attempted";
 export const STATE_COULD_NOT_BE_CHECKED = "could not be checked";
+/** Retired 2026-09-07 in favour of `STATE_DID_NOT_VERIFY`: an invalid outcome is not always a signature failure. Kept exported for one release so nothing outside this tree breaks. */
 export const STATE_SIGNATURE_DID_NOT_VERIFY = "signature did not verify";

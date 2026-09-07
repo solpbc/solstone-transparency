@@ -59,6 +59,7 @@ import {
 	AXIS_PUBLICATION_B,
 	HOME_PUBLICATION_DECLARATION_A,
 	HOME_PUBLICATION_DECLARATION_A_PARTIAL,
+	HOME_PUBLICATION_DECLARATION_A_UNBOUND,
 	HOME_PUBLICATION_DECLARATION_B,
 	HOME_PUBLICATION_DECLARATION_UNVERIFIED,
 	HOME_REGISTER_SUMMARY_ROW_V1_CLOSED,
@@ -699,15 +700,18 @@ export function renderHome(
 			return `${declaration({ kind: "declaration", text: HOME_PUBLICATION_DECLARATION_UNVERIFIED })}${unverifiedCallout(v2)}`;
 		}
 		const first = firstValidV2(v2);
-		const fullyBound =
-			v2.legacy.state === "bound" && v2.legacy.coverage === "complete";
+		const stateA = () => {
+			if (v2.legacy.state !== "bound")
+				return trustedText(HOME_PUBLICATION_DECLARATION_A_UNBOUND);
+			if (v2.legacy.coverage === "complete")
+				return trustedText(HOME_PUBLICATION_DECLARATION_A);
+			return substituteCopy(HOME_PUBLICATION_DECLARATION_A_PARTIAL, {
+				products: boundProducts(v2),
+			});
+		};
 		const text =
 			first === undefined
-				? fullyBound
-					? trustedText(HOME_PUBLICATION_DECLARATION_A)
-					: substituteCopy(HOME_PUBLICATION_DECLARATION_A_PARTIAL, {
-							products: boundProducts(v2),
-						})
+				? stateA()
 				: substituteCopy(HOME_PUBLICATION_DECLARATION_B, {
 						product: displayFor(first),
 						version: first.version,

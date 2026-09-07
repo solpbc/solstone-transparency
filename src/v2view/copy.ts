@@ -78,7 +78,7 @@ export const VERIFY_TWO_METHODS_LEAD =
 export const VERIFY_OUTCOME_V2_ACCEPTED =
 	"the command printed ACCEPTED and exited 0: the register you fetched matches what the keys your pinned root authorizes signed, every record's bytes match their signed description, and no signed validity window had passed when you ran it.";
 export const VERIFY_OUTCOME_V2_REJECTED =
-	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" means a file could not be read or did not parse; the detail line names the field, not always the file, so on a first run check the root file you saved first. any other reason means what the evidence host served did not check out, and we\'d like to hear about it.';
+	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" means a file could not be read or did not parse; the detail line names the field, not always the file, so on a first run check the root file you saved first. any other reason means what the evidence host served did not check out.';
 export const VERIFY_OUTCOME_V2_COULD_NOT_RUN =
 	"the command exited 2 because the pinned root couldn't be read; the check didn't happen, which is different from a failed check and isn't evidence about the register.";
 
@@ -103,12 +103,16 @@ export const LEGACY_BINDING_BOUND =
 export const LEGACY_BINDING_PARTIAL =
 	"the v1 release records for {products} ({count} objects) are bound into the v2 root by signed manifests that checked out when this page was built; the rest of the v1 release records are not yet bound.";
 
+/** State (a) declaration when no legacy binding verified (manifests absent or failed): the root exists, nothing is claimed about the binding. */
+export const HOME_PUBLICATION_DECLARATION_A_UNBOUND =
+	"sol pbc has created its v2 signing root. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
+
 /** State (a) declaration when the binding covers only part of the v1 register. */
 export const HOME_PUBLICATION_DECLARATION_A_PARTIAL =
 	"sol pbc has created its v2 signing root and bound the v1 release records for {products} into it; the rest of the v1 release records are not yet bound. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
 
 export const LEGACY_BINDING_NOT_VERIFIED =
-	"the manifest binding the v1 register into the v2 root did not verify when this page was built ({reason}); that is a statement about this check, not about any v1 record, which stays verifiable on its own with the v1 key.";
+	"a manifest binding the v1 release records into the v2 root did not verify when this page was built ({reason}); that is a statement about this check, not about any v1 record, which stays verifiable on its own with the v1 key.";
 
 export const V2_UNVERIFIED =
 	"the v2 register did not verify when this page was built ({reason}), so nothing from it is shown here. that is a statement about this check, not about any record.";
