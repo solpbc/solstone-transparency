@@ -2,7 +2,7 @@
 // Copyright (c) 2026 sol pbc
 
 import { expect, test } from "bun:test";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -433,4 +433,53 @@ test("renewal after a root rotation tolerates retained former-root endorsements"
 	);
 	expect(json(proposal).version).toBe(3);
 	expect(json(renewed).signed).toEqual(json(proposal));
+});
+
+test("root renewal CLI distinguishes no signatures from an unmet one-signature threshold", async () => {
+	const built = await fixture();
+	// The executable uses the wall clock, so its fixture must precede that clock.
+	const now = Date.now();
+	const previous = must(
+		await buildRepository({
+			signingKeys: built.keys.signingKeys,
+			targets: {},
+			consistentSnapshot: true,
+			now: new Date(now - 2000),
+		}),
+	).root.bytes;
+	const payload = await prepareRootRenewal(previous, new Date(now - 1000));
+	const signature = await signRootRenewal(previous, payload, built.first);
+	const directory = await mkdtemp(
+		join(tmpdir(), "synthetic-root-renewal-cli-"),
+	);
+	try {
+		const previousPath = join(directory, "1.root.json");
+		const payloadPath = join(directory, "payload.json");
+		const signaturePath = join(directory, "first.sig.json");
+		const outputPath = join(directory, "2.root.json");
+		await writeFile(previousPath, previous);
+		await writeFile(payloadPath, payload);
+		await writeFile(signaturePath, JSON.stringify(signature));
+		const cli = new URL("../../bin/root-renew.ts", import.meta.url).pathname;
+		for (const [extra, reason] of [
+			[[], "root-renew-usage"],
+			[[signaturePath], "threshold-unmet"],
+		] as const) {
+			const child = Bun.spawn(
+				["bun", cli, "merge", previousPath, payloadPath, outputPath, ...extra],
+				{ stdout: "pipe", stderr: "pipe" },
+			);
+			const [exit, stdout, stderr] = await Promise.all([
+				child.exited,
+				new Response(child.stdout).text(),
+				new Response(child.stderr).text(),
+			]);
+			expect(exit).toBe(1);
+			expect(stdout).toBe("");
+			expect(JSON.parse(stderr)).toEqual({ ok: false, reason });
+			expect(await Bun.file(outputPath).exists()).toBe(false);
+		}
+	} finally {
+		await rm(directory, { recursive: true, force: true });
+	}
 });

@@ -1,0 +1,15 @@
+[Unit]
+Description=Refresh the signed transparency timestamp
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/projects/solstone-transparency
+ExecStart=%h/.bun/bin/bun %h/projects/solstone-transparency/bin/timestamp-rail.ts --config %h/.config/solstone-transparency/timestamp-rail.json --json
+TimeoutStartSec=20min
+UMask=0077
+SuccessExitStatus=3
+NoNewPrivileges=true
+
+# Install and enable only after the production repository and credentials exist.

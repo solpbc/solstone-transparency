@@ -18,6 +18,40 @@ Requires [Bun](https://bun.sh) 1.x.
 bun run bin/solstone-transparency.ts --help
 ```
 
+## v2 tools
+
+The v2 tools build signed repositories, prepare release records, publish bytes conditionally, and verify records against their artifact URLs. A successful release check establishes the recorded bytes and signing authority; it does not establish software safety or reproducibility.
+
+Start with an independently obtained root file. Use a separate trust-store file for each repository:
+
+```bash
+bun bin/verify-release.ts --root /path/to/trusted-root.json \
+  --product journal --version VERSION --store /path/to/trust-state.json --json
+bun bin/audit-v2.ts --root /path/to/trusted-root.json \
+  --store /path/to/trust-state.json --json
+```
+
+Both commands default to the production `/v2/metadata/` and `/v2/targets/` bases. Supply `--metadata-base` and `--targets-base` explicitly for another repository. `audit-v2` checks configured delivery heads; it does not enumerate every historical release. Its `--lanes` option accepts a JSON array of `{product, latestUrl, format}`, where `format` is `version-line` or `github-release`.
+
+The production pin is reserved at `protocol/tuf-root.json` and is absent until separately published. A root downloaded beside the metadata is not an independent trust anchor. [Protocol documents](protocol/README.md) describe the record and predicate formats.
+
+| Command | Purpose |
+|---|---|
+| `bun bin/tuf-ceremony.ts --help` | Build and re-verify a repository using encrypted PKCS#8 keys and terminal passphrase prompts |
+| `bun bin/root-renew.ts --help` | Prepare a renewal, sign it in separate one-key invocations, and merge the threshold signatures |
+| `bun bin/journal-artifacts.ts --help` | Measure journal distribution files against their manifests and construct release input |
+| `bun bin/publish-transaction.ts --help` | Publish a verified candidate with conditional writes, timestamp last, and a durable receipt; supports `--dry-run` |
+| `bun bin/timestamp-rail.ts --help` | Authenticate the repository, refresh only its timestamp, and report failures through configured alert arguments |
+| `bun bin/discovery.ts --help` | Derive discovery fields from a supplied root envelope |
+
+The [timestamp service](systemd/solstone-transparency-timestamp.service) and [calendar timer](systemd/solstone-transparency-timestamp.timer) are templates. Configure and exercise the job against the intended repository before enabling it. The repository ships neither credentials nor an enabled timer.
+
+An optional read-only network conformance check walks the journal migration constructor's actual output, first rejecting a tampered response:
+
+```bash
+bun bin/check-migration-constructor.ts --live
+```
+
 ## Test
 
 ```bash
@@ -34,7 +68,8 @@ make test
 | `src/legacy/` | Read-side v1 verifier and typed portal model |
 | `src/portal/` | Read-only HTML renderer; served live at `trust.solstone.app` by `worker.ts` |
 | `src/v2view/` | Build-time view of the v2 register from a pinned root; writes the second model the portal embeds |
-| `bin/` | The CLI executable |
+| `src/v2/` | TUF metadata, DSSE policy and records, publication, and release verification |
+| `bin/` | CLI entry points and operator tools |
 | `protocol/` | Public evidence-record and predicate documents for independent verifiers. See [`protocol/README.md`](protocol/README.md). |
 
 ## License

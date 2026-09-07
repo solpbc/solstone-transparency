@@ -1,0 +1,14 @@
+[Unit]
+Description=Refresh the signed transparency timestamp daily
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+RandomizedDelaySec=10min
+AccuracySec=1min
+Unit=solstone-transparency-timestamp.service
+
+[Install]
+WantedBy=timers.target
+
+# This template is intentionally shipped without installation or enablement.

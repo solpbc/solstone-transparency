@@ -120,8 +120,13 @@ export async function runCeremony(
 	}
 	const scratch = await mkdtemp(join(tmpdir(), "tuf-ceremony-verify-"));
 	try {
+		const persistedRoot = new Uint8Array(
+			await readFile(join(output, "metadata", "1.root.json")),
+		);
+		if (!Buffer.from(persistedRoot).equals(Buffer.from(built.value.root.bytes)))
+			throw new Error("ceremony-root-readback-mismatch");
 		const verified = await updateTufRepository({
-			bootstrapRoot: built.value.root.bytes,
+			bootstrapRoot: persistedRoot,
 			now,
 			trustStore: openFileTrustStore(join(scratch, "trust.json")),
 			fetcher: {

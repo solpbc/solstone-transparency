@@ -31,7 +31,7 @@ if (args[0] === "--help" && args.length === 1) {
 			const key = await readCeremonyKey(rest[0]);
 			process.stderr.write(`root keyid ${key.keyId}\n`);
 			bytes = `${JSON.stringify(await signRootRenewal(previous, payload, key))}\n`;
-		} else if (verb === "merge" && rest.length >= 3 && rest[0]) {
+		} else if (verb === "merge" && rest.length >= 2 && rest[0]) {
 			out = rest[0];
 			const payload = new Uint8Array(await readFile(payloadPath));
 			const signatures = await Promise.all(
