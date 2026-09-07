@@ -93,6 +93,8 @@ export function readerReason(reason: string): string {
 			return "an older version was served than one already seen";
 		case "migration-target-mismatch":
 			return "a v1 object did not match the manifest";
+		case "trust-store-corrupt":
+			return "the checker's own saved state did not read back";
 		case "compromised":
 			return "its signing key is marked compromised in the policy";
 		case "subject-mismatch":

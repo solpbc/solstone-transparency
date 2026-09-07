@@ -78,7 +78,7 @@ export const VERIFY_TWO_METHODS_LEAD =
 export const VERIFY_OUTCOME_V2_ACCEPTED =
 	"the command printed ACCEPTED and exited 0: the register you fetched matches what the keys your pinned root authorizes signed, every record's bytes match their signed description, and no signed validity window had passed when you ran it.";
 export const VERIFY_OUTCOME_V2_REJECTED =
-	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" means a file could not be read or did not parse; the detail line names the field, not always the file, so on a first run check the root file you saved first. any other reason means what the evidence host served did not check out.';
+	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" means a file could not be read or did not parse; the detail line names the field, not always the file, so on a first run check the root file you saved first. any other reason means what transparency.solstone.app served did not check out.';
 export const VERIFY_OUTCOME_V2_COULD_NOT_RUN =
 	"the command exited 2 because the pinned root couldn't be read; the check didn't happen, which is different from a failed check and isn't evidence about the register.";
 
@@ -91,7 +91,7 @@ export const KEYS_V2_ROOT_INTRO =
 	"this is sol pbc's v2 signing root, version {root_version}: {key_count} key ids, of which {threshold} must sign. it is renewed yearly, and every prior fingerprint line stays published when it is.";
 
 export const KEYS_WITNESS_LEAD =
-	"the root's two fingerprint lines are published at more than one location sol pbc controls, listed below; they are a cross-check for a root you have already pinned, not a trust root themselves.";
+	"the root's two fingerprint lines are published at more than one location sol pbc maintains, listed below; they are a cross-check for a root you have already pinned, not a trust root themselves.";
 
 export const ABOUT_READABLE_BODY_LEAD =
 	"this file describes the v1 chain, in the v1 chain's own words, and is shown exactly as published.";
@@ -112,7 +112,7 @@ export const HOME_PUBLICATION_DECLARATION_A_PARTIAL =
 	"sol pbc has created its v2 signing root and bound the v1 release records for {products} into it; the rest of the v1 release records are not yet bound. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
 
 export const LEGACY_BINDING_NOT_VERIFIED =
-	"a manifest binding the v1 release records into the v2 root did not verify when this page was built ({reason}); that is a statement about this check, not about any v1 record, which stays verifiable on its own with the v1 key.";
+	"a manifest binding the v1 release records into the v2 root did not verify when this page was built ({reason}); that is a result for this check, not a result for any one v1 record; each record's own check is on its page.";
 
 export const V2_UNVERIFIED =
 	"the v2 register did not verify when this page was built ({reason}), so nothing from it is shown here. that is a statement about this check, not about any record.";
