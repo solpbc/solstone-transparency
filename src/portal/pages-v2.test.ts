@@ -192,10 +192,14 @@ describe("state (a): root and legacy binding, no release record", () => {
 		const body = handle("/", v1, stateA).body;
 		// The synthetic manifest binds one made-up product, so the "whole register" declaration must NOT render; the scoped one does.
 		expect(body).not.toContain(trustedText(HOME_PUBLICATION_DECLARATION_A));
-		expect(body).toContain("bound the v1 register for legacy-corpus into it");
-		expect(body).toContain("the rest of the v1 register is not yet bound");
+		expect(body).toContain(
+			"bound the v1 release records for legacy-corpus into it",
+		);
+		expect(body).toContain(
+			"the rest of the v1 release records are not yet bound",
+		);
 		expect(body).not.toContain(trustedText(HOME_PUBLICATION_DECLARATION));
-		expect(body).toContain("bound into the v2 root by a signed manifest");
+		expect(body).toContain("bound into the v2 root by signed manifests");
 		expect(body).toContain(trustedText(AXIS_PUBLICATION_A));
 		expect(body).toContain("v1 chain closed at");
 		expect(text(body)).not.toMatch(/\bpaused\b/);
@@ -211,10 +215,14 @@ describe("state (a): root and legacy binding, no release record", () => {
 		expect(body).toContain("rebuild");
 	});
 
-	test("windows keeps today's framing (D4 open) under the state-(a) constant", () => {
+	test("windows renders the decided closed-fact framing once a root is known, and today's framing when none is", () => {
 		const body = handle("/software/windows/", v1, stateA).body;
 		expect(body).toContain(trustedText(WINDOWS_ABSENCE_EXPLAINER_STATE_A));
-		expect(WINDOWS_ABSENCE_EXPLAINER_STATE_A).toBe(WINDOWS_ABSENCE_EXPLAINER);
+		expect(body).toContain("recorded no windows release and is closed");
+		expect(body).not.toContain(trustedText(WINDOWS_ABSENCE_EXPLAINER));
+		expect(handle("/software/windows/", v1, ABSENT_NO_PIN).body).toContain(
+			trustedText(WINDOWS_ABSENCE_EXPLAINER),
+		);
 	});
 
 	test("/keys/ shows the v2 root: version, three key ids, 2 of 3, both witness lines, and re-reads the v1 key as v1-only", () => {
@@ -222,6 +230,7 @@ describe("state (a): root and legacy binding, no release record", () => {
 		const body = handle("/keys/", v1, stateA).body;
 		expect(body).toContain("the v2 signing root");
 		expect(body).toContain("2 of 3");
+		expect(body).toContain("3 key ids, of which 2 must sign");
 		for (const keyid of stateA.root.keyids) expect(body).toContain(keyid);
 		expect(body).toContain(trustedText(stateA.root.witnessLines[0]));
 		expect(body).toContain(trustedText(stateA.root.witnessLines[1]));
@@ -385,7 +394,7 @@ describe("the verifier's own report", () => {
 		expect(product).toContain("the record for 2.0.1 did not verify");
 		const page = handle("/software/journal/2.0.1/", v1, model);
 		expect(page.status).toBe(200);
-		expect(page.body).toContain("signature did not verify");
+		expect(page.body).toContain("did not verify");
 		expect(page.body).not.toContain("asserted until");
 		expect(page.body).not.toContain("what this proves");
 		// The good sibling is unaffected.

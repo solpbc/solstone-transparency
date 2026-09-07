@@ -378,6 +378,7 @@ function verificationFromRecordOutcome(
 				state: "invalid",
 				reason:
 					"the signing key is marked compromised in the policy; this record requires re-attestation",
+				reasonCode: "compromised",
 				checkedAt,
 				provenance,
 			},
@@ -390,6 +391,7 @@ function verificationFromRecordOutcome(
 		axis: {
 			state: unavailable ? "unavailable" : "invalid",
 			reason: `${outcome.reason}: ${describe(outcome.detail)}`,
+			reasonCode: outcome.reason,
 			checkedAt,
 			provenance,
 		},
@@ -447,6 +449,7 @@ async function releaseFromTarget(
 			verification: {
 				state: "unavailable",
 				reason: "the verified target bytes were not retained by the client run",
+				reasonCode: "unavailable",
 				checkedAt,
 				provenance,
 			},
@@ -459,6 +462,7 @@ async function releaseFromTarget(
 			verification: {
 				state: "invalid",
 				reason: `${parsed.reason}: ${describe(parsed.detail)}`,
+				reasonCode: parsed.reason,
 				checkedAt,
 				provenance,
 			},
@@ -528,6 +532,7 @@ async function releaseFromTarget(
 			verification: {
 				state: "invalid",
 				reason: `the signed record names ${product} ${version}; its target path names ${base.product} ${base.version}`,
+				reasonCode: "subject-mismatch",
 				checkedAt,
 				provenance,
 			},
@@ -579,6 +584,7 @@ async function legacyFromTargets(
 			return {
 				state: "not-verified",
 				reason: `${path}: bytes not retained by the client run`,
+				reasonCode: "unavailable",
 				checkedAt,
 				provenance,
 			};
@@ -587,6 +593,7 @@ async function legacyFromTargets(
 			return {
 				state: "not-verified",
 				reason: `${path}: ${parsed.reason}`,
+				reasonCode: parsed.reason,
 				checkedAt,
 				provenance,
 			};
@@ -603,6 +610,8 @@ async function legacyFromTargets(
 					outcome.state === "rejected"
 						? `${path}: ${outcome.reason}: ${describe(outcome.detail)}`
 						: `${path}: signing key marked compromised`,
+				reasonCode:
+					outcome.state === "rejected" ? outcome.reason : "compromised",
 				checkedAt,
 				provenance,
 			};
@@ -610,6 +619,7 @@ async function legacyFromTargets(
 			return {
 				state: "not-verified",
 				reason: `${path}: not a migration manifest`,
+				reasonCode: "unrecognized-predicate",
 				checkedAt,
 				provenance,
 			};
@@ -629,8 +639,13 @@ async function legacyFromTargets(
 			),
 		);
 	}
+	// Coverage is judged against the products that actually carry v1 objects;
+	// a product the v1 register never published (windows, by design) has
+	// nothing to bind and must not make a complete binding read as partial.
 	const covered = new Set(products.map((p) => p.product));
-	const coverage = Object.keys(CATALOG).every((p) => covered.has(p))
+	const coverage = Object.entries(CATALOG)
+		.filter(([, versions]) => versions.length > 0)
+		.every(([product]) => covered.has(product))
 		? ("complete" as const)
 		: ("partial" as const);
 	return {

@@ -62,6 +62,8 @@ export const STATE_ASSERTED_UNTIL = "asserted until";
 export const STATE_EXPIRED = "expired";
 export const STATE_NO_RECORD_YET = "no record yet";
 export const STATE_V2_NOT_CHECKED = "v2 register not checked";
+/** A v2 record that failed its check for any reason; the reason phrase beside it says which. Never "signature", because some failures leave the signature valid. */
+export const STATE_DID_NOT_VERIFY = "did not verify";
 export const HEADING_V1_PROVES = "what the v1 records prove";
 export const HEADING_V1_DOES_NOT_PROVE = "what the v1 records do not prove";
 
@@ -76,7 +78,7 @@ export function readerReason(reason: string): string {
 			return "one of its signed validity windows had passed";
 		case "unavailable":
 		case "retrieval-failed":
-			return "part of the repository could not be fetched";
+			return "part of the register could not be fetched or checked";
 		case "hash-mismatch":
 		case "length-mismatch":
 		case "snapshot-mismatch":
@@ -89,6 +91,19 @@ export function readerReason(reason: string): string {
 			return "a signature did not check out";
 		case "version-rollback":
 			return "an older version was served than one already seen";
+		case "migration-target-mismatch":
+			return "a v1 object did not match the manifest";
+		case "compromised":
+			return "its signing key is marked compromised in the policy";
+		case "subject-mismatch":
+			return "the record does not name what it was published as";
+		case "unrecognized-predicate":
+		case "predicate-malformed":
+		case "malformed":
+			return "a file did not parse";
+		case "outside-issuance-window":
+		case "role-not-authorized":
+			return "the signing key was not authorized for this record";
 		default:
 			return `the check reported "${reason}"`;
 	}

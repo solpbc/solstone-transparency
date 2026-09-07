@@ -20,6 +20,7 @@ import {
 	KIND_VERIFIER,
 	STATE_ASSERTED_UNTIL,
 	STATE_COULD_NOT_BE_CHECKED,
+	STATE_DID_NOT_VERIFY,
 	STATE_EXPIRED,
 	STATE_NOT_ATTEMPTED,
 	STATE_NOT_TIME_BOUND,
@@ -216,10 +217,7 @@ export function v2AxisBlock(args: {
 			`${trustedText("verified")} ${untrustedText(args.verification.checkedAt)}`,
 		);
 	} else if (args.verification.state === "invalid") {
-		verifyState = stateSpan(
-			"danger",
-			trustedText(STATE_SIGNATURE_DID_NOT_VERIFY),
-		);
+		verifyState = stateSpan("danger", trustedText(STATE_DID_NOT_VERIFY));
 		verifyExtra = `<span class="basis">${untrustedText(args.verification.reason)}</span>`;
 	} else {
 		verifyState = stateSpan("warn", trustedText(STATE_COULD_NOT_BE_CHECKED));

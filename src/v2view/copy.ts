@@ -18,7 +18,7 @@
  */
 
 export const HOME_PUBLICATION_DECLARATION_A =
-	"sol pbc has created its v2 signing root and bound the whole v1 register into it. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
+	"sol pbc has created its v2 signing root and bound the v1 release records into it. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
 
 export const HOME_PUBLICATION_DECLARATION_B =
 	"sol pbc publishes release records under its v2 signing root. the first is {product} {version}. the software page lists which products have records here.";
@@ -42,7 +42,7 @@ export const HOME_REGISTER_SUMMARY_ROW_V1_CLOSED_UNCHECKED =
 	"v1 chain closed at {version} · v2 register not checked";
 
 export const SOFTWARE_COVERAGE_CAVEAT_B =
-	"the products below are the ones with at least one signed record in this register, v1 or v2, and each record lists the exact files it covers. surfaces shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it.";
+	"each product below shows whether it has a signed record in this register, v1 or v2, and each record lists the exact files it covers. surfaces shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it.";
 
 export const PRODUCT_PLAIN_SUMMARY_A =
 	"the v1 chain for {product} closed at {version}. it is history, still signed and still verifiable with the v1 key; nothing in it was re-signed or moved.";
@@ -78,9 +78,9 @@ export const VERIFY_TWO_METHODS_LEAD =
 export const VERIFY_OUTCOME_V2_ACCEPTED =
 	"the command printed ACCEPTED and exited 0: the register you fetched matches what the keys your pinned root authorizes signed, every record's bytes match their signed description, and no signed validity window had passed when you ran it.";
 export const VERIFY_OUTCOME_V2_REJECTED =
-	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" on a first run most often means the root file you saved did not parse. any other reason means what the evidence host served did not check out, and we\'d like to hear about it.';
+	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means one of sol pbc\'s signed validity windows has passed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. "trust-store-corrupt" points at a file on your machine, not at the register; "malformed" means a file could not be read or did not parse; the detail line names the field, not always the file, so on a first run check the root file you saved first. any other reason means what the evidence host served did not check out, and we\'d like to hear about it.';
 export const VERIFY_OUTCOME_V2_COULD_NOT_RUN =
-	"the command exited 2 because the pinned root couldn't be read; the check didn't happen, which is different from a failed check and isn't evidence about the record.";
+	"the command exited 2 because the pinned root couldn't be read; the check didn't happen, which is different from a failed check and isn't evidence about the register.";
 
 export const KEYS_V1_ROLE_STATEMENT_A =
 	"this key verifies the v1 chain only; it signs nothing new.";
@@ -88,7 +88,7 @@ export const KEYS_V1_ROLE_STATEMENT_A =
 export const KEYS_V1_STATUS = "v1 only, no new signatures";
 
 export const KEYS_V2_ROOT_INTRO =
-	"this is sol pbc's v2 signing root, version {root_version}: three key ids, of which two must sign. it is renewed yearly, and every prior fingerprint line stays published when it is.";
+	"this is sol pbc's v2 signing root, version {root_version}: {key_count} key ids, of which {threshold} must sign. it is renewed yearly, and every prior fingerprint line stays published when it is.";
 
 export const KEYS_WITNESS_LEAD =
 	"the root's two fingerprint lines are published at more than one location sol pbc controls, listed below; they are a cross-check for a root you have already pinned, not a trust root themselves.";
@@ -97,15 +97,15 @@ export const ABOUT_READABLE_BODY_LEAD =
 	"this file describes the v1 chain, in the v1 chain's own words, and is shown exactly as published.";
 
 export const LEGACY_BINDING_BOUND =
-	"the v1 register ({count} objects) is bound into the v2 root by a signed manifest, and that manifest checked out when this page was built.";
+	"the v1 release records ({count} objects) are bound into the v2 root by signed manifests, and every one of them checked out when this page was built.";
 
 /** When the manifests that verified do not cover every product in the v1 register: the claim is scoped to what they cover. */
 export const LEGACY_BINDING_PARTIAL =
-	"the v1 register for {products} ({count} objects) is bound into the v2 root by a signed manifest that checked out when this page was built; the rest of the v1 register is not yet bound.";
+	"the v1 release records for {products} ({count} objects) are bound into the v2 root by signed manifests that checked out when this page was built; the rest of the v1 release records are not yet bound.";
 
 /** State (a) declaration when the binding covers only part of the v1 register. */
 export const HOME_PUBLICATION_DECLARATION_A_PARTIAL =
-	"sol pbc has created its v2 signing root and bound the v1 register for {products} into it; the rest of the v1 register is not yet bound. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
+	"sol pbc has created its v2 signing root and bound the v1 release records for {products} into it; the rest of the v1 release records are not yet bound. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
 
 export const LEGACY_BINDING_NOT_VERIFIED =
 	"the manifest binding the v1 register into the v2 root did not verify when this page was built ({reason}); that is a statement about this check, not about any v1 record, which stays verifiable on its own with the v1 key.";
@@ -120,10 +120,9 @@ export const SOFTWARE_UNMAPPED_PRODUCTS =
 	"this register also holds records for {products}; this portal has no page for them yet, so it links the raw records instead.";
 
 /**
- * Windows framing in states (a)/(b). How windows is framed once a v2 root
- * exists is a pending product decision, so this is today's approved framing
- * verbatim. When that decision lands, the switch is an edit to this one
+ * Windows framing once a v2 root exists: the closed-fact form, no promise of
+ * a date. Decided 2026-09-07; changing it again is an edit to this one
  * string, not a code change.
  */
 export const WINDOWS_ABSENCE_EXPLAINER_STATE_A =
-	"this register has no signed records for a windows release. that's a fact about what we've published to this register, not a claim about whether solstone runs on windows. zero records here means we haven't recorded one yet, not that none exists to record.";
+	"the v1 chain recorded no windows release and is closed, so it never will record one. any windows record will appear under the v2 root and this page will show it.";

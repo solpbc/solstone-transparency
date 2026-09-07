@@ -125,6 +125,7 @@ import {
 	KEYS_PAGE_TITLE_V2,
 	PRODUCT_DISPLAY,
 	STATE_COULD_NOT_BE_CHECKED,
+	STATE_DID_NOT_VERIFY,
 	STATE_NO_RECORD_YET,
 	STATE_V2_NOT_CHECKED,
 	V1_RECORD_TAG,
@@ -351,7 +352,7 @@ function legacyBindingLine(v2: V2VerifiedModel): string {
 		return `<p>${kindTag("verifier")} ${text}</p>`;
 	}
 	if (v2.legacy.state === "not-verified") {
-		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_NOT_VERIFIED, { reason: v2.legacy.reason })}</p>`;
+		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_NOT_VERIFIED, { reason: readerReason(v2.legacy.reasonCode) })}</p>`;
 	}
 	return "";
 }
@@ -665,13 +666,12 @@ function v2RecordsSection(
 			);
 			continue;
 		}
-		const reason = entry.verification.reason;
 		const failed = substituteCopy(PRODUCT_RECORD_FAILED, {
 			version: entry.version,
-			reason,
+			reason: readerReason(entry.verification.reasonCode),
 		});
 		items.push(
-			`<li><span class="v">${untrustedText(entry.version)}</span> · ${kindTag("verifier")} ${stateSpan(verificationTone(entry.verification.state), trustedText(entry.verification.state === "invalid" ? "signature did not verify" : STATE_COULD_NOT_BE_CHECKED))}<div class="gap-note">${failed} <a href="${escapeHtml(href)}">${trustedText("record")}</a></div></li>`,
+			`<li><span class="v">${untrustedText(entry.version)}</span> · ${kindTag("verifier")} ${stateSpan(verificationTone(entry.verification.state), trustedText(entry.verification.state === "invalid" ? STATE_DID_NOT_VERIFY : STATE_COULD_NOT_BE_CHECKED))}<div class="gap-note">${failed} <a href="${escapeHtml(href)}">${trustedText("record")}</a></div></li>`,
 		);
 	}
 	return `<h2>${trustedText(HEADING_V2_RECORDS)}</h2><ol class="timeline">${items.join("")}</ol>`;
@@ -789,7 +789,7 @@ ${declarationBlock}
 <h2>${trustedText("go deeper")}</h2>
 <ul>
 <li><a href="/software/">${trustedText("software register")}</a></li>
-<li><a href="/verify/">${trustedText("how to verify a record yourself")}</a></li>
+<li><a href="/verify/">${trustedText(v2Known(v2) ? "how to verify what is here yourself" : "how to verify a record yourself")}</a></li>
 <li><a href="/keys/">${trustedText(v2Known(v2) ? "the signing keys" : "the public key")}</a></li>
 <li><a href="/about/">${trustedText("about this register")}</a></li>
 </ul>`;
@@ -1099,14 +1099,14 @@ export function renderV2Version(
 		const reason =
 			record.verification.state === "valid"
 				? "the register did not verify"
-				: record.verification.reason;
+				: readerReason(record.verification.reasonCode);
 		const failed = substituteCopy(PRODUCT_RECORD_FAILED, {
 			version: record.version,
 			reason,
 		});
 		const main = `
 ${heading}
-<p>${kindTag("verifier")} ${stateSpan(record.verification.state === "invalid" ? "danger" : "warn", trustedText(record.verification.state === "invalid" ? "signature did not verify" : STATE_COULD_NOT_BE_CHECKED))}</p>
+<p>${kindTag("verifier")} ${stateSpan(record.verification.state === "invalid" ? "danger" : "warn", trustedText(record.verification.state === "invalid" ? STATE_DID_NOT_VERIFY : STATE_COULD_NOT_BE_CHECKED))}</p>
 <p>${failed}</p>
 <div class="table-scroll"><table class="evidence-table"><tbody><tr><td>${trustedText("release record")}</td><td>${rawLinkCell(record.recordLink)}</td></tr></tbody></table></div>
 <p><a href="/software/${escapeHtml(slug)}/">${trustedText("back to")} ${trustedText(display)}</a></p>`;
@@ -1260,7 +1260,7 @@ ${v1Table}
 	}
 	const v2cmd = verifyV2Command(v2.metadataBase, v2.targetsBase);
 	const main = `
-<h1>${trustedText("verify a record yourself")}</h1>
+<h1>${trustedText("verify what is here yourself")}</h1>
 <p>${trustedText(VERIFY_TWO_METHODS_LEAD)}</p>
 <h2 id="v1">${trustedText(HEADING_V1_METHOD)}</h2>
 <p>${trustedText(VERIFY_METHOD_INTRO)}</p>
@@ -1356,7 +1356,7 @@ ${declaration({ kind: "declaration", text: KEYS_V1_ROLE_STATEMENT_A })}
 </tbody></table></div>
 <details class="tech" open><summary>${trustedText("full public key text")}</summary><div class="body"><pre class="mono">${keyText}</pre></div></details>
 <h2 id="v2">${trustedText(HEADING_V2_ROOT)}</h2>
-<div class="declaration">${kindTag("declaration")}<p>${substituteCopy(KEYS_V2_ROOT_INTRO, { root_version: String(root.version) })}</p></div>
+<div class="declaration">${kindTag("declaration")}<p>${substituteCopy(KEYS_V2_ROOT_INTRO, { root_version: String(root.version), key_count: String(root.keyids.length), threshold: String(root.threshold) })}</p></div>
 <div class="table-scroll"><table class="evidence-table"><tbody>
 <tr><td>${trustedText("root version")}</td><td>${untrustedText(String(root.version))}</td></tr>
 <tr><td>${trustedText("signing threshold")}</td><td>${untrustedText(`${root.threshold} of ${root.keyids.length}`)}</td></tr>
