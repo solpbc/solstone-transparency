@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
-import type { TufFailure, TufRejectionReason, TufSuccess } from "./outcome";
+import type {
+	TufFailure,
+	TufJsonValue,
+	TufRejectionReason,
+	TufSuccess,
+} from "./outcome";
 
 export type RoleStatus =
 	| { roleName: string; state: "verified"; version: number }
@@ -38,6 +43,29 @@ export interface PartialConsumedVersions {
 	delegatedTargets: Readonly<Record<string, number>>;
 }
 
+/** Metadata bytes and envelope accepted while constructing a successful TUF view. */
+export interface AuthenticatedRoleMetadata {
+	roleName: string;
+	filename: string;
+	version: number;
+	envelope: {
+		signed: Readonly<Record<string, TufJsonValue>>;
+		signatures: readonly { keyid: string; sig: string }[];
+	};
+	bytes: Uint8Array;
+}
+
+/** Target bytes accepted against the descriptor of the role that authorized them. */
+export interface AuthenticatedTarget {
+	roleName: string;
+	logicalPath: string;
+	descriptor: {
+		length: number;
+		hashes: Readonly<Record<string, string>>;
+	};
+	bytes: Uint8Array;
+}
+
 export interface TufClientSuccess {
 	evaluatedAt: string;
 	advisories: readonly RenewalAdvisory[];
@@ -45,6 +73,10 @@ export interface TufClientSuccess {
 	versions: ConsumedVersions;
 	roleStatuses: readonly RoleStatus[];
 	fingerprint: string;
+	authenticatedMetadata: Readonly<Record<string, AuthenticatedRoleMetadata>>;
+	authenticatedTargets: Readonly<
+		Record<string, Readonly<Record<string, AuthenticatedTarget>>>
+	>;
 }
 
 export interface TufClientPartialView {

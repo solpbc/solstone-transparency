@@ -2,7 +2,18 @@
 // Copyright (c) 2026 sol pbc
 
 import { describe, expect, test } from "bun:test";
-import { generateSyntheticKeySet, loadRepositorySigningKeys } from "./keyset";
+import { generateEd25519SigningKey } from "./ed25519";
+import {
+	generateSyntheticKeySet,
+	loadEd25519SigningKeyEntry,
+	loadRepositorySigningKeys,
+} from "./keyset";
+
+function bytesToBase64(bytes: Uint8Array): string {
+	let binary = "";
+	for (const byte of bytes) binary += String.fromCharCode(byte);
+	return btoa(binary);
+}
 
 describe("keyset loader and synthetic generator", () => {
 	test("generates and loads a valid 11-key synthetic key set", async () => {
@@ -73,5 +84,39 @@ describe("keyset loader and synthetic generator", () => {
 			ok: false,
 			reason: "malformed",
 		});
+	});
+
+	test("never includes malformed pkcs8 text in a structured rejection", async () => {
+		const generated = await generateSyntheticKeySet();
+		const sentinel = "THIS-IS-A-FAKE-PRIVATE-KEY-SENTINEL-VALUE";
+		const result = await loadEd25519SigningKeyEntry(
+			{
+				keyid: generated.timestamp[0]?.keyid,
+				public: generated.timestamp[0]?.public,
+				pkcs8: sentinel,
+			},
+			["sentinel"],
+		);
+		expect(result).toMatchObject({ ok: false, reason: "malformed" });
+		expect(JSON.stringify(result)).not.toContain(sentinel);
+	});
+
+	test("rejects a private key that does not correspond to public key material", async () => {
+		const publicKey = await generateEd25519SigningKey();
+		const privateKey = await generateEd25519SigningKey();
+		if (!publicKey.ok || !privateKey.ok)
+			throw new Error("synthetic key generation failed");
+		const pkcs8 = new Uint8Array(
+			await crypto.subtle.exportKey("pkcs8", privateKey.value.privateKey),
+		);
+		const result = await loadEd25519SigningKeyEntry(
+			{
+				keyid: publicKey.value.keyId,
+				public: publicKey.value.keyObject.keyval.public,
+				pkcs8: bytesToBase64(pkcs8),
+			},
+			["synthetic"],
+		);
+		expect(result).toMatchObject({ ok: false, reason: "signature-invalid" });
 	});
 });

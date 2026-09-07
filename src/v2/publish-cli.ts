@@ -25,6 +25,7 @@ import { canonicalizeTufJson } from "./tuf/canonical";
 import { loadRepositorySigningKeys } from "./tuf/keyset";
 import type { TufJsonValue } from "./tuf/outcome";
 import { serializeRepository } from "./tuf/serializer";
+import { targetStoragePath } from "./tuf/target-storage";
 
 export interface PublishOptions {
 	artifactsPath: string;
@@ -223,11 +224,32 @@ export async function publishRepository(
 		return 1;
 	}
 
+	const releaseStoragePath = targetStoragePath(releaseTargetPath, {
+		sha256: releaseDigest,
+		consistentSnapshot: true,
+	});
+	if (!releaseStoragePath.ok) {
+		console.error(
+			`could not derive release-record target storage path: ${releaseStoragePath.reason}`,
+		);
+		return 1;
+	}
+	const migrationStoragePath = targetStoragePath(migrationTargetPath, {
+		sha256: migrationDigest,
+		consistentSnapshot: true,
+	});
+	if (!migrationStoragePath.ok) {
+		console.error(
+			`could not derive migration-manifest target storage path: ${migrationStoragePath.reason}`,
+		);
+		return 1;
+	}
+
 	// 11. Write targets to disk
 	try {
 		const targetsDir = join(options.outDir, "targets");
-		const releaseFullPath = join(targetsDir, releaseTargetPath);
-		const migrationFullPath = join(targetsDir, migrationTargetPath);
+		const releaseFullPath = join(targetsDir, releaseStoragePath.value);
+		const migrationFullPath = join(targetsDir, migrationStoragePath.value);
 
 		await mkdir(dirname(releaseFullPath), { recursive: true });
 		await writeFile(releaseFullPath, releaseRecordBytes);

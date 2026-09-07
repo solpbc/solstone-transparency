@@ -12,6 +12,8 @@ import {
 	computeKeyId,
 	generateEd25519SigningKey,
 	importEd25519SigningKey,
+	signEd25519,
+	verifyEd25519Signature,
 } from "./ed25519";
 import { type TufResult, rejection } from "./outcome";
 import { DELEGATED_ROLES, TOP_LEVEL_ROLES } from "./role-config";
@@ -35,6 +37,10 @@ export interface LoadedKeySet {
 	signingKeys: RepositorySigningKeys;
 	dsseSigner: Ed25519SigningKey;
 }
+
+const KEY_CORRESPONDENCE_CHALLENGE = new TextEncoder().encode(
+	"solstone-transparency/key-correspondence/v1",
+);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -69,7 +75,7 @@ function base64ToBytes(
 			base64,
 		)
 	) {
-		return malformed(path, "valid standard base64", base64);
+		return malformed(path, "valid standard base64", "invalid-base64");
 	}
 	try {
 		const binary = atob(base64);
@@ -84,7 +90,8 @@ function base64ToBytes(
 	}
 }
 
-async function parseKeyEntry(
+/** Reconstructs one signing key after validating its key ID, public key, and PKCS8 private key. */
+export async function loadEd25519SigningKeyEntry(
 	entry: unknown,
 	path: readonly string[],
 ): Promise<TufResult<Ed25519SigningKey>> {
@@ -112,7 +119,9 @@ async function parseKeyEntry(
 		return malformed(
 			[...path, "pkcs8"],
 			"a base64-encoded pkcs8 private key string",
-			entry.pkcs8,
+			typeof entry.pkcs8 === "string"
+				? `string(${entry.pkcs8.length} chars)`
+				: typeName(entry.pkcs8),
 		);
 	}
 
@@ -138,6 +147,18 @@ async function parseKeyEntry(
 			observed: entry.keyid,
 		});
 	}
+	const correspondenceSignature = await signEd25519(
+		privateKey.value,
+		KEY_CORRESPONDENCE_CHALLENGE,
+	);
+	if (!correspondenceSignature.ok) return correspondenceSignature;
+	const correspondence = await verifyEd25519Signature({
+		keyObject,
+		expectedKeyId: computedKeyId.value,
+		signature: correspondenceSignature.value,
+		message: KEY_CORRESPONDENCE_CHALLENGE,
+	});
+	if (!correspondence.ok) return correspondence;
 
 	return {
 		ok: true,
@@ -163,7 +184,10 @@ async function parseKeyArray(
 	}
 	const keys: Ed25519SigningKey[] = [];
 	for (const [index, entry] of candidate.entries()) {
-		const parsed = await parseKeyEntry(entry, [...path, String(index)]);
+		const parsed = await loadEd25519SigningKeyEntry(entry, [
+			...path,
+			String(index),
+		]);
 		if (!parsed.ok) return parsed;
 		keys.push(parsed.value);
 	}
@@ -226,7 +250,9 @@ export async function loadRepositorySigningKeys(
 		delegated[role.name] = roleKeys.value;
 	}
 
-	const dsseSignerKey = await parseKeyEntry(json.dsseSigner, ["dsseSigner"]);
+	const dsseSignerKey = await loadEd25519SigningKeyEntry(json.dsseSigner, [
+		"dsseSigner",
+	]);
 	if (!dsseSignerKey.ok) return dsseSignerKey;
 
 	return {

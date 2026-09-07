@@ -19,6 +19,8 @@ import {
 	verifyClientMetadata,
 } from "./client-metadata";
 import type {
+	AuthenticatedRoleMetadata,
+	AuthenticatedTarget,
 	AuthorizationChainEntry,
 	PartialConsumedVersions,
 	RenewalAdvisory,
@@ -39,6 +41,7 @@ import {
 import type { RoleWindow } from "./role-config";
 import { authorizeTargetPath, validateDelegationChain } from "./role-graph";
 import { metadataFilename } from "./serializer";
+import { targetStoragePath } from "./target-storage";
 import type { TufTrustStore } from "./trust-store";
 
 export interface TufClientInput {
@@ -80,6 +83,12 @@ class RunState {
 		string,
 		Record<string, { length: number; hashes: Readonly<Record<string, string>> }>
 	> = {};
+	readonly authenticatedMetadata: Record<string, AuthenticatedRoleMetadata> =
+		{};
+	readonly authenticatedTargets: Record<
+		string,
+		Record<string, AuthenticatedTarget>
+	> = {};
 	readonly delegatedVersions: Record<string, number> = {};
 	private readonly statuses = new Map<string, RoleStatus>();
 	private readonly versions: {
@@ -118,6 +127,16 @@ class RunState {
 			version: metadata.version,
 			signed: metadata.signed,
 		};
+		this.authenticatedMetadata[metadata.roleName] = {
+			roleName: metadata.roleName,
+			filename: metadata.filename,
+			version: metadata.version,
+			envelope: {
+				signed: metadata.signed,
+				signatures: metadata.signatures,
+			},
+			bytes: metadata.bytes,
+		};
 		if (metadata.roleName === "root") this.versions.root = metadata.version;
 		else if (metadata.roleName === "timestamp")
 			this.versions.timestamp = metadata.version;
@@ -141,6 +160,22 @@ class RunState {
 				{ length: target.length, hashes: target.hashes },
 			]),
 		);
+	}
+
+	recordAuthenticatedTarget(
+		roleName: string,
+		logicalPath: string,
+		descriptor: MetadataDescription,
+		bytes: Uint8Array,
+	): void {
+		const targets = this.authenticatedTargets[roleName] ?? {};
+		targets[logicalPath] = {
+			roleName,
+			logicalPath,
+			descriptor: { length: descriptor.length, hashes: descriptor.hashes },
+			bytes,
+		};
+		this.authenticatedTargets[roleName] = targets;
 	}
 
 	roleStatuses(): readonly RoleStatus[] {
@@ -841,14 +876,28 @@ export async function updateTufRepository(
 		for (const [targetPath, descriptor] of Object.entries(
 			roleTargets.targets,
 		)) {
+			const storagePath = root.declarations.consistentSnapshot
+				? targetStoragePath(targetPath, {
+						sha256: descriptor.hashes.sha256 ?? "",
+						consistentSnapshot: true,
+					})
+				: { ok: true as const, value: targetPath };
+			if (!storagePath.ok)
+				return metadataFailure(roleTargets.roleName, storagePath, state);
 			const bytes = await fetchRequired(
 				input.fetcher,
-				targetPath,
+				storagePath.value,
 				descriptor.length,
 			);
 			if (!bytes.ok) return metadataFailure(roleTargets.roleName, bytes, state);
 			const valid = await validateTargetBytes(descriptor, bytes.value);
 			if (!valid.ok) return metadataFailure(roleTargets.roleName, valid, state);
+			state.recordAuthenticatedTarget(
+				roleTargets.roleName,
+				targetPath,
+				descriptor,
+				bytes.value,
+			);
 		}
 	}
 
@@ -921,6 +970,8 @@ export async function updateTufRepository(
 		},
 		roleStatuses: state.roleStatuses(),
 		fingerprint,
+		authenticatedMetadata: state.authenticatedMetadata,
+		authenticatedTargets: state.authenticatedTargets,
 	};
 	return { ok: true, value: success };
 }

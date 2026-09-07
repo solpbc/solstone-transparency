@@ -171,16 +171,26 @@ function bytesToHex(bytes: Uint8Array): string {
 export async function descriptorDigest(
 	objects: readonly MigrationObject[],
 ): Promise<string> {
+	return bytesToHex(
+		new Uint8Array(
+			await crypto.subtle.digest(
+				"SHA-256",
+				new Uint8Array(descriptorCanonicalBytes(objects)),
+			),
+		),
+	);
+}
+
+/** Returns the canonical preimage bound by a migration or release descriptor digest. */
+export function descriptorCanonicalBytes(
+	objects: readonly MigrationObject[],
+): Uint8Array {
 	const text = objects
 		.slice()
 		.sort((left, right) => left.url.localeCompare(right.url))
 		.map((object) => `${object.url}\n${object.length}\n${object.sha256}\n`)
 		.join("");
-	return bytesToHex(
-		new Uint8Array(
-			await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)),
-		),
-	);
+	return new TextEncoder().encode(text);
 }
 
 /** Validates the already-signed predicate body; URL safety is enforced by the walker before fetch. */

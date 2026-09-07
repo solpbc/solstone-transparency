@@ -190,7 +190,7 @@ function mergeKeyMaps(
 	return { ok: true, value: merged };
 }
 
-function expiresAt(now: Date, validityDays: number): TufResult<string> {
+export function expiresAt(now: Date, validityDays: number): TufResult<string> {
 	if (!Number.isFinite(now.getTime())) {
 		return rejection("malformed", {
 			path: ["now"],
@@ -210,7 +210,7 @@ function hexSignature(bytes: Uint8Array): string {
 	return bytesToHex(bytes);
 }
 
-async function signMetadata(
+export async function signMetadata(
 	roleName: string,
 	version: number,
 	signed: Record<string, unknown>,
@@ -234,7 +234,7 @@ async function signMetadata(
 	};
 }
 
-async function metaDescription(
+export async function metaDescription(
 	metadata: BuiltMetadata,
 ): Promise<TufResult<Record<string, unknown>>> {
 	try {

@@ -54,6 +54,13 @@ export function metadataFilename(
 	};
 }
 
+/** Returns whether a repository-relative object name is TUF metadata. */
+export function isMetadataFilename(relativePath: string): boolean {
+	return /(^|\.)(root|timestamp|snapshot|targets(-[^.]+)?)\.json$/.test(
+		relativePath,
+	);
+}
+
 function allMetadata(repository: BuiltRepository): readonly BuiltMetadata[] {
 	return [
 		repository.root,
