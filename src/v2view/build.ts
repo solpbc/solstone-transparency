@@ -823,6 +823,7 @@ export async function buildV2Model(
 			policy = {
 				loaded,
 				view: {
+					state: "loaded",
 					targetPath: policyTarget.path,
 					version: policyTarget.version,
 					sha256: policyTarget.descriptor.sha256,
@@ -922,6 +923,20 @@ export async function buildV2Model(
 							targetPath: policy.view.targetPath,
 							reason: `${policy.loaded.reason}: ${describe(policy.loaded.detail)}`,
 						},
+		dsseKeys:
+			dsseKeysTarget === undefined
+				? undefined
+				: {
+						targetPath: dsseKeysTarget.path,
+						link: linkFor(
+							resolveObjectUrl(
+								options.metadataBase,
+								options.targetsBase,
+								recording.pathBySha256.get(dsseKeysTarget.descriptor.sha256) ??
+									dsseKeysTarget.path,
+							),
+						),
+					},
 		legacy,
 		software,
 		unmappedProducts: [...unmapped].sort(),

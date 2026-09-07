@@ -162,6 +162,7 @@ export type V2LegacyBinding =
 	| { state: "absent" };
 
 export interface V2PolicyView {
+	state: "loaded";
 	targetPath: string;
 	version: number;
 	sha256: string;
@@ -182,6 +183,8 @@ export interface V2VerifiedModel {
 		| V2PolicyView
 		| { state: "absent" }
 		| { state: "failed"; targetPath: string; reason: string };
+	/** The DSSE key-set target the policy's key IDs were resolved against, when the repository carries one. */
+	dsseKeys: { targetPath: string; link: EvidenceLinkStatus } | undefined;
 	legacy: V2LegacyBinding;
 	/** Every release record and every gap, in the order the builder found them. */
 	software: readonly V2SoftwareEntry[];
