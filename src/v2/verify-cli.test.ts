@@ -60,6 +60,7 @@ describe("resolveObjectUrl", () => {
 	test("resolves adversarial target paths shaped like targets-* under prefixes against targetsBase", () => {
 		for (const relativePath of [
 			"software/targets-software.json",
+			`software/${"a".repeat(64)}.targets-software.json`,
 			"software/nested/targets-services.json",
 			"verification/targets-verification.json",
 			"legacy/targets-legacy.json",
