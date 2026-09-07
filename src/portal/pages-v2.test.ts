@@ -211,10 +211,14 @@ describe("state (a): root and legacy binding, no release record", () => {
 		expect(body).toContain("rebuild");
 	});
 
-	test("windows keeps today's framing (D4 open) under the state-(a) constant", () => {
+	test("windows renders the decided closed-fact framing once a root is known, and today's framing when none is", () => {
 		const body = handle("/software/windows/", v1, stateA).body;
 		expect(body).toContain(trustedText(WINDOWS_ABSENCE_EXPLAINER_STATE_A));
-		expect(WINDOWS_ABSENCE_EXPLAINER_STATE_A).toBe(WINDOWS_ABSENCE_EXPLAINER);
+		expect(body).toContain("recorded no windows release and is closed");
+		expect(body).not.toContain(trustedText(WINDOWS_ABSENCE_EXPLAINER));
+		expect(handle("/software/windows/", v1, ABSENT_NO_PIN).body).toContain(
+			trustedText(WINDOWS_ABSENCE_EXPLAINER),
+		);
 	});
 
 	test("/keys/ shows the v2 root: version, three key ids, 2 of 3, both witness lines, and re-reads the v1 key as v1-only", () => {

@@ -120,10 +120,9 @@ export const SOFTWARE_UNMAPPED_PRODUCTS =
 	"this register also holds records for {products}; this portal has no page for them yet, so it links the raw records instead.";
 
 /**
- * Windows framing in states (a)/(b). How windows is framed once a v2 root
- * exists is a pending product decision, so this is today's approved framing
- * verbatim. When that decision lands, the switch is an edit to this one
+ * Windows framing once a v2 root exists: the closed-fact form, no promise of
+ * a date. Decided 2026-09-07; changing it again is an edit to this one
  * string, not a code change.
  */
 export const WINDOWS_ABSENCE_EXPLAINER_STATE_A =
-	"this register has no signed records for a windows release. that's a fact about what we've published to this register, not a claim about whether solstone runs on windows. zero records here means we haven't recorded one yet, not that none exists to record.";
+	"the v1 chain recorded no windows release and is closed, so it never will. any windows record will appear under the v2 root and this page will show it.";
