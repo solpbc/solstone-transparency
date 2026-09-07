@@ -32,6 +32,7 @@
  */
 
 import { readFile } from "node:fs/promises";
+import { CATALOG } from "../legacy/inventory";
 import { validateRawLink } from "../legacy/rawlink";
 import type { EvidenceLinkStatus, Iso8601 } from "../legacy/types";
 import { loadDsseAuthorizationPolicy } from "../v2/records/authorization-policy";
@@ -628,8 +629,13 @@ async function legacyFromTargets(
 			),
 		);
 	}
+	const covered = new Set(products.map((p) => p.product));
+	const coverage = Object.keys(CATALOG).every((p) => covered.has(p))
+		? ("complete" as const)
+		: ("partial" as const);
 	return {
 		state: "bound",
+		coverage,
 		products,
 		objectCount,
 		manifestLink: firstLink ?? {
