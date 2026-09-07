@@ -226,12 +226,19 @@ describe("state (a): root and legacy binding, no release record", () => {
 		);
 	});
 
-	test("/keys/ shows the v2 root: version, three key ids, 2 of 3, both witness lines, and re-reads the v1 key as v1-only", () => {
+	test("/keys/ shows the v2 root: version, every key id, the threshold, both witness lines, and re-reads the v1 key as v1-only", () => {
 		if (stateA.state !== "verified") throw new Error("expected verified");
 		const body = handle("/keys/", v1, stateA).body;
 		expect(body).toContain("the v2 signing root");
-		expect(body).toContain("2 of 3");
-		expect(body).toContain("3 key ids, of which 2 must sign");
+		const n = stateA.root.keyids.length;
+		expect(body).toContain(`${stateA.root.threshold} of ${n}`);
+		expect(body).toContain(
+			n === 1
+				? "one key id, which signs alone"
+				: `${n} key ids, of which ${stateA.root.threshold} must sign`,
+		);
+		expect(body).toContain("bsky.app/profile/solpbc.org");
+		expect(body).not.toContain('href="https://bsky.app');
 		for (const keyid of stateA.root.keyids) expect(body).toContain(keyid);
 		expect(body).toContain(trustedText(stateA.root.witnessLines[0]));
 		expect(body).toContain(trustedText(stateA.root.witnessLines[1]));

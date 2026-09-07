@@ -90,6 +90,10 @@ export const KEYS_V1_STATUS = "v1 only, no new signatures";
 export const KEYS_V2_ROOT_INTRO =
 	"this is sol pbc's v2 signing root, version {root_version}: {key_count} key ids, of which {threshold} must sign. it is renewed yearly, and every prior fingerprint line stays published when it is.";
 
+/** The root intro when the root has exactly one key (the 1-of-1 design). */
+export const KEYS_V2_ROOT_INTRO_SINGLE =
+	"this is sol pbc's v2 signing root, version {root_version}: one key id, which signs alone. it is renewed yearly, and every prior fingerprint line stays published when it is.";
+
 export const KEYS_WITNESS_LEAD =
 	"the root's two fingerprint lines are published at more than one location sol pbc maintains, listed below; they are a cross-check for a root you have already pinned, not a trust root themselves.";
 

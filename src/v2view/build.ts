@@ -103,7 +103,7 @@ export interface BuildV2ModelOptions {
 	migrationFetcher?: MigrationObjectFetcher;
 }
 
-/** The two witness locations the runbook requires. A third location is a pending decision and is not listed until made. */
+/** The three witness locations the runbook names (the Bluesky one confirmed 2026-09-07). Only the sol pbc host is ever linked from a page; the others are named. */
 export const DEFAULT_WITNESSES: readonly V2Witness[] = [
 	{
 		label: "the pinned root in the public verifier repository",
@@ -112,6 +112,10 @@ export const DEFAULT_WITNESSES: readonly V2Witness[] = [
 	{
 		label: "solpbc.org",
 		url: "https://solpbc.org/transparency/tuf-root.txt",
+	},
+	{
+		label: "sol pbc's account on Bluesky",
+		url: "https://bsky.app/profile/solpbc.org",
 	},
 ];
 
@@ -266,8 +270,14 @@ async function rootView(
 	const digest = await sha256Hex(bytes);
 	const version = parsed.value.version;
 	const keyids = root.keyids;
+	// The runbook's two witness lines. A single-key root (the operator's
+	// 1-of-1 design, 2026-09-07) publishes the bare key id; a
+	// multi-key root publishes the ids with their threshold, the runbook's
+	// earlier form and the path back to a multi-key root.
 	const witnessLines: [string, string] = [
-		`solpbc-tuf-root keyids (${root.threshold} of ${keyids.length}): ${keyids.join(" ")}`,
+		keyids.length === 1
+			? `solpbc-tuf-root keyid: ${keyids[0]}`
+			: `solpbc-tuf-root keyids (${root.threshold} of ${keyids.length}): ${keyids.join(" ")}`,
 		`solpbc-tuf-root v${version}  sha256:    ${digest}`,
 	];
 	const filename = `${version}.root.json`;

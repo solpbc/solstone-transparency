@@ -68,6 +68,7 @@ import {
 	KEYS_V1_ROLE_STATEMENT_A,
 	KEYS_V1_STATUS,
 	KEYS_V2_ROOT_INTRO,
+	KEYS_V2_ROOT_INTRO_SINGLE,
 	KEYS_WITNESS_LEAD,
 	LEGACY_BINDING_BOUND,
 	LEGACY_BINDING_NOT_VERIFIED,
@@ -1366,7 +1367,17 @@ ${declaration({ kind: "declaration", text: KEYS_V1_ROLE_STATEMENT_A })}
 </tbody></table></div>
 <details class="tech" open><summary>${trustedText("full public key text")}</summary><div class="body"><pre class="mono">${keyText}</pre></div></details>
 <h2 id="v2">${trustedText(HEADING_V2_ROOT)}</h2>
-<div class="declaration">${kindTag("declaration")}<p>${substituteCopy(KEYS_V2_ROOT_INTRO, { root_version: String(root.version), key_count: String(root.keyids.length), threshold: String(root.threshold) })}</p></div>
+<div class="declaration">${kindTag("declaration")}<p>${
+		root.keyids.length === 1
+			? substituteCopy(KEYS_V2_ROOT_INTRO_SINGLE, {
+					root_version: String(root.version),
+				})
+			: substituteCopy(KEYS_V2_ROOT_INTRO, {
+					root_version: String(root.version),
+					key_count: String(root.keyids.length),
+					threshold: String(root.threshold),
+				})
+	}</p></div>
 <div class="table-scroll"><table class="evidence-table"><tbody>
 <tr><td>${trustedText("root version")}</td><td>${untrustedText(String(root.version))}</td></tr>
 <tr><td>${trustedText("signing threshold")}</td><td>${untrustedText(`${root.threshold} of ${root.keyids.length}`)}</td></tr>

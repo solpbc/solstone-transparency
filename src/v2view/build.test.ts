@@ -10,6 +10,7 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import { TOP_LEVEL_ROLES } from "../v2/tuf/role-config";
 import { buildV2Model, parseExpectation } from "./build";
 import {
 	type Fixture,
@@ -77,7 +78,7 @@ describe("negative controls observed first", () => {
 		if (model.state !== "unverified") return;
 		expect(model.failure.roleName).toBe("timestamp");
 		expect(model.failure.reason).toBe("unavailable");
-		expect(model.root.keyids.length).toBe(3);
+		expect(model.root.keyids.length).toBe(TOP_LEVEL_ROLES.root.keyCount);
 		expect(model.freshness).toBeUndefined();
 	});
 
@@ -272,10 +273,13 @@ describe("state (a): root, legacy binding, no release record", () => {
 			`${BASE.metadataBase}/timestamp.json`,
 		);
 		expect(model.root.version).toBe(1);
-		expect(model.root.threshold).toBe(2);
-		expect(model.root.keyids.length).toBe(3);
+		expect(model.root.threshold).toBe(TOP_LEVEL_ROLES.root.threshold);
+		expect(model.root.keyids.length).toBe(TOP_LEVEL_ROLES.root.keyCount);
+		// The runbook's first witness line: bare key id for a 1-of-1 root, ids with threshold otherwise.
 		expect(model.root.witnessLines[0]).toBe(
-			`solpbc-tuf-root keyids (2 of 3): ${model.root.keyids.join(" ")}`,
+			model.root.keyids.length === 1
+				? `solpbc-tuf-root keyid: ${model.root.keyids[0]}`
+				: `solpbc-tuf-root keyids (${model.root.threshold} of ${model.root.keyids.length}): ${model.root.keyids.join(" ")}`,
 		);
 		expect(model.root.witnessLines[1]).toBe(
 			`solpbc-tuf-root v1  sha256:    ${model.root.rootSha256}`,
