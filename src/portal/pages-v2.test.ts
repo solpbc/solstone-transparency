@@ -195,7 +195,7 @@ describe("state (a): root and legacy binding, no release record", () => {
 		expect(body).toContain("bound the v1 register for legacy-corpus into it");
 		expect(body).toContain("the rest of the v1 register is not yet bound");
 		expect(body).not.toContain(trustedText(HOME_PUBLICATION_DECLARATION));
-		expect(body).toContain("bound into the v2 root by a signed manifest");
+		expect(body).toContain("bound into the v2 root by signed manifests");
 		expect(body).toContain(trustedText(AXIS_PUBLICATION_A));
 		expect(body).toContain("v1 chain closed at");
 		expect(text(body)).not.toMatch(/\bpaused\b/);

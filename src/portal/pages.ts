@@ -351,7 +351,7 @@ function legacyBindingLine(v2: V2VerifiedModel): string {
 		return `<p>${kindTag("verifier")} ${text}</p>`;
 	}
 	if (v2.legacy.state === "not-verified") {
-		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_NOT_VERIFIED, { reason: v2.legacy.reason })}</p>`;
+		return `<p>${kindTag("verifier")} ${substituteCopy(LEGACY_BINDING_NOT_VERIFIED, { reason: readerReason(v2.legacy.reasonCode) })}</p>`;
 	}
 	return "";
 }
@@ -665,10 +665,9 @@ function v2RecordsSection(
 			);
 			continue;
 		}
-		const reason = entry.verification.reason;
 		const failed = substituteCopy(PRODUCT_RECORD_FAILED, {
 			version: entry.version,
-			reason,
+			reason: readerReason(entry.verification.reasonCode),
 		});
 		items.push(
 			`<li><span class="v">${untrustedText(entry.version)}</span> · ${kindTag("verifier")} ${stateSpan(verificationTone(entry.verification.state), trustedText(entry.verification.state === "invalid" ? "signature did not verify" : STATE_COULD_NOT_BE_CHECKED))}<div class="gap-note">${failed} <a href="${escapeHtml(href)}">${trustedText("record")}</a></div></li>`,
@@ -789,7 +788,7 @@ ${declarationBlock}
 <h2>${trustedText("go deeper")}</h2>
 <ul>
 <li><a href="/software/">${trustedText("software register")}</a></li>
-<li><a href="/verify/">${trustedText("how to verify a record yourself")}</a></li>
+<li><a href="/verify/">${trustedText(v2Known(v2) ? "how to verify what is here yourself" : "how to verify a record yourself")}</a></li>
 <li><a href="/keys/">${trustedText(v2Known(v2) ? "the signing keys" : "the public key")}</a></li>
 <li><a href="/about/">${trustedText("about this register")}</a></li>
 </ul>`;
@@ -1099,7 +1098,7 @@ export function renderV2Version(
 		const reason =
 			record.verification.state === "valid"
 				? "the register did not verify"
-				: record.verification.reason;
+				: readerReason(record.verification.reasonCode);
 		const failed = substituteCopy(PRODUCT_RECORD_FAILED, {
 			version: record.version,
 			reason,
@@ -1260,7 +1259,7 @@ ${v1Table}
 	}
 	const v2cmd = verifyV2Command(v2.metadataBase, v2.targetsBase);
 	const main = `
-<h1>${trustedText("verify a record yourself")}</h1>
+<h1>${trustedText("verify what is here yourself")}</h1>
 <p>${trustedText(VERIFY_TWO_METHODS_LEAD)}</p>
 <h2 id="v1">${trustedText(HEADING_V1_METHOD)}</h2>
 <p>${trustedText(VERIFY_METHOD_INTRO)}</p>

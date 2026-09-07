@@ -89,6 +89,17 @@ export function readerReason(reason: string): string {
 			return "a signature did not check out";
 		case "version-rollback":
 			return "an older version was served than one already seen";
+		case "compromised":
+			return "its signing key is marked compromised in the policy";
+		case "subject-mismatch":
+			return "the record does not name what it was published as";
+		case "unrecognized-predicate":
+		case "predicate-malformed":
+		case "malformed":
+			return "a file did not parse";
+		case "outside-issuance-window":
+		case "role-not-authorized":
+			return "the signing key was not authorized for this record";
 		default:
 			return `the check reported "${reason}"`;
 	}

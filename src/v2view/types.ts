@@ -79,13 +79,17 @@ export type V2VerificationAxis =
 	  }
 	| {
 			state: "invalid";
+			/** The verifier's reason with its detail: for the model and the packet. */
 			reason: string;
+			/** The bare reason code, mapped to reader words on the page. */
+			reasonCode: string;
 			checkedAt: Iso8601;
 			provenance: Extract<Provenance, { kind: "verifier" }>;
 	  }
 	| {
 			state: "unavailable";
 			reason: string;
+			reasonCode: string;
 			checkedAt: Iso8601;
 			provenance: Extract<Provenance, { kind: "verifier" }>;
 	  };
@@ -158,6 +162,7 @@ export type V2LegacyBinding =
 	| {
 			state: "not-verified";
 			reason: string;
+			reasonCode: string;
 			checkedAt: Iso8601;
 			provenance: Extract<Provenance, { kind: "verifier" }>;
 	  }
