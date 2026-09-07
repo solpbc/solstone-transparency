@@ -2,8 +2,8 @@
 // Copyright (c) 2026 sol pbc
 
 /**
- * Approved public copy for the portal's v2 states, (a) and (b) of
- * `cpo/specs/in-flight/trust-portal-v2-claim-ceiling.md`. Same contract as
+ * Approved public copy for the portal's v2 states, (a) and (b) of the v2
+ * claim-ceiling specification. Same contract as
  * `src/legacy/copy.ts`: every string here is reviewed content, the
  * presentation layer substitutes `{token}` values from the typed model and
  * never rewords the sentence around them. Nothing here renders until a
@@ -21,7 +21,7 @@ export const HOME_PUBLICATION_DECLARATION_A =
 	"sol pbc has created its v2 signing root and bound the whole v1 register into it. no release record has been published under it yet. every v1 record stays published, unchanged, and verifiable exactly as it is, with the v1 key.";
 
 export const HOME_PUBLICATION_DECLARATION_B =
-	"sol pbc publishes release records under its v2 signing root. the first is {product} {version}. the software page lists which surfaces have records here.";
+	"sol pbc publishes release records under its v2 signing root. the first is {product} {version}. the software page lists which products have records here.";
 
 /** Home declaration when the pinned root is known but the repository did not verify at build time. Rendered beside V2_UNVERIFIED. */
 export const HOME_PUBLICATION_DECLARATION_UNVERIFIED =
@@ -32,13 +32,17 @@ export const AXIS_PUBLICATION_A = "none published yet";
 export const AXIS_PUBLICATION_B = "publishing records";
 
 export const HOME_REGISTER_SUMMARY_ROW_V2 =
-	"latest recorded release {version} (signed {date})";
+	"newest recorded release {version} (signed {date})";
 
 export const HOME_REGISTER_SUMMARY_ROW_V1_CLOSED =
 	"v1 chain closed at {version} · no v2 record in this register";
 
+/** The same row when the v2 register could not be checked: the negative is not asserted. */
+export const HOME_REGISTER_SUMMARY_ROW_V1_CLOSED_UNCHECKED =
+	"v1 chain closed at {version} · v2 register not checked";
+
 export const SOFTWARE_COVERAGE_CAVEAT_B =
-	"the products below are the ones with at least one signed record in this register, v1 or v2, and each product page says which of its surfaces those records cover. surfaces shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it, which is a fact about the register, not about what we shipped.";
+	"the products below are the ones with at least one signed record in this register, v1 or v2, and each record lists the exact files it covers. surfaces shipped through app stores (ios, android) have no sol pbc artifact url and no record here; that is a fact about how those builds are delivered, not a statement about them. a product that isn't listed, or a version with no record, isn't evidence that nothing was released. it means this register has no record for it, which is a fact about the register, not about what we shipped.";
 
 export const PRODUCT_PLAIN_SUMMARY_A =
 	"the v1 chain for {product} closed at {version}. it is history, still signed and still verifiable with the v1 key; nothing in it was re-signed or moved.";
@@ -47,7 +51,7 @@ export const PRODUCT_PLAIN_SUMMARY_B =
 	"this register holds a v2 release record for {product} {version}, signed {issued_at}. the v1 history for {product} stays below, unchanged and still verifiable with the v1 key.";
 
 export const PRODUCT_GAP_NOTE_V1_TO_V2 =
-	"the chain moves from the v1 tip, {prev}, to the first v2 record, {next}. versions between the two have no record here, and that is not evidence of anything about them; it is a fact about this register, not about what was released.";
+	"the register moves from the v1 tip, {prev}, to the first v2 record, {next}. versions between the two have no record here, and that is not evidence of anything about them; it is a fact about this register, not about what was released.";
 
 export const PRODUCT_EXPECTED_GAP =
 	"a record for {product} {version} was expected ({basis}) and is not in this register. that is a gap in the register, not evidence about the release.";
@@ -66,7 +70,7 @@ export const VERSION_RECORD_CLAIMS_LEAD =
 	"the record states what it does and does not prove; both lists below are rendered from the signed record, word for word.";
 
 export const VERIFY_METHOD_INTRO_V2 =
-	"v2 records are checked with verify-v2 against a pinned copy of sol pbc's v2 signing root. a passing check tells you the record's signatures came from the key set that root names, that enough of those keys signed (the root requires two of three), that the record hasn't been altered since, and that the register's freshness assertion had not expired when you ran it. it does not tell you the root you pinned is the right one; you compare that yourself against the fingerprint lines on the keys page. and it speaks only to the record, not to the software the record names.";
+	"v2 records are checked with verify-v2 against a pinned copy of sol pbc's v2 signing root. a passing check tells you the record's signatures came from the key set that root names, that enough of those keys signed, that the record hasn't been altered since, and that the register's freshness assertion had not expired when you ran it. it does not tell you the root you pinned is the right one; you compare that yourself against the fingerprint lines on the keys page. and it speaks only to the record, not to the software the record names.";
 
 export const VERIFY_TWO_METHODS_LEAD =
 	"there are two ways to check a record here, one per chain. v1 records are checked with minisign and the v1 key; v2 records are checked with verify-v2 against the pinned v2 root, and each record's page says which one it is.";
@@ -74,9 +78,9 @@ export const VERIFY_TWO_METHODS_LEAD =
 export const VERIFY_OUTCOME_V2_ACCEPTED =
 	"the command printed ACCEPTED and exited 0: this record's signatures came from the pinned root's key set, enough of its keys signed, the record hasn't been altered since, and the register's freshness assertion had not expired when you ran it.";
 export const VERIFY_OUTCOME_V2_REJECTED =
-	"the command printed REJECTED with a reason and exited 1; read the reason, because \"expired\" means the register's freshness assertion has lapsed (a fact about our assertion, not about any record's signature), while any other reason means this copy did not check out and we'd like to know how you got it.";
+	'the command printed REJECTED with a reason and exited 1; read the reason. "expired" means the register\'s freshness assertion has lapsed (a fact about our assertion, not about any record\'s signature). "unavailable" or "retrieval-failed" means an object couldn\'t be fetched and the check did not complete. any other reason means this copy did not check out and we\'d like to know how you got it.';
 export const VERIFY_OUTCOME_V2_COULD_NOT_RUN =
-	"the command exited 2 because the pinned root or the repository couldn't be fetched, usually a network or availability issue; the check didn't happen, which is different from a failed check and isn't evidence about the record.";
+	"the command exited 2 because the pinned root couldn't be read; the check didn't happen, which is different from a failed check and isn't evidence about the record.";
 
 export const KEYS_V1_ROLE_STATEMENT_A =
 	"this key verifies the v1 chain only; it signs nothing new.";
@@ -108,9 +112,10 @@ export const SOFTWARE_UNMAPPED_PRODUCTS =
 	"this register also holds records for {products}; this portal has no page for them yet, so it links the raw records instead.";
 
 /**
- * Windows framing in states (a)/(b). Founder decision D4 (plan § 5.2) is
- * open, so this is today's approved framing verbatim. When D4 lands, the
- * switch is an edit to this one string, not a code change.
+ * Windows framing in states (a)/(b). How windows is framed once a v2 root
+ * exists is a pending product decision, so this is today's approved framing
+ * verbatim. When that decision lands, the switch is an edit to this one
+ * string, not a code change.
  */
 export const WINDOWS_ABSENCE_EXPLAINER_STATE_A =
 	"this register has no signed records for a windows release. that's a fact about what we've published to this register, not a claim about whether solstone runs on windows. zero records here means we haven't recorded one yet, not that none exists to record.";

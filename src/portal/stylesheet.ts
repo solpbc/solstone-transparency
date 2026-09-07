@@ -292,6 +292,19 @@ table.evidence-table {
   margin-right: var(--space-2);
 }
 
+.as-of,
+.basis {
+  margin-left: var(--space-2);
+  color: var(--ink-soft);
+}
+
+.chain-tag {
+  margin-left: var(--space-2);
+  font-size: 0.7em;
+  font-weight: var(--weight-medium);
+  color: var(--ink-soft);
+}
+
 .declaration {
   padding: var(--space-4);
   background: var(--cream-bright);
