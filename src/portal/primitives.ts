@@ -25,7 +25,6 @@ import {
 	STATE_NOT_ATTEMPTED,
 	STATE_NOT_TIME_BOUND,
 	STATE_PAUSED,
-	STATE_SIGNATURE_DID_NOT_VERIFY,
 } from "./vocab";
 
 export type StateTone = "success" | "neutral" | "warn" | "danger";
@@ -135,10 +134,9 @@ export function axisBlock(
 			`${trustedText("verified")} ${untrustedText(axes.verification.checkedAt)}`,
 		);
 	} else if (axes.verification.state === "invalid") {
-		verifyState = stateSpan(
-			"danger",
-			trustedText(STATE_SIGNATURE_DID_NOT_VERIFY),
-		);
+		// "did not verify", never "signature did not verify": v1 invalid outcomes
+		// include chain-link and trusted-comment failures where minisign passed.
+		verifyState = stateSpan("danger", trustedText(STATE_DID_NOT_VERIFY));
 		verifyExtra = `<span class="basis">${untrustedText(axes.verification.reason)}</span>`;
 	} else {
 		verifyState = stateSpan("warn", trustedText(STATE_COULD_NOT_BE_CHECKED));

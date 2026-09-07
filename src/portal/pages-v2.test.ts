@@ -35,6 +35,7 @@ import {
 	AXIS_PUBLICATION_A,
 	AXIS_PUBLICATION_B,
 	HOME_PUBLICATION_DECLARATION_A,
+	HOME_PUBLICATION_DECLARATION_A_UNBOUND,
 	HOME_PUBLICATION_DECLARATION_UNVERIFIED,
 	KEYS_V1_STATUS,
 	VERIFY_METHOD_INTRO_V2,
@@ -255,6 +256,22 @@ describe("state (a): root and legacy binding, no release record", () => {
 
 	test("every page passes the v2 ceiling word check", () => {
 		assertCeiling(renderAll(v1, stateA));
+	});
+
+	test("a legacy binding that did not verify → the unbound state-(a) declaration, no binding claim, no empty token", async () => {
+		const model = await v2For([], {
+			migrationFetcher: fixtureMigrationFetcher(new Map()),
+		});
+		if (model.state !== "verified") throw new Error("expected verified");
+		expect(model.legacy.state).toBe("not-verified");
+		const body = handle("/", v1, model).body;
+		expect(body).toContain(trustedText(HOME_PUBLICATION_DECLARATION_A_UNBOUND));
+		expect(body).not.toContain("bound the v1 release records");
+		expect(body).not.toContain("for  into");
+		expect(body).toContain(
+			"a manifest binding the v1 release records into the v2 root did not verify",
+		);
+		expect(text(body)).not.toMatch(/unavailable:|retrieval-failed/);
 	});
 });
 

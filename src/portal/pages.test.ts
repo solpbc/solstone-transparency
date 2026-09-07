@@ -296,7 +296,7 @@ describe("AC-9 invalid evidence with a fresh pointer", () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		const body = handle("/software/linux/0.0.1/", result).body;
-		expect(body).toContain("signature did not verify");
+		expect(body).toContain("did not verify");
 		expect(body).toContain(KIND_VERIFIER);
 		expect(body).toContain("fresh until");
 		expect(body).toContain(KIND_SIGNED);
