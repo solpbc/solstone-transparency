@@ -82,7 +82,7 @@ export const WINDOWS_ABSENCE_EXPLAINER =
 	"this register has no signed records for a windows release. that's a fact about what we've published to this register, not a claim about whether solstone runs on windows. zero records here means we haven't recorded one yet, not that none exists to record.";
 
 export const VERSION_PLAIN_SUMMARY =
-	"this is the signed record for {product} {version}, published {published_utc}. sol pbc signed it as valid through {valid_until}; that window has since passed, which reflects our publication pause, not a problem with the record itself. the record and its signature remain exactly as published and remain verifiable today.";
+	"this is the signed record of {product} {version}, published {published_utc}. sol pbc signed it as valid through {valid_until}; that window has since passed, which reflects our publication pause, not a problem with the record itself. the record and its signature remain exactly as published and remain verifiable today.";
 
 export const VERSION_DOES_PROVE =
 	"that sol pbc's signing key attested these exact artifacts, named, sized, and hashed in the record, at the stated time, and that this entry is correctly linked to the one before it in the chain.";

@@ -33,18 +33,18 @@ export const PRODUCT_DISPLAY: Record<ProductSlug, string> = {
 
 /** One line above the coverage caveat on /software/: this portal is for all of solstone. */
 export const SOFTWARE_SCOPE_LINE =
-	"this portal is for all of solstone, not only the journal. surfaces are listed as they publish release records here, and a listed surface with no records says so.";
+	"this portal is for all of solstone, not only the journal. products are listed here as sol pbc publishes release records for them, and a listed product with no records says so.";
 
 export const WINDOWS_ONE_FACT =
 	"this page shows one fact rather than four separate axes: with no records, there is no freshness window, nothing to verify, and nothing to rebuild.";
 
 /** Structural summary for a superseded (non-tip) version page. Placeholders: product, version, published_utc. */
 export const VERSION_SUMMARY_NOT_TIME_BOUND =
-	"this is the signed record for {product} {version}, published {published_utc}. superseded entries like this one are not assigned their own freshness window — only the current tip of the chain carries a separately signed freshness assertion. this entry's own signature remains exactly as published and is independently verifiable today.";
+	"this is the signed record of {product} {version}, published {published_utc}. superseded entries like this one are not assigned their own freshness window — only the current tip of the chain carries a separately signed freshness assertion. this entry's own signature remains exactly as published and is independently verifiable today.";
 
 /** Structural summary for a tip whose freshness pointer could not be checked. Placeholders: product, version, published_utc, reason. */
 export const VERSION_SUMMARY_UNAVAILABLE =
-	"this is the signed record for {product} {version}, published {published_utc}. this is the current tip of the chain, but its separately signed freshness pointer could not be checked ({reason}); that is a statement about this check, not about the entry's own signature, which remains exactly as published and independently verifiable today.";
+	"this is the signed record of {product} {version}, published {published_utc}. this is the current tip of the chain, but its separately signed freshness pointer could not be checked ({reason}); that is a statement about this check, not about the entry's own signature, which remains exactly as published and independently verifiable today.";
 
 export const VERIFY_LEAD_IN =
 	"from any release's raw-evidence table, download ledger-entry.json, ledger-entry.json.minisig, and the pinned key file named on /keys/. then run:";
@@ -79,7 +79,7 @@ export const HEADING_V1_DOES_NOT_PROVE = "what the v1 records do not prove";
 
 /** Structural summary for a non-tip v1 version page once a v2 root exists: chain position without a status word on the chain. Placeholders: product, version, published_utc. */
 export const VERSION_SUMMARY_NOT_TIME_BOUND_V2 =
-	"this is the signed record for {product} {version}, published {published_utc}. it is not the last entry in the v1 chain, so it carries no freshness window of its own; only the chain's last entry does. its signature remains exactly as published and is verifiable today.";
+	"this is the signed record of {product} {version}, published {published_utc}. it is not the last entry in the v1 chain, so it carries no freshness window of its own; only the chain's last entry does. its signature remains exactly as published and is verifiable today.";
 
 /** The verifier's rejection reason in reader words. The code itself stays in the model and the packet, never on the page. */
 export function readerReason(reason: string): string {
