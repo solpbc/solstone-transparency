@@ -385,3 +385,37 @@ test("an advisory whose alert fails retains the candidate for operator follow-up
 		nextAction: "inspect-retained-evidence-without-redelivery",
 	});
 });
+test("a configured passphrase provider reaches the refresh argv, so an unattended run needs no terminal", async () => {
+	const f = await fixture();
+	f.config.passphraseProviderPath = "/synthetic/vault-passphrase.ts";
+	expect(await runTimestampRail(f.config, f.dependencies)).toMatchObject({
+		ok: true,
+		reason: null,
+	});
+	const argv = f.commands[0];
+	if (!argv) throw new Error("missing refresh command");
+	expect(argv).toContain("--passphrase-provider");
+	expect(argv[argv.indexOf("--passphrase-provider") + 1]).toBe(
+		"/synthetic/vault-passphrase.ts",
+	);
+});
+test("an omitted passphrase provider leaves the refresh argv free of the flag", async () => {
+	const f = await fixture();
+	expect(await runTimestampRail(f.config, f.dependencies)).toMatchObject({
+		ok: true,
+		reason: null,
+	});
+	const argv = f.commands[0];
+	if (!argv) throw new Error("missing refresh command");
+	expect(argv).not.toContain("--passphrase-provider");
+});
+test("a relative passphrase provider path cannot invoke any subprocess or transport", async () => {
+	const f = await fixture();
+	f.config.passphraseProviderPath = "relative/vault-passphrase.ts";
+	expect(await runTimestampRail(f.config, f.dependencies)).toMatchObject({
+		ok: false,
+		reason: "invalid-config",
+	});
+	expect(f.commands).toEqual([]);
+	expect(f.writes).toEqual([]);
+});

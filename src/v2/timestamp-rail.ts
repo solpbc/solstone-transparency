@@ -50,6 +50,9 @@ export interface TimestampRailConfig {
 	stateDir: string;
 	runtimePath: string;
 	cliPath: string;
+	/** Absolute path to a local module whose default export supplies the timestamp
+	 * key passphrase without a terminal. Omitted for attended runs, which prompt. */
+	passphraseProviderPath?: string;
 	alertArgv?: string[];
 }
 export interface CommandResult {
@@ -110,6 +113,13 @@ function configValue(value: unknown): TimestampRailConfig {
 		)
 			throw new RailError("invalid-config");
 	}
+	if (
+		c.passphraseProviderPath !== undefined &&
+		(typeof c.passphraseProviderPath !== "string" ||
+			!isAbsolute(c.passphraseProviderPath) ||
+			c.passphraseProviderPath.includes("\0"))
+	)
+		throw new RailError("invalid-config");
 	if (
 		typeof c.bucket !== "string" ||
 		!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(c.bucket)
@@ -364,6 +374,9 @@ export async function runTimestampRail(
 			"--out",
 			candidate,
 			"--json",
+			...(config.passphraseProviderPath === undefined
+				? []
+				: ["--passphrase-provider", config.passphraseProviderPath]),
 		]);
 		result.refreshExitCode = command.exitCode;
 		if (command.exitCode !== 0 || command.timedOut)
