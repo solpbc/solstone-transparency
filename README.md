@@ -33,7 +33,7 @@ bun bin/audit-v2.ts --root /path/to/trusted-root.json \
 
 Both commands default to the production `/v2/metadata/` and `/v2/targets/` bases. Supply `--metadata-base` and `--targets-base` explicitly for another repository. `audit-v2` checks configured delivery heads; it does not enumerate every historical release. Its `--lanes` option accepts a JSON array of `{product, latestUrl, format}`, where `format` is `version-line` or `github-release`.
 
-The production pin is reserved at `protocol/tuf-root.json` and is absent until separately published. A root downloaded beside the metadata is not an independent trust anchor. [Protocol documents](protocol/README.md) describe the record and predicate formats.
+The root pin is `protocol/tuf-root.json`; if it is not present, no v2 root has been pinned. A root downloaded beside the metadata is not an independent trust anchor. [Protocol documents](protocol/README.md) describe the record and predicate formats.
 
 To add a release, use `release prepare` with a local copy of the authenticated repository, its independently obtained root, and the expected SHA256 of its current `metadata/timestamp.json`. The signing input contains exactly `targets-software`, `snapshot`, `timestamp`, and `producer.release`; root, top-level targets, and unrelated keys are refused. The command retains existing records and prepares a new repository in a fresh output directory. It verifies that repository before writing `publication-manifest.json`, which describes the changed files for `publish-transaction`.
 

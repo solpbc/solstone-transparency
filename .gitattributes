@@ -1,0 +1,5 @@
+# The pinned root is verified by its exact bytes: a reader hashes this file and
+# compares the digest against the published witness line. Git for Windows
+# defaults to core.autocrlf=true, so mark the pin binary and keep any future
+# checkout from rewriting bytes a verifier is about to hash.
+protocol/tuf-root.json binary
