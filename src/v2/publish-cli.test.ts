@@ -134,7 +134,7 @@ describe("publish-cli and end-to-end TUF round-trip", () => {
 
 	test("AC 7 & AC 8: publishes v2 TUF repository and verifies end-to-end via verify-v2", async () => {
 		const outDir = join(testDir, "out-repo");
-		const now = new Date("2026-09-01T00:00:00Z");
+		const now = new Date();
 
 		const exitCode = await publishRepository({
 			artifactsPath,
