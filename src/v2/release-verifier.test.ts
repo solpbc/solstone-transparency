@@ -242,6 +242,8 @@ test("artifact URL tampering is rejected before the authentic bytes are accepted
 		ok: true,
 		product: "journal",
 		version: "2.0.0",
+		recordPath: targetPath,
+		recordSha256: hash(built.targetBytes.get(targetPath) ?? new Uint8Array()),
 		policyVersion: 1,
 	});
 });

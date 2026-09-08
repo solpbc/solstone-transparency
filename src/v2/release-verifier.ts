@@ -36,6 +36,7 @@ export type ReleaseVerificationResult =
 			product: string;
 			version: string;
 			recordPath: string;
+			recordSha256: string;
 			policyVersion: number;
 			artifacts: readonly ReleaseArtifact[];
 			fingerprint: string;
@@ -467,6 +468,7 @@ async function verifyFromView(
 		product: input.product,
 		version: input.version,
 		recordPath,
+		recordSha256: sha256(recordBytes),
 		policyVersion,
 		artifacts: predicate.artifacts,
 		fingerprint: view.fingerprint,
