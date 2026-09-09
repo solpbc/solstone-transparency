@@ -279,12 +279,12 @@ describe("state (a): root, legacy binding, no release record", () => {
 		expect(model.root.threshold).toBe(TOP_LEVEL_ROLES.root.threshold);
 		expect(model.root.keyids.length).toBe(TOP_LEVEL_ROLES.root.keyCount);
 		// The runbook's first witness line: bare key id for a 1-of-1 root, ids with threshold otherwise.
-		expect(model.root.witnessLines[0]).toBe(
+		expect(model.root.keyidLine).toBe(
 			model.root.keyids.length === 1
 				? `solpbc-tuf-root keyid: ${model.root.keyids[0]}`
 				: `solpbc-tuf-root keyids (${model.root.threshold} of ${model.root.keyids.length}): ${model.root.keyids.join(" ")}`,
 		);
-		expect(model.root.witnessLines[1]).toBe(
+		expect(model.root.digestLine).toBe(
 			`solpbc-tuf-root v1  sha256:    ${model.root.rootSha256}`,
 		);
 		expect(model.root.rootLink.status).toBe("linked");

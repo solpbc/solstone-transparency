@@ -237,11 +237,14 @@ describe("state (a): root and legacy binding, no release record", () => {
 				? "one key id, which signs alone"
 				: `${n} key ids, of which ${stateA.root.threshold} must sign`,
 		);
-		expect(body).toContain("bsky.app/profile/solpbc.org");
-		expect(body).not.toContain('href="https://bsky.app');
+		// Exactly two witness locations; no social location anywhere on the page.
+		expect(stateA.root.witnesses.length).toBe(2);
+		expect(body).not.toContain("bsky.app");
+		expect(body).not.toContain("Bluesky");
+		expect(body).toContain("github.com/solpbc/solstone-transparency");
 		for (const keyid of stateA.root.keyids) expect(body).toContain(keyid);
-		expect(body).toContain(trustedText(stateA.root.witnessLines[0]));
-		expect(body).toContain(trustedText(stateA.root.witnessLines[1]));
+		expect(body).toContain(trustedText(stateA.root.keyidLine));
+		expect(body).toContain(trustedText(stateA.root.digestLine));
 		expect(body).toContain(trustedText(KEYS_V1_STATUS));
 		expect(body).not.toContain("<td>active</td>");
 		expect(body).toContain("https://solpbc.org/transparency/tuf-root.txt");
@@ -250,7 +253,7 @@ describe("state (a): root and legacy binding, no release record", () => {
 		expect(foreignHrefs(body)).toEqual([]);
 	});
 
-	test("/verify/ carries two methods and keeps the v1 safety sentence verbatim", () => {
+	test("/verify/ carries three methods, keeps the v1 safety sentence verbatim, and no longer promises a command to come", () => {
 		if (stateA.state !== "verified") throw new Error("expected verified");
 		const body = handle("/verify/", v1, stateA).body;
 		expect(body).toContain(trustedText(VERIFY_METHOD_INTRO));
@@ -259,6 +262,14 @@ describe("state (a): root and legacy binding, no release record", () => {
 		expect(body).toContain(
 			`verify-v2 --root tuf-root.json --metadata-base ${stateA.metadataBase}`,
 		);
+		expect(body).toContain('<h2 id="v3">');
+		expect(body).toContain(
+			`verify-release --root tuf-root.json --product PRODUCT --version VERSION --metadata-base ${stateA.metadataBase}`,
+		);
+		expect(body).not.toContain("when it ships");
+		// The pin check is the two-half form: version-scoped digest line, then no higher version.
+		expect(body).toContain("no higher version line");
+		expect(body).not.toContain("its two fingerprint lines");
 	});
 
 	test("every page passes the v2 ceiling word check", () => {

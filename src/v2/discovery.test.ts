@@ -3,7 +3,8 @@
 
 import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { generateDiscovery } from "./discovery";
+import { SCHEMA_URI_BASE, generateDiscovery } from "./discovery";
+import { PREDICATE_URI_BASE } from "./records/predicates";
 import { buildRepository } from "./tuf/builder";
 import {
 	generateSyntheticKeySet,
@@ -39,6 +40,20 @@ test("discovery refuses an invalid root signature before deriving the valid pin 
 	expect(doc.tuf.targets_base).toBe(
 		"https://transparency.solstone.app/v2/targets/",
 	);
+	// The bases records embed, not derived from the repository prefix: a
+	// staging repository still points at the same predicate and schema documents.
+	expect(doc.predicates.base).toBe(PREDICATE_URI_BASE);
+	expect(doc.predicates.base).toBe(
+		"https://transparency.solstone.app/predicates/v1/",
+	);
+	expect(doc.schemas.base).toBe(SCHEMA_URI_BASE);
+	expect(doc.schemas.base).toBe("https://transparency.solstone.app/schemas/");
+	const staged = await generateDiscovery(
+		bytes,
+		"https://transparency.solstone.app/staging/v2/",
+	);
+	expect(staged.predicates.base).toBe(PREDICATE_URI_BASE);
+	expect(staged.schemas.base).toBe(SCHEMA_URI_BASE);
 	await expect(
 		generateDiscovery(bytes, "http://example.invalid/v2/"),
 	).rejects.toThrow("discovery-base-invalid");

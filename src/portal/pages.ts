@@ -83,9 +83,13 @@ import {
 	V2_EXPIRED,
 	V2_UNVERIFIED,
 	VERIFY_METHOD_INTRO_V2,
+	VERIFY_METHOD_INTRO_V3,
 	VERIFY_OUTCOME_V2_ACCEPTED,
 	VERIFY_OUTCOME_V2_COULD_NOT_RUN,
 	VERIFY_OUTCOME_V2_REJECTED,
+	VERIFY_OUTCOME_V3_ACCEPTED,
+	VERIFY_OUTCOME_V3_COULD_NOT_RUN,
+	VERIFY_OUTCOME_V3_REJECTED,
 	VERIFY_TWO_METHODS_LEAD,
 	VERSION_PLAIN_SUMMARY_V1_CLOSED,
 	VERSION_PLAIN_SUMMARY_V2,
@@ -124,6 +128,7 @@ import {
 	HEADING_V2_METHOD,
 	HEADING_V2_RECORDS,
 	HEADING_V2_ROOT,
+	HEADING_V3_METHOD,
 	HEADING_WITNESS_LINES,
 	KEYS_PAGE_TITLE_V2,
 	PRODUCT_DISPLAY,
@@ -136,12 +141,14 @@ import {
 	V2_RECORD_TAG,
 	VERIFY_LEAD_IN,
 	VERIFY_V2_LEAD_IN,
+	VERIFY_V3_LEAD_IN,
 	VERSION_SUMMARY_NOT_TIME_BOUND,
 	VERSION_SUMMARY_NOT_TIME_BOUND_V2,
 	VERSION_SUMMARY_UNAVAILABLE,
 	WINDOWS_ONE_FACT,
 	readerReason,
 	verifyCommand,
+	verifyReleaseCommand,
 	verifyV2Command,
 } from "./vocab";
 
@@ -1270,6 +1277,7 @@ ${v1Table}
 		});
 	}
 	const v2cmd = verifyV2Command(v2.metadataBase, v2.targetsBase);
+	const v3cmd = verifyReleaseCommand(v2.metadataBase, v2.targetsBase);
 	const main = `
 <h1>${trustedText("verify what is here yourself")}</h1>
 <p>${trustedText(VERIFY_TWO_METHODS_LEAD)}</p>
@@ -1290,6 +1298,19 @@ ${v1Table}
 <tr><td>${trustedText("ACCEPTED, exit 0")}</td><td>${trustedText(VERIFY_OUTCOME_V2_ACCEPTED)}</td></tr>
 <tr><td>${trustedText("REJECTED, exit 1")}</td><td>${trustedText(VERIFY_OUTCOME_V2_REJECTED)}</td></tr>
 <tr><td>${trustedText("could not run, exit 2")}</td><td>${trustedText(VERIFY_OUTCOME_V2_COULD_NOT_RUN)}</td></tr>
+</tbody>
+</table>
+<h2 id="v3">${trustedText(HEADING_V3_METHOD)}</h2>
+<p>${trustedText(VERIFY_METHOD_INTRO_V3)}</p>
+<p>${trustedText(VERIFY_V3_LEAD_IN)}</p>
+<pre class="mono">${untrustedText(v3cmd)}</pre>
+<h3>${trustedText("reading the result")}</h3>
+<table class="evidence-table">
+<thead><tr><th>${trustedText("outcome")}</th><th>${trustedText("what it means")}</th></tr></thead>
+<tbody>
+<tr><td>${trustedText("accepted release record, exit 0")}</td><td>${trustedText(VERIFY_OUTCOME_V3_ACCEPTED)}</td></tr>
+<tr><td>${trustedText("rejected:, exit 1")}</td><td>${trustedText(VERIFY_OUTCOME_V3_REJECTED)}</td></tr>
+<tr><td>${trustedText("could not run, exit 2")}</td><td>${trustedText(VERIFY_OUTCOME_V3_COULD_NOT_RUN)}</td></tr>
 </tbody>
 </table>
 <p><a href="/keys/">${trustedText("the signing keys")}</a></p>`;
@@ -1386,8 +1407,8 @@ ${declaration({ kind: "declaration", text: KEYS_V1_ROLE_STATEMENT_A })}
 <tr><td>${trustedText("raw root file")}</td><td>${rawLinkCell(root.rootLink)}</td></tr>
 </tbody></table></div>
 <h3>${trustedText(HEADING_WITNESS_LINES)}</h3>
-<pre class="mono">${untrustedText(root.witnessLines[0])}
-${untrustedText(root.witnessLines[1])}</pre>
+<pre class="mono">${untrustedText(root.keyidLine)}
+${untrustedText(root.digestLine)}</pre>
 <div class="declaration">${kindTag("declaration")}<p>${trustedText(KEYS_WITNESS_LEAD)}</p><ul>${witnessItems}</ul></div>`;
 	return shell({
 		title: "keys — trust.solstone.app",

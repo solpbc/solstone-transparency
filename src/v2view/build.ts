@@ -103,19 +103,20 @@ export interface BuildV2ModelOptions {
 	migrationFetcher?: MigrationObjectFetcher;
 }
 
-/** The three witness locations the runbook names (the Bluesky one confirmed 2026-09-07). Only the sol pbc host is ever linked from a page; the others are named. */
+/**
+ * The two witness locations: the pinned root envelope in the public verifier
+ * repository (the pin is the repo witness; there is no separate witness file
+ * there) and the append-only witness log on the company site. Only the sol pbc
+ * host is ever linked from a page; the repository location is named as text.
+ */
 export const DEFAULT_WITNESSES: readonly V2Witness[] = [
 	{
 		label: "the pinned root in the public verifier repository",
 		url: "https://github.com/solpbc/solstone-transparency/blob/main/protocol/tuf-root.json",
 	},
 	{
-		label: "solpbc.org",
+		label: "the witness log on solpbc.org",
 		url: "https://solpbc.org/transparency/tuf-root.txt",
-	},
-	{
-		label: "sol pbc's account on Bluesky",
-		url: "https://bsky.app/profile/solpbc.org",
 	},
 ];
 
@@ -270,16 +271,18 @@ async function rootView(
 	const digest = await sha256Hex(bytes);
 	const version = parsed.value.version;
 	const keyids = root.keyids;
-	// The runbook's two witness lines. A single-key root (the operator's
-	// 1-of-1 design, 2026-09-07) publishes the bare key id; a
-	// multi-key root publishes the ids with their threshold, the runbook's
-	// earlier form and the path back to a multi-key root.
-	const witnessLines: [string, string] = [
+	// The witness log's two line shapes, in the log's own format. The key id
+	// line is not version-scoped: in the log it covers every sha256 line
+	// below it and reappears only when the key set changes, which a renewal
+	// cannot do. The sha256 line is scoped to this root version; a renewal
+	// appends exactly one of these. A single-key root (the 1-of-1 design)
+	// publishes the bare key id; a multi-key root publishes the ids with
+	// their threshold.
+	const keyidLine =
 		keyids.length === 1
 			? `solpbc-tuf-root keyid: ${keyids[0]}`
-			: `solpbc-tuf-root keyids (${root.threshold} of ${keyids.length}): ${keyids.join(" ")}`,
-		`solpbc-tuf-root v${version}  sha256:    ${digest}`,
-	];
+			: `solpbc-tuf-root keyids (${root.threshold} of ${keyids.length}): ${keyids.join(" ")}`;
+	const digestLine = `solpbc-tuf-root v${version}  sha256:    ${digest}`;
 	const filename = `${version}.root.json`;
 	return {
 		ok: true,
@@ -289,7 +292,8 @@ async function rootView(
 				keyids: [...keyids],
 				threshold: root.threshold,
 				rootSha256: digest,
-				witnessLines,
+				keyidLine,
+				digestLine,
 				witnesses: [...witnesses],
 				rootLink: linkFor(
 					resolveObjectUrl(metadataBase, targetsBase, filename),

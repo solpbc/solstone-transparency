@@ -49,6 +49,7 @@ For `release prepare`, `timestamp refresh`, and `metadata renew`, `--keys` names
 | `bun bin/publish-transaction.ts --help` | Publish a verified candidate with conditional writes, timestamp last, and a durable receipt; supports `--dry-run` |
 | `bun bin/timestamp-rail.ts --help` | Authenticate the repository, refresh only its timestamp, and report failures through configured alert arguments |
 | `bun bin/discovery.ts --help` | Derive discovery fields from a supplied root envelope |
+| `bun bin/protocol-documents.ts --help` | Write the predicate-type and record-schema documents the identifiers resolve to, with a publish set |
 
 The ceremony, detached signing, and preparation commands accept `--passphrase-provider MODULE`. This selects trusted local code whose default export receives an encrypted key's path and returns `Promise<Buffer>` containing its passphrase. The reader takes ownership of that buffer and clears it after use. Without the option, the terminal adapter prompts without echo. Providers determine how to obtain the secret; no vault layout is assumed by the public tool. Keep passphrase values out of command arguments and environment variables.
 

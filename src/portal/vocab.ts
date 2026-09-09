@@ -61,9 +61,10 @@ export const HEADING_V2_RECORDS = "v2 release records";
 export const HEADING_V1_TIMELINE_CLOSED = "v1 release timeline (closed chain)";
 export const HEADING_V1_METHOD = "method 1: a v1 record, with minisign";
 export const HEADING_V2_METHOD = "method 2: the v2 register, with verify-v2";
+export const HEADING_V3_METHOD = "method 3: one v2 record, with verify-release";
 export const HEADING_V1_KEY = "the v1 signing key";
 export const HEADING_V2_ROOT = "the v2 signing root";
-export const HEADING_WITNESS_LINES = "the two fingerprint lines";
+export const HEADING_WITNESS_LINES = "the witness log lines for this root";
 export const HEADING_RECORD_CLAIMS = "what the record says it proves";
 export const KEYS_PAGE_TITLE_V2 = "signing keys";
 export const V2_RECORD_TAG = "v2 record";
@@ -147,13 +148,23 @@ export function readerReason(reason: string): string {
 }
 
 export const VERIFY_V2_LEAD_IN =
-	"save the root shown on /keys/ as tuf-root.json; that saved copy is your pin. compare its two fingerprint lines against the published copies first, then run:";
+	"save the raw root file linked on /keys/ as tuf-root.json, byte for byte; that saved copy is your pin. before you use it, check it against the witness log: find the sha256 line naming your copy's signed.version and match its digest against the sha256 of your copy's bytes; match the key ids your copy lists for its root role against the nearest key id line above that; then confirm no higher version line appears, because the log keeps every earlier version's line while the pin holds only one. then run:";
+
+export const VERIFY_V3_LEAD_IN =
+	"with the same pinned tuf-root.json, name the record by its product id and version as they appear in the record's path, software/PRODUCT/VERSION, not by its display name, then run:";
 
 export function verifyV2Command(
 	metadataBase: string,
 	targetsBase: string,
 ): string {
 	return `solstone-transparency verify-v2 --root tuf-root.json --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
+}
+/** The record-level command. PRODUCT and VERSION are the record's own values as shown on its page. */
+export function verifyReleaseCommand(
+	metadataBase: string,
+	targetsBase: string,
+): string {
+	return `solstone-transparency verify-release --root tuf-root.json --product PRODUCT --version VERSION --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
 }
 export const STATE_NOT_TIME_BOUND = "not time-bound";
 export const STATE_NOT_ATTEMPTED = "not attempted";

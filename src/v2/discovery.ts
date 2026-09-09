@@ -2,11 +2,20 @@
 // Copyright (c) 2026 sol pbc
 
 import { createHash } from "node:crypto";
+import { PREDICATE_URI_BASE } from "./records/predicates";
 import {
 	parseClientMetadata,
 	parseRootDeclarations,
 	verifyClientMetadata,
 } from "./tuf/client-metadata";
+
+/**
+ * Where a record's `schema` identifier resolves: the identifier appended to
+ * this base, with no transformation. Fixed to the evidence host's top-level
+ * `schemas/` prefix, which carries an indefinite retention lock, so it does
+ * not move with the repository base the way `metadata/` and `targets/` do.
+ */
+export const SCHEMA_URI_BASE = "https://transparency.solstone.app/schemas/";
 
 /** Describe an explicitly supplied root; discovery itself grants no trust. */
 export async function generateDiscovery(
@@ -47,8 +56,11 @@ export async function generateDiscovery(
 			root_version: root.value.version,
 			root_sha256: createHash("sha256").update(rootBytes).digest("hex"),
 		},
-		schemas: { base: new URL("schemas/", url).href },
-		predicates: { base: new URL("predicates/", url).href },
+		// The predicate base is the one every signed record embeds
+		// (`PREDICATE_URI_BASE`), fixed by signature; it and the schema base
+		// are properties of the evidence host, not of the repository prefix.
+		schemas: { base: SCHEMA_URI_BASE },
+		predicates: { base: PREDICATE_URI_BASE },
 		verifier: {
 			source: "https://github.com/solpbc/solstone-transparency",
 			license: "AGPL-3.0-only",

@@ -70,10 +70,20 @@ export const VERSION_RECORD_CLAIMS_LEAD =
 	"the record states what it does and does not prove; both lists below are rendered from the signed record, word for word.";
 
 export const VERIFY_METHOD_INTRO_V2 =
-	"v2 records are covered by verify-v2, which checks the whole register against a pinned copy of sol pbc's v2 signing root. a passing check tells you the register you fetched matches what was signed by the keys your pinned root authorizes, that every record's bytes match their signed description, and that none of sol pbc's signed validity windows had passed when you ran it. it does not open a record's own signature; that is a separate record-level check, and this page will carry its command when it ships. it does not tell you the root you pinned is the right one; you compare that yourself against the fingerprint lines published elsewhere, listed on the keys page. and it speaks only to the register, not to the software the records name.";
+	"v2 records are covered by verify-v2, which checks the whole register against a pinned copy of sol pbc's v2 signing root. a passing check tells you the register you fetched matches what was signed by the keys your pinned root authorizes, that every record's bytes match their signed description, and that none of sol pbc's signed validity windows had passed when you ran it. it does not open a record's own signature; that is method 3 below. it does not tell you the root you pinned is the right one; you compare that yourself against the witness log lines, listed on the keys page. and it speaks only to the register, not to the software the records name.";
 
 export const VERIFY_TWO_METHODS_LEAD =
-	"there are two ways to check what is here, one per chain. v1 records are checked with minisign and the v1 key; v2 records are covered by verify-v2, which checks the whole register against the pinned v2 root, and each record's page says which chain it belongs to.";
+	"there are three ways to check what is here. v1 records are checked with minisign and the v1 key; the v2 register is checked whole with verify-v2 against the pinned v2 root; one v2 record is checked with verify-release, which also opens the record's own signature and fetches the files it names. each record's page says which chain it belongs to.";
+
+export const VERIFY_METHOD_INTRO_V3 =
+	"verify-release checks one v2 record. it walks from your pinned root to the record through the register, checks the record's own signature against the signing keys the register authorizes, and then fetches every file the record names from its recorded url and compares the bytes it receives against the recorded length and sha256. a passing check tells you those files, as served to you at that moment, are the bytes sol pbc recorded as that release. it does not tell you the software is safe, or that a build you already have is these bytes; compare your own copy's sha256 against the record's yourself.";
+
+export const VERIFY_OUTCOME_V3_ACCEPTED =
+	"the command printed accepted release record and exited 0: the record verified through your pinned root, its signature checked against an authorized key, and every file it names was fetched and matched its recorded length and sha256.";
+export const VERIFY_OUTCOME_V3_REJECTED =
+	"the command printed rejected: with a reason and exited 1; read the reason. invalid-coordinate means the product id or version you typed isn't a valid name; record-missing means no record exists under that product id and version, which is a gap in the register, not evidence about a release. a trust-store reason points at a file on your machine. a reason about a fetch means a file couldn't be retrieved and the check did not complete. expired means what it means in method 2. any other reason, with the command as printed here, means the register, the record, or a file it names did not check out as served to you.";
+export const VERIFY_OUTCOME_V3_COULD_NOT_RUN =
+	"the command exited 2 because it couldn't read its inputs, most often the pinned root file; the check didn't happen, which is different from a failed check and isn't evidence about the record.";
 
 export const VERIFY_OUTCOME_V2_ACCEPTED =
 	"the command printed ACCEPTED and exited 0: the register you fetched matches what was signed by the keys your pinned root authorizes, every record's bytes match their signed description, and no signed validity window had passed when you ran it.";
@@ -88,14 +98,14 @@ export const KEYS_V1_ROLE_STATEMENT_A =
 export const KEYS_V1_STATUS = "v1 only, no new signatures";
 
 export const KEYS_V2_ROOT_INTRO =
-	"this is sol pbc's v2 signing root, version {root_version}: {key_count} key ids, of which {threshold} must sign. it is renewed yearly, and every prior fingerprint line stays published when it is.";
+	"this is sol pbc's v2 signing root, version {root_version}: {key_count} key ids, of which {threshold} must sign. it is renewed yearly, and every prior witness log line stays published when it is.";
 
 /** The root intro when the root has exactly one key (the 1-of-1 design). */
 export const KEYS_V2_ROOT_INTRO_SINGLE =
-	"this is sol pbc's v2 signing root, version {root_version}: one key id, which signs alone. it is renewed yearly, and every prior fingerprint line stays published when it is.";
+	"this is sol pbc's v2 signing root, version {root_version}: one key id, which signs alone. it is renewed yearly, and every prior witness log line stays published when it is.";
 
 export const KEYS_WITNESS_LEAD =
-	"the root's two fingerprint lines are published at more than one location sol pbc maintains, listed below; they are a cross-check for a root you have already pinned, not a trust root themselves.";
+	"these lines are published at more than one location sol pbc controls, listed below; they are a cross-check for a root you have already pinned, not a trust root themselves. in the witness log, each root version adds one sha256 line, and the key id line covers every sha256 line below it, reappearing only when the key set changes.";
 
 export const ABOUT_READABLE_BODY_LEAD =
 	"this file describes the v1 chain, in the v1 chain's own words, and is shown exactly as published.";

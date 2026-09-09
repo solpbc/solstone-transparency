@@ -44,8 +44,10 @@ export interface V2RootView {
 	threshold: number;
 	/** sha256 over the exact bytes of `<version>.root.json` as pinned. */
 	rootSha256: string;
-	/** The two witness lines in the form the root ceremony runbook publishes them: the key ids with their threshold, and the version-scoped digest of the root file. */
-	witnessLines: readonly [string, string];
+	/** The key id line in the witness log's format. In the log it covers every sha256 line below it and reappears only when the key set changes; it is not scoped to this version. */
+	keyidLine: string;
+	/** The sha256 line for this root version in the witness log's format. Each root version adds exactly one of these to the log. */
+	digestLine: string;
 	/** Where the witness lines are published. Organizational declaration: the builder is told these, it does not verify them. */
 	witnesses: readonly { label: string; url: string }[];
 	/** Raw link to the pinned root object on the evidence host, when the base is the evidence host. */
