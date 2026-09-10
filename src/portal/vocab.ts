@@ -166,6 +166,20 @@ export function verifyReleaseCommand(
 ): string {
 	return `solstone-transparency verify-release --root tuf-root.json --product PRODUCT --version VERSION --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
 }
+
+function shellArgument(value: string): string {
+	if (/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value)) return value;
+	return `'${value.replaceAll("'", `'"'"'`)}'`;
+}
+
+export function verifyReleaseRecordCommand(
+	metadataBase: string,
+	targetsBase: string,
+	product: string,
+	version: string,
+): string {
+	return `solstone-transparency verify-release --root tuf-root.json --product ${shellArgument(product)} --version ${shellArgument(version)} --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
+}
 export const STATE_NOT_TIME_BOUND = "not time-bound";
 export const STATE_NOT_ATTEMPTED = "not attempted";
 export const STATE_COULD_NOT_BE_CHECKED = "could not be checked";

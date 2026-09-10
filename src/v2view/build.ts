@@ -33,7 +33,10 @@
 
 import { readFile } from "node:fs/promises";
 import { CATALOG } from "../legacy/inventory";
-import { validateRawLink } from "../legacy/rawlink";
+import {
+	validateRawLink,
+	validateReleaseArtifactLink,
+} from "../legacy/rawlink";
 import type { EvidenceLinkStatus, Iso8601 } from "../legacy/types";
 import { loadDsseAuthorizationPolicy } from "../v2/records/authorization-policy";
 import {
@@ -146,6 +149,17 @@ function iso(now: Date): Iso8601 {
 
 function linkFor(url: string): EvidenceLinkStatus {
 	const checked = validateRawLink(url);
+	if (checked.status === "linked")
+		return { status: "linked", link: { url: checked.url } };
+	return { status: "rejected", rejected: { reason: checked.reason } };
+}
+
+function releaseArtifactLinkFor(
+	url: string,
+	product: string,
+	version: string,
+): EvidenceLinkStatus {
+	const checked = validateReleaseArtifactLink(url, product, version);
 	if (checked.status === "linked")
 		return { status: "linked", link: { url: checked.url } };
 	return { status: "rejected", rejected: { reason: checked.reason } };
@@ -563,7 +577,7 @@ async function releaseFromTarget(
 			url: a.url,
 			length: a.length,
 			sha256: a.sha256,
-			link: linkFor(a.url),
+			link: releaseArtifactLinkFor(a.url, product, version),
 		})),
 		doesProve,
 		doesNotProve,

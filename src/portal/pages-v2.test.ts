@@ -43,6 +43,7 @@ import {
 	WINDOWS_ABSENCE_EXPLAINER_STATE_A,
 } from "../v2view/copy";
 import {
+	type FixtureRelease,
 	buildFixture,
 	fixtureFetcher,
 	fixtureMigrationFetcher,
@@ -56,7 +57,12 @@ import {
 	handle,
 	renderAll,
 } from "./handle";
-import { KIND_DECLARATION, KIND_SIGNED, KIND_VERIFIER } from "./vocab";
+import {
+	KIND_DECLARATION,
+	KIND_SIGNED,
+	KIND_VERIFIER,
+	verifyReleaseRecordCommand,
+} from "./vocab";
 
 const NOW = new Date("2026-09-08T12:00:00.000Z");
 const BUILD_AT = new Date("2026-09-07T12:00:00.000Z");
@@ -72,7 +78,7 @@ let expired: V2Model;
 let tampered: V2Model;
 
 async function v2For(
-	releases: { product: string; version: string }[],
+	releases: FixtureRelease[],
 	extra: Partial<Parameters<typeof buildV2Model>[0]> = {},
 ): Promise<V2Model> {
 	const fixture = await buildFixture({ buildAt: BUILD_AT, releases });
@@ -294,6 +300,17 @@ describe("state (a): root and legacy binding, no release record", () => {
 });
 
 describe("state (b): a release record", () => {
+	test("the filled command shell-quotes hostile record coordinates", () => {
+		const command = verifyReleaseRecordCommand(
+			BASE.metadataBase,
+			BASE.targetsBase,
+			"journal; printf PWNED",
+			"2.0.0 ' $(touch /tmp/x)",
+		);
+		expect(command).toContain("--product 'journal; printf PWNED'");
+		expect(command).toContain("--version '2.0.0 '\"'\"' $(touch /tmp/x)'");
+	});
+
 	test("home declares the first record; the journal row shows the latest recorded v2 release", () => {
 		const body = handle("/", v1, stateB).body;
 		expect(body).toContain("the first is the journal 2.0.0");
@@ -317,6 +334,8 @@ describe("state (b): a release record", () => {
 		const res = handle("/software/journal/2.0.0/", v1, stateB);
 		expect(res.status).toBe(200);
 		const body = res.body;
+		const record = stateB.software[0];
+		if (record?.kind !== "release") throw new Error("expected release");
 		expect(body).toContain("v2 record");
 		expect(body).toContain("asserted until");
 		expect(body).toContain(KIND_SIGNED);
@@ -335,8 +354,11 @@ describe("state (b): a release record", () => {
 			"software/solstone-journal/2.0.0/release-record.json",
 		);
 		expect(body).toContain("verify this record yourself");
-		const record = stateB.software[0];
-		if (record?.kind !== "release") throw new Error("expected release");
+		expect(body).toContain(
+			`verify-release --root tuf-root.json --product ${record.product} --version ${record.version} --metadata-base ${stateB.metadataBase} --targets-base ${stateB.targetsBase}`,
+		);
+		expect(body).not.toContain("--product PRODUCT --version VERSION");
+		expect(body).toContain('href="/verify/#v3"');
 		for (const k of record.signerKeyids) expect(body).toContain(k);
 		// The link is whichever name the client actually fetched: the logical
 		// path today, the hash-prefixed name once consistent-snapshot target
@@ -352,6 +374,25 @@ describe("state (b): a release record", () => {
 			true,
 		);
 		expect(body).toContain(record.recordLink.link.url);
+	});
+
+	test("only the exact canonical Journal artifact directory is clickable", async () => {
+		const canonical =
+			"https://updates.solstone.app/solstone-journal/release/2.0.0/solstone-journal-2.0.0-linux-x86_64.tar.gz";
+		const wrongVersion = canonical.replace("/2.0.0/", "/2.0.1/");
+		const model = await v2For([
+			{
+				product: "journal",
+				version: "2.0.0",
+				artifacts: [
+					{ url: canonical, length: 1, sha256: "a".repeat(64) },
+					{ url: wrongVersion, length: 2, sha256: "b".repeat(64) },
+				],
+			},
+		]);
+		const body = handle("/software/journal/2.0.0/", v1, model).body;
+		expect(body).toContain(`href="${canonical}"`);
+		expect(body).not.toContain(`href="${wrongVersion}"`);
 	});
 
 	test("a v1 record page in the v2 era drops the pause sentence for the closed-chain one", () => {

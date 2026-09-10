@@ -11,6 +11,7 @@ import {
 	latestUrl,
 	ledgerUrl,
 	validateRawLink,
+	validateReleaseArtifactLink,
 	versionMemberUrl,
 } from "./rawlink";
 
@@ -28,6 +29,45 @@ describe("negative control 4 — invalid URL scheme / shape", () => {
 			validateRawLink(
 				"https://transparency.solstone.app.evil.example/releases/x",
 			).status,
+		).toBe("rejected");
+	});
+});
+
+describe("release artifact link binding", () => {
+	const canonical =
+		"https://updates.solstone.app/solstone-journal/release/2.0.0/solstone-journal-2.0.0-linux-x86_64.tar.gz";
+
+	test("the canonical Journal release directory is clickable", () => {
+		expect(validateReleaseArtifactLink(canonical, "journal", "2.0.0")).toEqual({
+			status: "linked",
+			url: canonical,
+		});
+		expect(
+			validateReleaseArtifactLink(canonical, "solstone-journal", "2.0.0")
+				.status,
+		).toBe("linked");
+	});
+
+	test("nearby hosts, versions, shapes, and products remain unlinked", () => {
+		for (const candidate of [
+			canonical.replace(
+				"updates.solstone.app",
+				"updates.solstone.app.evil.example",
+			),
+			canonical.replace("/2.0.0/", "/2.0.1/"),
+			canonical.replace(
+				"/solstone-journal-2.0.0",
+				"/nested/solstone-journal-2.0.0",
+			),
+			`${canonical}?download=1`,
+			canonical.replace("/release/2.0.0/", "/release/2.0.0/../2.0.0/"),
+		]) {
+			expect(
+				validateReleaseArtifactLink(candidate, "journal", "2.0.0").status,
+			).toBe("rejected");
+		}
+		expect(
+			validateReleaseArtifactLink(canonical, "linux", "2.0.0").status,
 		).toBe("rejected");
 	});
 });

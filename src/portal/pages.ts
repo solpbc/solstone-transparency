@@ -149,6 +149,7 @@ import {
 	readerReason,
 	verifyCommand,
 	verifyReleaseCommand,
+	verifyReleaseRecordCommand,
 	verifyV2Command,
 } from "./vocab";
 
@@ -1206,6 +1207,12 @@ ${heading}
 <tr><td>${trustedText("signer key ids")}</td><td class="mono">${record.signerKeyids.map((k) => untrustedText(k)).join("<br>")}</td></tr>
 ${v2.policy.state === "loaded" ? `<tr><td>${trustedText("policy sha256")}</td><td class="mono">${untrustedText(v2.policy.sha256)}</td></tr>` : ""}
 </tbody></table></div></div></details>`;
+	const verifyRecord = verifyReleaseRecordCommand(
+		v2.metadataBase,
+		v2.targetsBase,
+		record.product,
+		record.version,
+	);
 	const main = `
 ${heading}
 <p>${summary}</p>
@@ -1214,7 +1221,9 @@ ${claims}
 <h2>${trustedText("raw evidence")}</h2>
 ${evidenceTable(rows)}
 ${tech}
-<p><a href="/verify/">${trustedText("verify this record yourself")}</a></p>`;
+<h2>${trustedText("verify this record yourself")}</h2>
+<pre class="mono">${untrustedText(verifyRecord)}</pre>
+<p><a href="/verify/#v3">${trustedText("reading the result")}</a></p>`;
 	return shell({ title, current: "software", path, breadcrumbs: crumbs, main });
 }
 

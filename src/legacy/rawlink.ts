@@ -13,6 +13,7 @@
  */
 
 export const EVIDENCE_HOST = "transparency.solstone.app";
+const RELEASE_ARTIFACT_HOST = "updates.solstone.app";
 
 export type RawLinkResult =
 	| { status: "linked"; url: string }
@@ -32,7 +33,10 @@ export type RawLinkResult =
  * place. This was found by this module's own negative-control test (a
  * dot-segment candidate was reported "linked"), not assumed correct.
  */
-export function validateRawLink(candidate: string): RawLinkResult {
+function validateHttpsLinkOnHost(
+	candidate: string,
+	expectedHost: string,
+): RawLinkResult {
 	if (
 		/%2e%2e|%2f|%5c/i.test(candidate) ||
 		/(^|\/)\.\.?(\/|$)/.test(candidate)
@@ -54,10 +58,10 @@ export function validateRawLink(candidate: string): RawLinkResult {
 			reason: `scheme must be https, got ${url.protocol}`,
 		};
 	}
-	if (url.hostname !== EVIDENCE_HOST) {
+	if (url.hostname !== expectedHost) {
 		return {
 			status: "rejected",
-			reason: `host must be ${EVIDENCE_HOST}, got ${url.hostname}`,
+			reason: `host must be ${expectedHost}, got ${url.hostname}`,
 		};
 	}
 	if (url.port !== "") {
@@ -92,6 +96,44 @@ export function validateRawLink(candidate: string): RawLinkResult {
 		};
 	}
 	return { status: "linked", url: url.toString() };
+}
+
+export function validateRawLink(candidate: string): RawLinkResult {
+	return validateHttpsLinkOnHost(candidate, EVIDENCE_HOST);
+}
+
+/**
+ * Release records may name final delivery bytes outside the evidence host.
+ * Keep those links closed to the one live Journal lane and its exact version
+ * directory; other product origins require their own reviewed extension.
+ */
+export function validateReleaseArtifactLink(
+	candidate: string,
+	product: string,
+	version: string,
+): RawLinkResult {
+	const evidence = validateRawLink(candidate);
+	if (evidence.status === "linked") return evidence;
+	const checked = validateHttpsLinkOnHost(candidate, RELEASE_ARTIFACT_HOST);
+	if (checked.status === "rejected") return checked;
+	if (product !== "journal" && product !== "solstone-journal") {
+		return {
+			status: "rejected",
+			reason: `no canonical artifact route for product ${product}`,
+		};
+	}
+	const url = new URL(checked.url);
+	const prefix = `/solstone-journal/release/${encodeURIComponent(version)}/`;
+	const basename = url.pathname.startsWith(prefix)
+		? url.pathname.slice(prefix.length)
+		: "";
+	if (basename === "" || basename.includes("/")) {
+		return {
+			status: "rejected",
+			reason: `path must name one file directly under ${prefix}`,
+		};
+	}
+	return checked;
 }
 
 /** Builds and validates the fixed-layout URL for a locked ledger entry object. */
