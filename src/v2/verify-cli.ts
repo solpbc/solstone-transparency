@@ -20,7 +20,7 @@ import { DEFAULT_MAX_METADATA_BYTES } from "./tuf/admission";
 import { updateTufRepository } from "./tuf/client";
 import type { TufFetchResponse, TufFetcher } from "./tuf/fetch";
 import { isMetadataFilename } from "./tuf/serializer";
-import { openFileTrustStore } from "./tuf/trust-store";
+import { ephemeralTrustStore, openFileTrustStore } from "./tuf/trust-store";
 
 /**
  * Routes a repository-relative path to its base URL.
@@ -86,7 +86,8 @@ export interface VerifyOptions {
 	metadataBase: string;
 	targetsBase: string;
 	rootPath: string;
-	storePath: string;
+	/** Omit for no ambient trust across invocations: --root is then authoritative every run. */
+	storePath?: string;
 	json: boolean;
 }
 
@@ -132,7 +133,9 @@ export async function verifyRepository(
 	const result = await updateTufRepository({
 		fetcher,
 		bootstrapRoot,
-		trustStore: openFileTrustStore(options.storePath),
+		trustStore: options.storePath
+			? openFileTrustStore(options.storePath)
+			: ephemeralTrustStore(),
 		now: new Date(),
 	});
 

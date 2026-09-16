@@ -220,6 +220,32 @@ async function readCurrent(
 	}
 }
 
+/** A trust store held only in process memory -- nothing persists once the process exits, so a
+ * caller that never opts into `openFileTrustStore` gets no ambient state across invocations. */
+export function ephemeralTrustStore(): TufTrustStore {
+	let stored: TrustStoreRead | undefined;
+	let nextRevision = 1;
+	return {
+		async read(): Promise<TufResult<TrustStoreRead | undefined>> {
+			return { ok: true, value: stored };
+		},
+		async replace(
+			expectedRevision: string | undefined,
+			next: TrustStoreState,
+		): Promise<TufResult<undefined>> {
+			if (stored?.revision !== expectedRevision) {
+				return rejection("malformed", {
+					path: ["trustStore"],
+					expected: stored?.revision ?? "missing",
+					observed: expectedRevision ?? "missing",
+				});
+			}
+			stored = { state: next, revision: String(nextRevision++) };
+			return { ok: true, value: undefined };
+		},
+	};
+}
+
 /** Opens a canonical, compare-and-replace file trust store at the caller-owned path. */
 export function openFileTrustStore(path: string): TufTrustStore {
 	return {

@@ -49,8 +49,9 @@ Usage: solstone-transparency [--version] [--help]
        solstone-transparency publish-v2 --artifacts <path> --product <name>
                                         --keys <path> --policy-sha256 <hex>
                                         --out <dir> [--now <iso-8601>]
-       solstone-transparency verify-release --root FILE --product PRODUCT --version VERSION [--json]
-       solstone-transparency audit-v2 --root FILE [--lanes FILE] [--json]
+       solstone-transparency verify-release --root FILE --product PRODUCT --version VERSION
+                                            [--store FILE] [--json]
+       solstone-transparency audit-v2 --root FILE [--lanes FILE] [--store FILE] [--json]
        solstone-transparency publish-transaction --repository DIR --manifest FILE --prefix PREFIX
                                                 --receipt FILE [--dry-run] [--help]
        solstone-transparency policy build --root <file> --repository <dir>
@@ -99,7 +100,13 @@ Options:
                       writes to the evidence host.
                       --root is required and is a local, out-of-band root
                       metadata file; this command never bootstraps trust from
-                      the evidence channel. --metadata-base / --targets-base
+                      the evidence channel. --store is optional and off by
+                      default -- without it, trust lives only in this process's
+                      memory and --root is authoritative on every run. Pass
+                      --store only to opt into a persisted trust store at that
+                      exact path; a later run reusing that path then trusts the
+                      store's accepted root over whatever --root you pass it.
+                      --metadata-base / --targets-base
                       default to the v2 prefix. --json emits a machine-readable
                       result.
                       Exit 0 accepted, 1 rejected, 2 could not run.
@@ -138,9 +145,11 @@ Options:
                       Missing or malformed inputs or an unknown product name
                       fail closed writing nothing.
   verify-release      Verify a release record, its policy and signature, and artifact bytes.
-                      Use verify-release --help for repository and trust-store options.
+                      --store is optional and off by default; see verify-release --help
+                      for repository and trust-store options.
   audit-v2            Check delivery heads for missing or rejected release records.
-                      Use audit-v2 --help for the lane input format.
+                      --store is optional and off by default; see audit-v2 --help
+                      for the lane input format and trust-store options.
   publish-transaction Upload a verified candidate with conditional writes and timestamp last.
                       Use publish-transaction --help for transport and receipt options.
   policy build        Prepare canonical DSSE authorization policy and public-key
@@ -846,7 +855,7 @@ export async function run(argv: string[]): Promise<number> {
 			metadataBase: flag("--metadata-base") ?? `${base}/metadata`,
 			targetsBase: flag("--targets-base") ?? `${base}/targets`,
 			rootPath,
-			storePath: flag("--store") ?? ".solstone-transparency-trust.json",
+			storePath: flag("--store"),
 			json: argv.includes("--json"),
 		});
 	}

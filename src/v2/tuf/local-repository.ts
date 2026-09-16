@@ -12,11 +12,7 @@ import { type TufResult, rejection } from "./outcome";
 import { bytesToHex } from "./prepared-metadata";
 import { validateTargetPath } from "./role-graph";
 import { isMetadataFilename } from "./serializer";
-import type {
-	TrustStoreRead,
-	TrustStoreState,
-	TufTrustStore,
-} from "./trust-store";
+import { ephemeralTrustStore } from "./trust-store";
 
 function errorName(error: unknown): string {
 	return error instanceof Error ? error.name : typeof error;
@@ -60,30 +56,6 @@ async function readBounded(
 		if (isNotFound(error)) return { kind: "not-found" };
 		return { kind: "error", error };
 	}
-}
-
-function ephemeralTrustStore(): TufTrustStore {
-	let stored: TrustStoreRead | undefined;
-	let nextRevision = 1;
-	return {
-		async read(): Promise<TufResult<TrustStoreRead | undefined>> {
-			return { ok: true, value: stored };
-		},
-		async replace(
-			expectedRevision: string | undefined,
-			next: TrustStoreState,
-		): Promise<TufResult<undefined>> {
-			if (stored?.revision !== expectedRevision) {
-				return rejection("malformed", {
-					path: ["trustStore"],
-					expected: stored?.revision ?? "missing",
-					observed: expectedRevision ?? "missing",
-				});
-			}
-			stored = { state: next, revision: String(nextRevision++) };
-			return { ok: true, value: undefined };
-		},
-	};
 }
 
 /** Creates a bounded local repository fetcher for an already-selected repository directory. */

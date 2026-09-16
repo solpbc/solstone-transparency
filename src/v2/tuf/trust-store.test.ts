@@ -9,7 +9,7 @@ import { type RepositorySigningKeys, buildRepository } from "./builder";
 import { generateEd25519SigningKey } from "./ed25519";
 import { DELEGATED_ROLES, TOP_LEVEL_ROLES } from "./role-config";
 import type { TrustStoreState } from "./trust-store";
-import { openFileTrustStore } from "./trust-store";
+import { ephemeralTrustStore, openFileTrustStore } from "./trust-store";
 
 async function signingKeys(): Promise<RepositorySigningKeys> {
 	const generate = async (count: number) => {
@@ -144,6 +144,36 @@ test("trust store refuses a next state that its reader would reject", async () =
 	} finally {
 		await rm(directory, { recursive: true, force: true });
 	}
+});
+
+test("ephemeral trust store round-trips a valid state within one instance", async () => {
+	const store = ephemeralTrustStore();
+	expect(await store.read()).toEqual({ ok: true, value: undefined });
+	const initialState = await storeState();
+	expect(await store.replace(undefined, initialState)).toEqual({
+		ok: true,
+		value: undefined,
+	});
+	const read = await store.read();
+	expect(read.ok).toBe(true);
+	if (!read.ok) throw new Error(`read failed: ${read.reason}`);
+	expect(read.value).toBeDefined();
+	if (read.value === undefined) throw new Error("store did not persist");
+	expect(read.value.state).toEqual(initialState);
+});
+
+// This is the property the ambient-trust-store fix depends on: a caller that never
+// passes --store gets a fresh ephemeralTrustStore() per invocation, so an accepted
+// root from one run can never shadow a --root argument on the next.
+test("ephemeral trust store carries no state across separately-created instances", async () => {
+	const first = ephemeralTrustStore();
+	const accepted = await first.replace(undefined, await storeState());
+	expect(accepted).toEqual({ ok: true, value: undefined });
+	const firstRead = await first.read();
+	expect(firstRead.ok && firstRead.value !== undefined).toBe(true);
+
+	const second = ephemeralTrustStore();
+	expect(await second.read()).toEqual({ ok: true, value: undefined });
 });
 
 test("trust store rejects corrupt bytes", async () => {

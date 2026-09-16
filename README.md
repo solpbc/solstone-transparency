@@ -22,14 +22,15 @@ bun run bin/solstone-transparency.ts --help
 
 The v2 tools build signed repositories, prepare release records, publish bytes conditionally, and verify records against their artifact URLs. A successful release check establishes the recorded bytes and signing authority; it does not establish software safety or reproducibility.
 
-Start with an independently obtained root file. Use a separate trust-store file for each repository:
+Start with an independently obtained root file:
 
 ```bash
 bun bin/verify-release.ts --root /path/to/trusted-root.json \
-  --product journal --version VERSION --store /path/to/trust-state.json --json
-bun bin/audit-v2.ts --root /path/to/trusted-root.json \
-  --store /path/to/trust-state.json --json
+  --product journal --version VERSION --json
+bun bin/audit-v2.ts --root /path/to/trusted-root.json --json
 ```
+
+`--store` is optional and off by default on `verify-release`, `audit-v2`, and `verify-v2`. Without it, trust lives only in that process's memory, so `--root` is checked and authoritative on every run -- this is the recommended way to run these commands, including repeatedly against the same repository. Pass `--store FILE` only to deliberately persist a trust store across invocations at that exact path; once you do, a later run reusing that path trusts the store's already-accepted root over whatever `--root` you give it, so a reused path is never the right choice for auditing an independently obtained root.
 
 Both commands default to the production `/v2/metadata/` and `/v2/targets/` bases. Supply `--metadata-base` and `--targets-base` explicitly for another repository. `audit-v2` checks configured delivery heads; it does not enumerate every historical release. Its `--lanes` option accepts a JSON array of `{product, latestUrl, format}`, where `format` is `version-line` or `github-release`.
 

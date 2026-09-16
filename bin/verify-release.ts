@@ -3,15 +3,17 @@
 // Copyright (c) 2026 sol pbc
 
 import { mkdir, readFile, stat } from "node:fs/promises";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import {
 	type ReleaseVerifierOptions,
 	verifyRelease,
 } from "../src/v2/release-verifier";
 import { DEFAULT_MAX_METADATA_BYTES } from "../src/v2/tuf/admission";
-import { openFileTrustStore } from "../src/v2/tuf/trust-store";
+import {
+	ephemeralTrustStore,
+	openFileTrustStore,
+} from "../src/v2/tuf/trust-store";
 
 export async function verifierInputs(values: {
 	root?: string;
@@ -26,13 +28,18 @@ export async function verifierInputs(values: {
 	const bootstrapRoot = new Uint8Array(await readFile(values.root));
 	if (bootstrapRoot.length > DEFAULT_MAX_METADATA_BYTES)
 		throw new Error("root-file-invalid");
-	const store =
-		values.store ??
-		join(homedir(), ".cache", "solstone-transparency", "trust.json");
-	await mkdir(dirname(store), { recursive: true });
+	// No --store means no ambient trust across invocations: --root is authoritative every run.
+	// A store only persists, and only shadows a later --root, when the caller names one explicitly.
+	let trustStore: ReleaseVerifierOptions["trustStore"];
+	if (values.store) {
+		await mkdir(dirname(values.store), { recursive: true });
+		trustStore = openFileTrustStore(values.store);
+	} else {
+		trustStore = ephemeralTrustStore();
+	}
 	return {
 		bootstrapRoot,
-		trustStore: openFileTrustStore(store),
+		trustStore,
 		now: new Date(),
 		metadataBase:
 			values["metadata-base"] ??
@@ -64,7 +71,12 @@ export async function runVerifyRelease(args: string[]): Promise<number> {
 
 Check a release record through its pinned TUF root, authorization policy, DSSE signature,
 subject binding and artifact bytes fetched from their recorded HTTPS URLs.
-Supply a root file obtained independently. The local trust store retains accepted versions.
+Supply a root file obtained independently -- this command re-authenticates it every run.
+--store FILE is optional and off by default: without it, trust lives only in this
+process's memory and --root is authoritative on every invocation. Pass --store only to
+opt into a persisted trust store at that exact path -- once you do, a later run reusing
+the same path trusts that store's accepted root over whatever --root you pass it, so
+reuse a path only when that is the continuity you want, never as a default habit.
 Exit 0 means these checks accepted; it does not establish that the software is safe.
 Exit 1 means verification failed; exit 2 means the command could not read its inputs.`);
 			return 0;

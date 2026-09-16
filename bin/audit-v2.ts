@@ -68,6 +68,9 @@ Discover the current version from each configured delivery lane and check its re
 Coverage is delivery heads only, not a complete history. The default lane is journal release/latest.
 A lanes file is a JSON array of {product, latestUrl, format}; format is version-line or github-release.
 Missing records are gaps. Unavailable lanes and rejected evidence have separate outcomes.
+--store FILE is optional and off by default: without it, trust lives only in this process's
+memory and --root is authoritative on every invocation; pass --store only to opt into a
+persisted trust store at that exact path (see verify-release --help for what reusing one means).
 Exit 0 means every head passed; exit 1 means a gap or failed check; exit 2 means unreadable inputs.`);
 			return 0;
 		}
