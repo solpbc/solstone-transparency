@@ -42,8 +42,8 @@ clean:
 # the portal renders as exactly that -- never a fabricated register and never
 # a build failure that hides the v1 register. Override for a rehearsal:
 #   make build-model V2_ROOT=/path/to/1.root.json #     V2_METADATA_BASE=https://transparency.solstone.app/staging/v2/metadata #     V2_TARGETS_BASE=https://transparency.solstone.app/staging/v2/targets
-# V2_EXPECT names releases the register is expected to carry
-# (`product@version[:basis]`, space-separated); a missing one renders as a gap.
+# V2_EXPECT names one release the register is expected to carry
+# (`product@version[:basis]`); a missing one renders as a gap.
 # The basis is READER-FACING: it is printed on the portal as the reason the
 # record was expected (e.g. "the release lane lists it"), so write it in
 # plain words, never an internal reference.
@@ -53,7 +53,7 @@ V2_TARGETS_BASE ?= https://transparency.solstone.app/v2/targets
 V2_EXPECT ?=
 build-model:
 	bun run bin/solstone-transparency.ts legacy-model --out model.generated.json
-	bun run src/v2view/build-cli.ts --out model-v2.generated.json 		--root "$(V2_ROOT)" 		--metadata-base "$(V2_METADATA_BASE)" --targets-base "$(V2_TARGETS_BASE)" 		$(foreach e,$(V2_EXPECT),--expect "$(e)")
+	bun run src/v2view/build-cli.ts --out model-v2.generated.json 		--root "$(V2_ROOT)" 		--metadata-base "$(V2_METADATA_BASE)" --targets-base "$(V2_TARGETS_BASE)" 		$(if $(V2_EXPECT),--expect "$(V2_EXPECT)")
 
 # Always rebuilds the model immediately before deploying, so a deploy can
 # never ship a stale or hand-edited snapshot.
