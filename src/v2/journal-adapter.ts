@@ -40,25 +40,30 @@ export async function adaptJournalReleaseSet(
 		);
 	}
 	let combined: ReleaseRecordPredicate | undefined;
-	const urls = new Set<string>();
+	const artifacts = new Map<string, ReleaseArtifact>();
 	for (const manifestPath of input.manifestPaths) {
 		const release = await adaptJournalRelease({ ...input, manifestPath });
 		for (const artifact of release.artifacts) {
-			if (urls.has(artifact.url)) {
+			const previous = artifacts.get(artifact.url);
+			if (previous !== undefined) {
+				const sharedInstaller = artifact.url.endsWith(
+					`/solstone-journal-${input.version}-install.sh`,
+				);
+				if (
+					sharedInstaller &&
+					previous.length === artifact.length &&
+					previous.sha256 === artifact.sha256
+				) {
+					continue;
+				}
 				refuse(
 					"duplicate-target",
-					"Supply each journal target manifest once for this release.",
+					"Supply each journal target manifest once, with byte-identical shared installer declarations.",
 				);
 			}
-			urls.add(artifact.url);
+			artifacts.set(artifact.url, artifact);
 		}
-		combined =
-			combined === undefined
-				? release
-				: {
-						...combined,
-						artifacts: [...combined.artifacts, ...release.artifacts],
-					};
+		combined ??= release;
 	}
 	if (combined === undefined)
 		refuse(
@@ -67,7 +72,7 @@ export async function adaptJournalReleaseSet(
 		);
 	return {
 		...combined,
-		artifacts: [...combined.artifacts].sort((left, right) =>
+		artifacts: [...artifacts.values()].sort((left, right) =>
 			left.url < right.url ? -1 : left.url > right.url ? 1 : 0,
 		),
 	};
@@ -202,7 +207,14 @@ async function adapt(
 	const expectedNames = extensions
 		.map((extension) => `${base}.${extension}`)
 		.sort();
-	if (JSON.stringify(names) !== JSON.stringify(expectedNames)) {
+	const expectedWithInstaller = [
+		...expectedNames,
+		`solstone-journal-${input.version}-install.sh`,
+	].sort();
+	if (
+		JSON.stringify(names) !== JSON.stringify(expectedNames) &&
+		JSON.stringify(names) !== JSON.stringify(expectedWithInstaller)
+	) {
 		refuse(
 			"artifact-set-mismatch",
 			"Supply exactly the manifest members emitted for this target, without renamed, missing, or extra members.",

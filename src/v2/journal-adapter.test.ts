@@ -28,7 +28,7 @@ afterEach(async () => {
 });
 
 // Synthetic bytes in the schema and member order emitted by the Rust distribution producer.
-async function fixture(target = "linux-x86_64") {
+async function fixture(target = "linux-x86_64", includeInstaller = false) {
 	const root = await mkdtemp(join(tmpdir(), "journal-adapter-"));
 	roots.push(root);
 	const version = "2.0.0-test.1";
@@ -39,6 +39,9 @@ async function fixture(target = "linux-x86_64") {
 		: ["tar.gz", "deb", "rpm"];
 	for (const ext of extensions)
 		members[`${base}.${ext}`] = `synthetic ${target} ${ext} bytes\n`;
+	if (includeInstaller)
+		members[`solstone-journal-${version}-install.sh`] =
+			"#!/bin/sh\necho synthetic installer\n";
 	members[`${base}.release`] =
 		`product=solstone-journal\nversion=${version}\ntarget=${target}\ncommit=${"a".repeat(40)}\nlock_sha256=${"b".repeat(64)}\nupgrade_epoch=journal-v2\nretention_window=3\nmin_bootstrap_revision=1\n`;
 	if (target.startsWith("macos")) {
@@ -106,6 +109,42 @@ describe("journal distribution evidence adapter", () => {
 		await writeFile(join(macos.root, `${macos.base}.tar.gz`), "tampered");
 		await expect(adaptJournalReleaseSet(input)).rejects.toMatchObject({
 			reason: "artifact-hash-mismatch",
+		});
+	});
+
+	test("deduplicates the byte-identical shared installer and refuses disagreement", async () => {
+		const linuxX86 = await fixture("linux-x86_64", true);
+		const linuxArm = await fixture("linux-aarch64", true);
+		const macos = await fixture("macos-arm64", true);
+		const input = {
+			...linuxX86.input,
+			manifestPaths: [
+				linuxX86.input.manifestPath,
+				linuxArm.input.manifestPath,
+				macos.input.manifestPath,
+			],
+		};
+		const combined = await adaptJournalReleaseSet(input);
+		const installerUrl = `https://updates.solstone.app/solstone-journal/staging/${linuxX86.input.version}/solstone-journal-${linuxX86.input.version}-install.sh`;
+		expect(
+			combined.artifacts.filter((item) => item.url === installerUrl),
+		).toHaveLength(1);
+
+		const installerName = `solstone-journal-${linuxArm.input.version}-install.sh`;
+		const altered = "#!/bin/sh\necho different installer\n";
+		await writeFile(join(linuxArm.root, installerName), altered);
+		linuxArm.manifest.files[installerName] = digest(altered);
+		const sidecarName = `${linuxArm.base}.sha256`;
+		linuxArm.members[installerName] = altered;
+		const sidecar = Object.entries(linuxArm.members)
+			.filter(([name]) => name !== sidecarName)
+			.map(([name, bytes]) => `${digest(bytes)}  ${name}\n`)
+			.join("");
+		await writeFile(join(linuxArm.root, sidecarName), sidecar);
+		linuxArm.manifest.files[sidecarName] = digest(sidecar);
+		await linuxArm.save();
+		await expect(adaptJournalReleaseSet(input)).rejects.toMatchObject({
+			reason: "duplicate-target",
 		});
 	});
 	for (const target of ["linux-x86_64", "linux-aarch64", "macos-arm64"]) {
