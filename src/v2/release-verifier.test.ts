@@ -481,6 +481,29 @@ test("descriptor subject bytes match the independently used descriptorDigest pre
 	);
 });
 
+test("descriptor bytes order URLs by code unit, not by locale", async () => {
+	// Locale collation puts "a_b" before "a-b" and "a" before "B"; code-unit order does the reverse.
+	const artifacts = [
+		{ url: "https://example.test/a", length: 1, sha256: "1".repeat(64) },
+		{ url: "https://example.test/a_b", length: 2, sha256: "2".repeat(64) },
+		{ url: "https://example.test/B", length: 3, sha256: "3".repeat(64) },
+		{ url: "https://example.test/a-b", length: 4, sha256: "4".repeat(64) },
+	];
+	const expected = [
+		"https://example.test/B",
+		"https://example.test/a",
+		"https://example.test/a-b",
+		"https://example.test/a_b",
+	];
+	const text = new TextDecoder().decode(releaseDescriptorBytes(artifacts));
+	expect(
+		text.split("\n").filter((line) => line.startsWith("https://")),
+	).toEqual(expected);
+	expect(hash(releaseDescriptorBytes(artifacts))).toBe(
+		await descriptorDigest(artifacts),
+	);
+});
+
 test("policy loading rejects both root and delegated TUF signer collisions", async () => {
 	for (const collision of ["root", "delegated"] as const) {
 		const built = await fixture({ collision });

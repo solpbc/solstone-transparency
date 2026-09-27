@@ -4,6 +4,7 @@
 import { createHash } from "node:crypto";
 import { loadDsseAuthorizationPolicy } from "./records/authorization-policy";
 import { IN_TOTO_PAYLOAD_TYPE, verifyDsseEnvelope } from "./records/dsse";
+import { compareDescriptorUrls } from "./records/migration-manifest";
 import { RELEASE_RECORD_PREDICATE_TYPE } from "./records/predicates";
 import { parseEvidenceRecord, verifyEvidenceRecord } from "./records/record";
 import {
@@ -345,7 +346,7 @@ export function releaseDescriptorBytes(
 ): Uint8Array {
 	return new TextEncoder().encode(
 		[...artifacts]
-			.sort((a, b) => a.url.localeCompare(b.url))
+			.sort((a, b) => compareDescriptorUrls(a.url, b.url))
 			.map(
 				(artifact) =>
 					`${artifact.url}\n${artifact.length}\n${artifact.sha256}\n`,

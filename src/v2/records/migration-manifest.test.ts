@@ -41,7 +41,9 @@ function manifestFetcher(responses: ReadonlyMap<string, Uint8Array>) {
 function descriptorBytes(objects: readonly MigrationObject[]): Uint8Array {
 	const text = objects
 		.slice()
-		.sort((left, right) => left.url.localeCompare(right.url))
+		.sort((left, right) =>
+			left.url < right.url ? -1 : left.url > right.url ? 1 : 0,
+		)
 		.map((object) => `${object.url}\n${object.length}\n${object.sha256}\n`)
 		.join("");
 	return new TextEncoder().encode(text);

@@ -14,6 +14,7 @@ import {
 	type MigrationManifestPredicate,
 	type MigrationObject,
 	type MigrationProduct,
+	compareDescriptorUrls,
 	descriptorDigest,
 } from "./migration-manifest";
 
@@ -35,7 +36,7 @@ export async function buildMigrationManifestPredicate(
 			length: entry.bytes,
 			sha256: entry.sha256,
 		}))
-		.sort((left, right) => left.url.localeCompare(right.url));
+		.sort((left, right) => compareDescriptorUrls(left.url, right.url));
 
 	const corpusSha256 = await descriptorDigest(objects);
 	const versions = CATALOG[product];

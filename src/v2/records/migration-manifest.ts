@@ -181,13 +181,18 @@ export async function descriptorDigest(
 	);
 }
 
+/** Orders descriptor URLs by UTF-16 code unit, so the order never depends on the runtime locale. */
+export function compareDescriptorUrls(left: string, right: string): number {
+	return left < right ? -1 : left > right ? 1 : 0;
+}
+
 /** Returns the canonical preimage bound by a migration or release descriptor digest. */
 export function descriptorCanonicalBytes(
 	objects: readonly MigrationObject[],
 ): Uint8Array {
 	const text = objects
 		.slice()
-		.sort((left, right) => left.url.localeCompare(right.url))
+		.sort((left, right) => compareDescriptorUrls(left.url, right.url))
 		.map((object) => `${object.url}\n${object.length}\n${object.sha256}\n`)
 		.join("");
 	return new TextEncoder().encode(text);
@@ -250,7 +255,7 @@ export async function validateMigrationManifestPredicate(
 		objects.some(
 			(object, index) =>
 				index > 0 &&
-				(objects[index - 1]?.url.localeCompare(object.url) ?? -1) >= 0,
+				compareDescriptorUrls(objects[index - 1]?.url ?? "", object.url) >= 0,
 		)
 	)
 		return malformed(

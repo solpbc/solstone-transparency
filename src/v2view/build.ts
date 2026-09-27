@@ -42,6 +42,7 @@ import { loadDsseAuthorizationPolicy } from "../v2/records/authorization-policy"
 import {
 	type MigrationFetchResponse,
 	type MigrationObjectFetcher,
+	compareDescriptorUrls,
 	descriptorDigest,
 } from "../v2/records/migration-manifest";
 import {
@@ -433,7 +434,7 @@ function releaseSubjectBytes(
 ): Uint8Array {
 	const text = artifacts
 		.slice()
-		.sort((left, right) => left.url.localeCompare(right.url))
+		.sort((left, right) => compareDescriptorUrls(left.url, right.url))
 		.map((object) => `${object.url}\n${object.length}\n${object.sha256}\n`)
 		.join("");
 	return new TextEncoder().encode(text);

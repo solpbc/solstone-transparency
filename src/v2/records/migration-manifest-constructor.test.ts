@@ -132,7 +132,7 @@ describe("migration-manifest constructor", () => {
 				length: sigBytes.byteLength,
 				sha256: sigHash,
 			},
-		].sort((a, b) => a.url.localeCompare(b.url));
+		].sort((a, b) => (a.url < b.url ? -1 : a.url > b.url ? 1 : 0));
 
 		const predicate: MigrationManifestPredicate = {
 			_comment: ["Synthetic walk test"],
