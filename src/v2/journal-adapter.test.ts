@@ -35,7 +35,7 @@ async function fixture(target = "linux-x86_64", includeInstaller = false) {
 	const base = `solstone-journal-${version}-${target}`;
 	const members: Record<string, string> = {};
 	const extensions = target.startsWith("macos")
-		? ["tar.gz", "pkg"]
+		? ["tar.gz"]
 		: ["tar.gz", "deb", "rpm"];
 	for (const ext of extensions)
 		members[`${base}.${ext}`] = `synthetic ${target} ${ext} bytes\n`;

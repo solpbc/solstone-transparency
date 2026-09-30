@@ -184,7 +184,7 @@ async function adapt(
 	}
 	const extensions =
 		body.target === "macos-arm64"
-			? ["tar.gz", "pkg", "release", "signing.json", "sha256"]
+			? ["tar.gz", "release", "signing.json", "sha256"]
 			: ["linux-x86_64", "linux-aarch64"].includes(body.target)
 				? ["tar.gz", "deb", "rpm", "release", "sha256"]
 				: undefined;
