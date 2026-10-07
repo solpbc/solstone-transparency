@@ -7,7 +7,7 @@
  * read the filesystem; drift is caught by stylesheet.test.ts.
  *
  * @font-face points at Comfortaa-Variable.woff2 beside this stylesheet URL.
- * The font file is not routed this lode.
+ * worker.ts serves that file from public/static/ through the ASSETS binding.
  */
 
 export const PORTAL_CSS = `@font-face {

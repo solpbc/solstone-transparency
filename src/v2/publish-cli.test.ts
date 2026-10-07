@@ -237,7 +237,7 @@ describe("publish-cli and end-to-end TUF round-trip", () => {
 		 * Note: This proves TUF-level target resolution, hash-matching, and role-signature
 		 * acceptance end-to-end, not the DSSE envelope's own policy authorization (which
 		 * is verified in the dedicated DSSE test in build-evidence-record.test.ts).
-		 * In this lode, --policy-sha256 is a placeholder and verify-v2 verifies TUF metadata and target digests.
+		 * Here --policy-sha256 is a placeholder digest, and verify-v2 checks TUF metadata and target digests.
 		 */
 		const verifyCode = await verifyRepository({
 			metadataBase: `${serverBase}/metadata`,

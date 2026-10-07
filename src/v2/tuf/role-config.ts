@@ -160,7 +160,7 @@ export const DELEGATED_ROLES: readonly DelegatedRoleConfig[] = [
  *
  * `keys/` holds key-event records, which narrate the trust substrate; a collection
  * role must not narrate it. `commitments/` binds legal and policy documents, whose
- * admission is a founder and legal question rather than an engineering default.
+ * admission is a governance and legal question rather than an engineering default.
  *
  * Anything matching one of these resolves to top-level `targets` only. Anything
  * matching no role at all is `role-not-authorized` -- never a fallback.

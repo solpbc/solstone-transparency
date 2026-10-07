@@ -49,7 +49,7 @@ export interface TufClientInput {
 	bootstrapRoot: Uint8Array;
 	trustStore: TufTrustStore;
 	now: Date;
-	/** Test-only policy injection; production callers use the founder-approved defaults. */
+	/** Test-only policy injection; production callers use DEFAULT_ROLE_CONFIGURATION. */
 	roleConfiguration?: RoleConfiguration;
 }
 

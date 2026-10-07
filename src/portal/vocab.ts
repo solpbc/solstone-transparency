@@ -20,7 +20,7 @@ export const KIND_DECLARATION = "◆ sol pbc says";
 export const KIND_VERIFIER = "⟳ verifier";
 
 /**
- * Display names, per brand canon (2026-09-07 CMO ruling): the journal is
+ * Display names, per sol pbc brand canon: the journal is
  * "the journal", never "solstone journal"; an app for a platform is
  * "solstone for <os>", never a "solstone <noun>" compound. Future surfaces
  * follow the same rule; the operated-services layer is named by mechanism.

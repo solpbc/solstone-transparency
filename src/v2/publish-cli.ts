@@ -82,7 +82,9 @@ export async function publishRepository(
 	}
 
 	// 3. Validate policy SHA-256
-	// Note: this policySha256 is a placeholder pending the next lode's real authorization-policy publication.
+	// Only the digest's shape is checked here. publish-v2 does not resolve the
+	// authorization policy; the release verifier binds policy_sha256 to the one
+	// TUF-published policy/dsse-authorization/<n>.json with that digest.
 	if (!/^[0-9a-f]{64}$/.test(options.policySha256)) {
 		console.error(
 			"policy-sha256 must be a 64-character lowercase hexadecimal SHA-256 digest",

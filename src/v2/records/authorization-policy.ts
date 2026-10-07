@@ -2,7 +2,7 @@
 // Copyright (c) 2026 sol pbc
 
 /**
- * Founder-approved DSSE authorization-policy loading and evaluation.
+ * DSSE authorization-policy loading and evaluation.
  *
  * Signature classification is deliberately three-way: a key absent from every
  * policy role is unknown-key; a verified role key outside this claim is
@@ -324,11 +324,7 @@ function parsePolicy(value: TufJsonValue): TufResult<DsseAuthorizationPolicy> {
 			value.effective_from,
 		);
 	if (!Array.isArray(value.roles) || value.roles.length !== 6)
-		return malformed(
-			["roles"],
-			"the six founder-approved policy roles",
-			value.roles,
-		);
+		return malformed(["roles"], "the six approved policy roles", value.roles);
 	const roles: DsseAuthorizationRole[] = [];
 	for (const [index, candidate] of value.roles.entries()) {
 		const role = parseRole(candidate, index);
