@@ -802,6 +802,7 @@ ${declarationBlock}
 <h2>${trustedText("go deeper")}</h2>
 <ul>
 <li><a href="/software/">${trustedText("software register")}</a></li>
+<li><a href="https://transparency.solstone.app/software/spp/8e4291d/index.html">${trustedText("confidential processing appliance record, 8e4291d: published")}</a></li>
 <li><a href="https://transparency.solstone.app/software/spp/34a6c82/index.html">${trustedText("confidential processing appliance")}</a> ${trustedText("build and verification report, 34a6c82")}</li>
 <li><a href="/verify/">${trustedText(v2Known(v2) ? "how to verify what is here yourself" : "how to verify a record yourself")}</a></li>
 <li><a href="/keys/">${trustedText(v2Known(v2) ? "the signing keys" : "the public key")}</a></li>
