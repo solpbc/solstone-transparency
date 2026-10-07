@@ -104,8 +104,9 @@ export function validateRawLink(candidate: string): RawLinkResult {
 
 /**
  * Release records may name final delivery bytes outside the evidence host.
- * Keep those links closed to the one live Journal lane and its exact version
- * directory; other product origins require their own reviewed extension.
+ * Keep those links closed to the one live Journal lane: its exact version
+ * directory, or the four version-named Windows objects under the Windows
+ * origin prefix. Other product origins require their own reviewed extension.
  */
 export function validateReleaseArtifactLink(
 	candidate: string,
@@ -123,6 +124,21 @@ export function validateReleaseArtifactLink(
 		};
 	}
 	const url = new URL(checked.url);
+	const windowsBase = `solstone-journal-${version}-windows-x86_64`;
+	if (
+		[
+			`${windowsBase}-setup.exe`,
+			`SolstoneJournal-${version}-full.nupkg`,
+			`${windowsBase}.sha256`,
+			`${windowsBase}.manifest.json`,
+		].some(
+			(name) =>
+				url.pathname ===
+				`/solstone-journal/release/windows/${encodeURIComponent(name)}`,
+		)
+	) {
+		return checked;
+	}
 	const prefix = `/solstone-journal/release/${encodeURIComponent(version)}/`;
 	const basename = url.pathname.startsWith(prefix)
 		? url.pathname.slice(prefix.length)

@@ -182,19 +182,40 @@ async function adapt(
 			"Supply a solstone-journal manifest matching the requested version and producer schema.",
 		);
 	}
-	const extensions =
+	const base = `solstone-journal-${input.version}-${body.target}`;
+	const windows = body.target === "windows-x86_64";
+	// Windows keeps its existing origin prefix, where its versioned containers
+	// already sit beside its update feed. It has no release declaration; its
+	// checksum file names exactly the Setup and the full package.
+	const expectedNames = (
 		body.target === "macos-arm64"
-			? ["tar.gz", "release", "signing.json", "sha256"]
+			? ["tar.gz", "release", "signing.json", "sha256"].map(
+					(extension) => `${base}.${extension}`,
+				)
 			: ["linux-x86_64", "linux-aarch64"].includes(body.target)
-				? ["tar.gz", "deb", "rpm", "release", "sha256"]
-				: undefined;
-	if (extensions === undefined) {
+				? ["tar.gz", "deb", "rpm", "release", "sha256"].map(
+						(extension) => `${base}.${extension}`,
+					)
+				: windows
+					? [
+							`${base}-setup.exe`,
+							`SolstoneJournal-${input.version}-full.nupkg`,
+							`${base}.sha256`,
+						]
+					: undefined
+	)?.sort();
+	if (expectedNames === undefined) {
 		refuse(
 			"unsupported-target",
-			"Supply a Linux or macOS journal producer manifest. Windows production is not supported.",
+			"Supply a Linux, macOS, or Windows x86_64 journal producer manifest.",
 		);
 	}
-	const base = `solstone-journal-${input.version}-${body.target}`;
+	if (windows && input.lane !== "release") {
+		refuse(
+			"unsupported-lane",
+			"Windows journal evidence exists only for the release lane.",
+		);
+	}
 	const manifestName = `${base}.manifest.json`;
 	if (basename(input.manifestPath) !== manifestName) {
 		refuse(
@@ -204,13 +225,9 @@ async function adapt(
 	}
 	const files = body.files;
 	const names = Object.keys(files).sort();
-	const expectedNames = extensions
-		.map((extension) => `${base}.${extension}`)
-		.sort();
-	const expectedWithInstaller = [
-		...expectedNames,
-		`solstone-journal-${input.version}-install.sh`,
-	].sort();
+	const expectedWithInstaller = windows
+		? expectedNames
+		: [...expectedNames, `solstone-journal-${input.version}-install.sh`].sort();
 	if (
 		JSON.stringify(names) !== JSON.stringify(expectedNames) &&
 		JSON.stringify(names) !== JSON.stringify(expectedWithInstaller)
@@ -220,7 +237,9 @@ async function adapt(
 			"Supply exactly the manifest members emitted for this target, without renamed, missing, or extra members.",
 		);
 	}
-	const urlBase = `https://updates.solstone.app/solstone-journal/${input.lane}/${input.version}/`;
+	const urlBase = windows
+		? "https://updates.solstone.app/solstone-journal/release/windows/"
+		: `https://updates.solstone.app/solstone-journal/${input.lane}/${input.version}/`;
 	const artifacts: ReleaseArtifact[] = [];
 	let releaseBytes: Buffer | undefined;
 	let checksumBytes: Buffer | undefined;
@@ -267,7 +286,7 @@ async function adapt(
 		}
 		releaseFields.set(key, line.slice(separator + 1));
 	}
-	for (const key of ["product", "version", "target"]) {
+	for (const key of windows ? [] : ["product", "version", "target"]) {
 		if (releaseFields.get(key) !== body[key]) {
 			refuse(
 				"release-declaration-mismatch",

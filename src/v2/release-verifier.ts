@@ -118,7 +118,12 @@ function sha256(bytes: Uint8Array): string {
 	return createHash("sha256").update(bytes).digest("hex");
 }
 
-/** Stream every remote response under a deadline and byte ceiling; no redirects or credentials. */
+/**
+ * Stream every remote response under an inactivity deadline and byte ceiling;
+ * no redirects or credentials. The deadline restarts whenever bytes arrive, so
+ * a large artifact on a slow but live connection completes, while a stalled
+ * one still fails as a timeout.
+ */
 async function download(
 	urlString: string,
 	maximum: number,
@@ -136,7 +141,13 @@ async function download(
 		timeout > 120_000
 	)
 		fail(link, "invalid-limit");
-	const signal = AbortSignal.timeout(timeout);
+	const controller = new AbortController();
+	const signal = controller.signal;
+	let deadline = setTimeout(() => controller.abort(), timeout);
+	const progressed = () => {
+		clearTimeout(deadline);
+		deadline = setTimeout(() => controller.abort(), timeout);
+	};
 	let reader:
 		| {
 				read(): Promise<{ done?: boolean; value?: Uint8Array }>;
@@ -153,6 +164,7 @@ async function download(
 				Accept: "application/octet-stream, application/json, text/plain",
 			},
 		});
+		progressed();
 		if (response.status === 404) fail(link, "http-404");
 		if (!response.ok) fail(link, `http-${response.status}`);
 		const announced = response.headers.get("content-length");
@@ -173,6 +185,7 @@ async function download(
 				const chunk = await reader.read();
 				if (chunk.done) break;
 				if (!chunk.value) fail(link, "retrieval-failed");
+				progressed();
 				length += chunk.value.byteLength;
 				if (length > maximum) fail(link, "response-too-large");
 				digest.update(chunk.value);
@@ -190,6 +203,7 @@ async function download(
 		if (error instanceof VerificationFailure) throw error;
 		return fail(link, signal.aborted ? "timeout" : "retrieval-failed");
 	} finally {
+		clearTimeout(deadline);
 		if (reader) {
 			try {
 				await reader.cancel();

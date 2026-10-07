@@ -551,6 +551,44 @@ test("an artifact fetch deadline produces a distinct timeout rejection", async (
 	).toMatchObject({ ok: false, link: "artifact", reason: "timeout" });
 });
 
+test("the fetch deadline is an inactivity deadline: a slow live body completes, a stalled one times out", async () => {
+	const built = await fixture();
+	// Like a real fetch body, the stream errors as soon as the request is aborted.
+	const slowly =
+		(stallAfter?: number): PublicFetch =>
+		async (url, init) => {
+			const response = await built.fetcher(url, init);
+			if (url !== artifactUrl) return response;
+			const bytes = new Uint8Array(await response.arrayBuffer());
+			let sent = 0;
+			const body = new ReadableStream<Uint8Array>({
+				start(stream) {
+					init?.signal?.addEventListener(
+						"abort",
+						() => stream.error(new Error("aborted")),
+						{ once: true },
+					);
+				},
+				async pull(stream) {
+					if (sent >= bytes.length) return stream.close();
+					// Each gap is under the deadline; the whole body takes several deadlines.
+					const gap = sent === stallAfter ? 1000 : 15;
+					await new Promise((resolve) => setTimeout(resolve, gap));
+					if (init?.signal?.aborted) return;
+					stream.enqueue(bytes.slice(sent, sent + 1));
+					sent += 1;
+				},
+			});
+			return new Response(body, { status: 200 });
+		};
+	expect(
+		await verify({ ...built.input, timeoutMs: 60, fetch: slowly() }),
+	).toMatchObject({ ok: true });
+	expect(
+		await verify({ ...built.input, timeoutMs: 60, fetch: slowly(1) }),
+	).toMatchObject({ ok: false, link: "artifact", reason: "timeout" });
+});
+
 test("consistent snapshots reject a repository serving only raw target names", async () => {
 	const built = await fixture();
 	for (const [path, bytes] of built.targetBytes) {

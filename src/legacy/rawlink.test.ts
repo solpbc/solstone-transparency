@@ -72,6 +72,48 @@ describe("release artifact link binding", () => {
 	});
 });
 
+describe("Windows journal artifact link binding", () => {
+	const prefix =
+		"https://updates.solstone.app/solstone-journal/release/windows/";
+	const names = [
+		"solstone-journal-2.0.0-windows-x86_64-setup.exe",
+		"SolstoneJournal-2.0.0-full.nupkg",
+		"solstone-journal-2.0.0-windows-x86_64.sha256",
+		"solstone-journal-2.0.0-windows-x86_64.manifest.json",
+	];
+
+	test("the four version-named Windows objects are clickable", () => {
+		for (const name of names)
+			expect(
+				validateReleaseArtifactLink(`${prefix}${name}`, "journal", "2.0.0"),
+			).toEqual({ status: "linked", url: `${prefix}${name}` });
+	});
+
+	test("mutable feeds, other versions and other Windows names remain unlinked", () => {
+		for (const candidate of [
+			`${prefix}releases.win.json`,
+			`${prefix}RELEASES`,
+			`${prefix}SolstoneJournal-2.0.0-delta.nupkg`,
+			`${prefix}solstone-journal-2.0.0-windows-arm64-setup.exe`,
+			`${prefix}nested/SolstoneJournal-2.0.0-full.nupkg`,
+		]) {
+			expect(
+				validateReleaseArtifactLink(candidate, "journal", "2.0.0").status,
+			).toBe("rejected");
+		}
+		for (const name of names) {
+			expect(
+				validateReleaseArtifactLink(`${prefix}${name}`, "journal", "2.0.1")
+					.status,
+			).toBe("rejected");
+			expect(
+				validateReleaseArtifactLink(`${prefix}${name}`, "windows", "2.0.0")
+					.status,
+			).toBe("rejected");
+		}
+	});
+});
+
 describe("exact v1 layout binding", () => {
 	test("entryUrl binds to the real fixed layout", () => {
 		const result = entryUrl("solstone-journal", "1.0.22");

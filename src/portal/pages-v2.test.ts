@@ -395,6 +395,40 @@ describe("state (b): a release record", () => {
 		expect(body).not.toContain(`href="${wrongVersion}"`);
 	});
 
+	test("Windows coverage on a version page comes only from the record's own descriptors", async () => {
+		const native =
+			"https://updates.solstone.app/solstone-journal/release/2.0.0/solstone-journal-2.0.0-linux-x86_64.tar.gz";
+		const windows = [
+			"solstone-journal-2.0.0-windows-x86_64-setup.exe",
+			"SolstoneJournal-2.0.0-full.nupkg",
+			"solstone-journal-2.0.0-windows-x86_64.sha256",
+			"solstone-journal-2.0.0-windows-x86_64.manifest.json",
+		].map(
+			(name) =>
+				`https://updates.solstone.app/solstone-journal/release/windows/${name}`,
+		);
+		const page = async (urls: string[]) => {
+			const model = await v2For([
+				{
+					product: "journal",
+					version: "2.0.0",
+					artifacts: urls.map((url, i) => ({
+						url,
+						length: i + 1,
+						sha256: String(i % 10).repeat(64),
+					})),
+				},
+			]);
+			return handle("/software/journal/2.0.0/", v1, model).body;
+		};
+		const covered = await page([native, ...windows]);
+		for (const url of [native, ...windows])
+			expect(covered).toContain(`href="${url}"`);
+		const nativeOnly = await page([native]);
+		expect(nativeOnly).toContain(`href="${native}"`);
+		expect(nativeOnly).not.toContain("/release/windows/");
+	});
+
 	test("a v1 record page in the v2 era drops the pause sentence for the closed-chain one", () => {
 		const body = handle("/software/journal/1.0.22/", v1, stateB).body;
 		const t = text(body);

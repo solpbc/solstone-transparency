@@ -34,16 +34,25 @@ async function fixture(target = "linux-x86_64", includeInstaller = false) {
 	const version = "2.0.0-test.1";
 	const base = `solstone-journal-${version}-${target}`;
 	const members: Record<string, string> = {};
-	const extensions = target.startsWith("macos")
-		? ["tar.gz"]
-		: ["tar.gz", "deb", "rpm"];
+	const windows = target.startsWith("windows");
+	const extensions = windows
+		? []
+		: target.startsWith("macos")
+			? ["tar.gz"]
+			: ["tar.gz", "deb", "rpm"];
 	for (const ext of extensions)
 		members[`${base}.${ext}`] = `synthetic ${target} ${ext} bytes\n`;
+	if (windows) {
+		members[`${base}-setup.exe`] = "synthetic windows setup bytes\n";
+		members[`SolstoneJournal-${version}-full.nupkg`] =
+			"synthetic windows full package bytes\n";
+	}
 	if (includeInstaller)
 		members[`solstone-journal-${version}-install.sh`] =
 			"#!/bin/sh\necho synthetic installer\n";
-	members[`${base}.release`] =
-		`product=solstone-journal\nversion=${version}\ntarget=${target}\ncommit=${"a".repeat(40)}\nlock_sha256=${"b".repeat(64)}\nupgrade_epoch=journal-v2\nretention_window=3\nmin_bootstrap_revision=1\n`;
+	if (!windows)
+		members[`${base}.release`] =
+			`product=solstone-journal\nversion=${version}\ntarget=${target}\ncommit=${"a".repeat(40)}\nlock_sha256=${"b".repeat(64)}\nupgrade_epoch=journal-v2\nretention_window=3\nmin_bootstrap_revision=1\n`;
 	if (target.startsWith("macos")) {
 		members[`${base}.release`] +=
 			`archive_prebuild_input_sha256=${"c".repeat(64)}\narchive_delivery_contract_sha256=${"d".repeat(64)}\narchive_final_invocation_sha256=${"e".repeat(64)}\n`;
@@ -67,7 +76,7 @@ async function fixture(target = "linux-x86_64", includeInstaller = false) {
 	const input: JournalAdapterInput = {
 		manifestPath,
 		version,
-		lane: "staging",
+		lane: windows ? "release" : "staging",
 		claims,
 	};
 	return {
@@ -277,6 +286,125 @@ describe("journal distribution evidence adapter", () => {
 		await f.save();
 		await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
 			reason: "checksum-sidecar-mismatch",
+		});
+	});
+
+	test("measures the complete windows-x86_64 set under the Windows origin prefix", async () => {
+		const f = await fixture("windows-x86_64");
+		const result = await adaptJournalRelease(f.input);
+		const expected = {
+			...f.members,
+			[`${f.base}.manifest.json`]: await readFile(f.input.manifestPath, "utf8"),
+		};
+		expect(result.artifacts).toEqual(
+			Object.entries(expected)
+				.map(([name, bytes]) => ({
+					url: `https://updates.solstone.app/solstone-journal/release/windows/${name}`,
+					length: Buffer.byteLength(bytes),
+					sha256: digest(bytes),
+				}))
+				.sort((left, right) => (left.url < right.url ? -1 : 1)),
+		);
+		expect(result.artifacts).toHaveLength(4);
+	});
+
+	test("combines native and Windows sets, and a native-only set carries no Windows descriptor", async () => {
+		const natives = [
+			await fixture("linux-x86_64", true),
+			await fixture("linux-aarch64", true),
+			await fixture("macos-arm64", true),
+		];
+		const win = await fixture("windows-x86_64");
+		const nativeOnly = await adaptJournalReleaseSet({
+			...win.input,
+			manifestPaths: natives.map((n) => n.input.manifestPath),
+		});
+		const combined = await adaptJournalReleaseSet({
+			...win.input,
+			manifestPaths: [
+				...natives.map((n) => n.input.manifestPath),
+				win.input.manifestPath,
+			],
+		});
+		const windowsUrls = (urls: readonly { url: string }[]) =>
+			urls.filter((a) => a.url.includes("/release/windows/"));
+		expect(windowsUrls(nativeOnly.artifacts)).toEqual([]);
+		expect(windowsUrls(combined.artifacts)).toEqual([
+			...(await adaptJournalRelease(win.input)).artifacts,
+		]);
+		expect(combined.artifacts).toHaveLength(nativeOnly.artifacts.length + 4);
+		await expect(
+			adaptJournalReleaseSet({
+				...win.input,
+				manifestPaths: [win.input.manifestPath, win.input.manifestPath],
+			}),
+		).rejects.toMatchObject({ reason: "duplicate-target" });
+	});
+
+	test("refuses a Windows set outside the release lane, or with a different version", async () => {
+		const f = await fixture("windows-x86_64");
+		for (const lane of ["staging", "dev"] as const)
+			await expect(
+				adaptJournalRelease({ ...f.input, lane }),
+			).rejects.toMatchObject({ reason: "unsupported-lane" });
+		await expect(
+			adaptJournalRelease({ ...f.input, version: "2.0.1" }),
+		).rejects.toMatchObject({ reason: "manifest-identity-mismatch" });
+	});
+
+	test("refuses an altered Windows container, a symlinked one, and missing or extra members", async () => {
+		const f = await fixture("windows-x86_64");
+		const nupkg = join(f.root, `SolstoneJournal-${f.input.version}-full.nupkg`);
+		await writeFile(nupkg, "tampered");
+		await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
+			reason: "artifact-hash-mismatch",
+		});
+		await writeFile(join(f.root, "elsewhere"), "tampered");
+		await rm(nupkg);
+		await symlink(join(f.root, "elsewhere"), nupkg);
+		await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
+			reason: "artifact-read-failed",
+		});
+
+		for (const extra of [
+			"RELEASES",
+			"releases.win.json",
+			`${f.base}.release`,
+			`solstone-journal-${f.input.version}-install.sh`,
+		]) {
+			const g = await fixture("windows-x86_64");
+			await writeFile(join(g.root, extra), "synthetic\n");
+			g.manifest.files[extra] = digest("synthetic\n");
+			await g.save();
+			await expect(adaptJournalRelease(g.input)).rejects.toMatchObject({
+				reason: "artifact-set-mismatch",
+			});
+		}
+		const g = await fixture("windows-x86_64");
+		delete g.manifest.files[`${g.base}-setup.exe`];
+		await g.save();
+		await expect(adaptJournalRelease(g.input)).rejects.toMatchObject({
+			reason: "artifact-set-mismatch",
+		});
+	});
+
+	test("refuses a rehashed Windows checksum file that does not name exactly the two containers", async () => {
+		const f = await fixture("windows-x86_64");
+		const name = `${f.base}.sha256`;
+		const setup = `${f.base}-setup.exe`;
+		const partial = `${digest(f.members[setup] ?? "")}  ${setup}\n`;
+		await writeFile(join(f.root, name), partial);
+		f.manifest.files[name] = digest(partial);
+		await f.save();
+		await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
+			reason: "checksum-sidecar-mismatch",
+		});
+	});
+
+	test("refuses Windows targets other than x86_64", async () => {
+		const f = await fixture("windows-aarch64");
+		await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
+			reason: "unsupported-target",
 		});
 	});
 
