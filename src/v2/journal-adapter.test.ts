@@ -9,9 +9,14 @@ import { join, resolve } from "node:path";
 import {
 	type JournalAdapterInput,
 	adaptJournalRelease,
-	adaptJournalReleaseSet,
+	componentDeliveryChanges,
+	prepareJournalReleaseRecord,
 } from "./journal-adapter";
-import { validateReleaseRecordPredicate } from "./records/release-record";
+import {
+	RELEASE_RECORD_SCHEMA,
+	type ReleaseRecordPredicate,
+	validateReleaseRecordPredicate,
+} from "./records/release-record";
 
 const roots: string[] = [];
 const claims = {
@@ -98,7 +103,7 @@ describe("journal distribution evidence adapter", () => {
 			...linux.input,
 			manifestPaths: [linux.input.manifestPath, macos.input.manifestPath],
 		};
-		const combined = await adaptJournalReleaseSet(input);
+		const combined = await prepareJournalReleaseRecord(input);
 		const linuxResult = await adaptJournalRelease(linux.input);
 		const macosResult = await adaptJournalRelease(macos.input);
 		expect(combined.artifacts).toEqual(
@@ -107,16 +112,16 @@ describe("journal distribution evidence adapter", () => {
 			),
 		);
 		await expect(
-			adaptJournalReleaseSet({
+			prepareJournalReleaseRecord({
 				...input,
 				manifestPaths: [linux.input.manifestPath, linux.input.manifestPath],
 			}),
 		).rejects.toMatchObject({ reason: "duplicate-target" });
 		await expect(
-			adaptJournalReleaseSet({ ...input, manifestPaths: [] }),
+			prepareJournalReleaseRecord({ ...input, manifestPaths: [] }),
 		).rejects.toMatchObject({ reason: "missing-manifest" });
 		await writeFile(join(macos.root, `${macos.base}.tar.gz`), "tampered");
-		await expect(adaptJournalReleaseSet(input)).rejects.toMatchObject({
+		await expect(prepareJournalReleaseRecord(input)).rejects.toMatchObject({
 			reason: "artifact-hash-mismatch",
 		});
 	});
@@ -133,7 +138,7 @@ describe("journal distribution evidence adapter", () => {
 				macos.input.manifestPath,
 			],
 		};
-		const combined = await adaptJournalReleaseSet(input);
+		const combined = await prepareJournalReleaseRecord(input);
 		const installerUrl = `https://updates.solstone.app/solstone-journal/staging/${linuxX86.input.version}/solstone-journal-${linuxX86.input.version}-install.sh`;
 		expect(
 			combined.artifacts.filter((item) => item.url === installerUrl),
@@ -152,7 +157,7 @@ describe("journal distribution evidence adapter", () => {
 		await writeFile(join(linuxArm.root, sidecarName), sidecar);
 		linuxArm.manifest.files[sidecarName] = digest(sidecar);
 		await linuxArm.save();
-		await expect(adaptJournalReleaseSet(input)).rejects.toMatchObject({
+		await expect(prepareJournalReleaseRecord(input)).rejects.toMatchObject({
 			reason: "duplicate-target",
 		});
 	});
@@ -315,11 +320,11 @@ describe("journal distribution evidence adapter", () => {
 			await fixture("macos-arm64", true),
 		];
 		const win = await fixture("windows-x86_64");
-		const nativeOnly = await adaptJournalReleaseSet({
+		const nativeOnly = await prepareJournalReleaseRecord({
 			...win.input,
 			manifestPaths: natives.map((n) => n.input.manifestPath),
 		});
-		const combined = await adaptJournalReleaseSet({
+		const combined = await prepareJournalReleaseRecord({
 			...win.input,
 			manifestPaths: [
 				...natives.map((n) => n.input.manifestPath),
@@ -334,7 +339,7 @@ describe("journal distribution evidence adapter", () => {
 		]);
 		expect(combined.artifacts).toHaveLength(nativeOnly.artifacts.length + 4);
 		await expect(
-			adaptJournalReleaseSet({
+			prepareJournalReleaseRecord({
 				...win.input,
 				manifestPaths: [win.input.manifestPath, win.input.manifestPath],
 			}),
@@ -467,5 +472,707 @@ describe("journal distribution evidence adapter", () => {
 			"input-output-failed",
 		);
 		expect(await readFile(out, "utf8")).toBe(before);
+	});
+});
+
+// Synthetic component rows: names, versions and sources are placeholders.
+const hex = (character: string) => character.repeat(64);
+type Row = Record<string, unknown>;
+type Fixture = Awaited<ReturnType<typeof fixture>>;
+function bundled(id = "alpha", members?: unknown[]): Row {
+	return {
+		id,
+		version: "1.0.0",
+		delivery: "bundled",
+		source: `https://example.invalid/${id}-1.0.0.tar.gz`,
+		inputs: [{ name: `${id}-1.0.0.tar.gz`, sha256: hex("1") }],
+		members: members ?? [
+			{ path: `bin/${id}`, sha256: hex("2") },
+			{ path: `lib/lib${id}.so.1`, sha256: hex("3") },
+		],
+	};
+}
+function downloaded(id = "beta"): Row {
+	return {
+		id,
+		version: "2.0.0",
+		delivery: "runtime-downloaded",
+		source: `https://example.invalid/${id}-2.0.0.bin`,
+		inputs: [
+			{ name: `${id}-2.0.0.bin`, sha256: hex("4") },
+			{ name: `${id}-2.0.0.json`, sha256: hex("5") },
+		],
+		members: [],
+	};
+}
+async function withComponents(target: string, rows: unknown) {
+	const f = await fixture(target);
+	(f.manifest as Record<string, unknown>).components = rows;
+	await f.save();
+	return f;
+}
+/**
+ * A synthetic previous release record. With `rows`, it lists components for
+ * the targets in `targets`; without, it lists none, as before the first
+ * release to list them, and no comparison is made against it.
+ */
+function previousRecord(
+	rows?: Row[],
+	targets: string[] = ["linux-x86_64", "macos-arm64"],
+): ReleaseRecordPredicate {
+	return {
+		_comment: ["Synthetic previous record."],
+		schema: RELEASE_RECORD_SCHEMA,
+		product: "journal",
+		version: "1.9.0",
+		artifacts: [
+			{
+				url: "https://updates.solstone.app/solstone-journal/staging/1.9.0/x",
+				length: 1,
+				sha256: hex("9"),
+			},
+		],
+		...(rows === undefined
+			? {}
+			: {
+					component_targets: targets,
+					components: rows as never,
+					component_baseline: "1.8.0",
+				}),
+		does_prove: ["Synthetic."],
+		does_not_prove: ["Synthetic."],
+	};
+}
+/** Prepares a record for the given target sets against `previousRecord()` unless `extra` says otherwise. */
+function prepare(sets: Fixture[], extra: Record<string, unknown> = {}) {
+	const first = sets[0];
+	if (first === undefined) throw new Error("no fixture");
+	return prepareJournalReleaseRecord({
+		...first.input,
+		manifestPaths: sets.map((set) => set.input.manifestPath),
+		previousRecord: previousRecord(),
+		...extra,
+	});
+}
+/** JSON-quotes a path for a test name, spelling out U+007F to U+009F, which JSON leaves raw. */
+function visible(path: string): string {
+	return [...JSON.stringify(path)]
+		.map((character) => {
+			const code = character.charCodeAt(0);
+			return code >= 0x7f && code <= 0x9f
+				? `\\u${code.toString(16).padStart(4, "0")}`
+				: character;
+		})
+		.join("");
+}
+// Today's predicate key order, written out so a change to it is visible here.
+const OLD_KEYS = [
+	"_comment",
+	"schema",
+	"product",
+	"version",
+	"artifacts",
+	"does_prove",
+	"does_not_prove",
+];
+const COMPONENT_KEYS = [
+	...OLD_KEYS.slice(0, 5),
+	"component_targets",
+	"components",
+	"component_baseline",
+	...OLD_KEYS.slice(5),
+];
+
+describe("journal component inventory", () => {
+	test("a manifest without components yields exactly the predicate shape and bytes it did before", async () => {
+		const linux = await fixture();
+		const macos = await fixture("macos-arm64");
+		const expectedArtifacts = Object.entries({
+			...linux.members,
+			[`${linux.base}.manifest.json`]: await readFile(
+				linux.input.manifestPath,
+				"utf8",
+			),
+		})
+			.map(([name, bytes]) => ({
+				url: `https://updates.solstone.app/solstone-journal/staging/${linux.input.version}/${name}`,
+				length: Buffer.byteLength(bytes),
+				sha256: digest(bytes),
+			}))
+			.sort((left, right) => (left.url < right.url ? -1 : 1));
+		const expected: ReleaseRecordPredicate = {
+			_comment: claims._comment,
+			schema: RELEASE_RECORD_SCHEMA,
+			product: "journal",
+			version: linux.input.version,
+			artifacts: expectedArtifacts,
+			does_prove: claims.does_prove,
+			does_not_prove: claims.does_not_prove,
+		};
+		for (const result of [
+			await adaptJournalRelease(linux.input),
+			await prepare([linux], { previousRecord: undefined }),
+			await prepare([linux]),
+			await prepare([linux], {
+				previousRecord: previousRecord([
+					{ target: "linux-x86_64", ...bundled() },
+				]),
+			}),
+		]) {
+			expect(result).toStrictEqual(expected);
+			expect(Object.keys(result)).toEqual(OLD_KEYS);
+			expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
+		}
+		expect(Object.keys(await prepare([linux, macos]))).toEqual(OLD_KEYS);
+	});
+
+	test("bundled and runtime-downloaded rows are carried with their target, the covered targets, and the baseline", async () => {
+		const f = await withComponents("linux-x86_64", [
+			bundled("alpha"),
+			downloaded("beta"),
+		]);
+		const result = await prepare([f]);
+		expect(result.component_targets).toEqual(["linux-x86_64"]);
+		expect(result.components).toEqual([
+			{ target: "linux-x86_64", ...bundled("alpha") },
+			{ target: "linux-x86_64", ...downloaded("beta") },
+		] as never);
+		expect(result.component_baseline).toBe("1.9.0");
+		expect(Object.keys(result)).toEqual(COMPONENT_KEYS);
+		expect(Object.keys(result.components?.[0] ?? {})).toEqual([
+			"target",
+			"id",
+			"version",
+			"delivery",
+			"source",
+			"inputs",
+			"members",
+		]);
+		expect(result.component_transitions).toBeUndefined();
+		expect((await validateReleaseRecordPredicate(result as never)).ok).toBe(
+			true,
+		);
+	});
+
+	test("an empty components list covers its target with no rows", async () => {
+		const f = await withComponents("linux-x86_64", []);
+		const result = await prepare([f]);
+		expect(result.component_targets).toEqual(["linux-x86_64"]);
+		expect(result.components).toEqual([]);
+	});
+
+	test("a mixed set covers only the targets whose manifest has a components list", async () => {
+		const x86 = await withComponents("linux-x86_64", [
+			bundled("alpha"),
+			downloaded("gamma"),
+		]);
+		const arm = await withComponents("linux-aarch64", [
+			bundled("beta"),
+			downloaded("gamma"),
+		]);
+		const macos = await withComponents("macos-arm64", []);
+		const windows = await fixture("windows-x86_64");
+		const result = await prepare([windows, x86, macos, arm]);
+		expect(result.component_targets).toEqual([
+			"linux-aarch64",
+			"linux-x86_64",
+			"macos-arm64",
+		]);
+		expect(result.components?.map((row) => `${row.target}/${row.id}`)).toEqual([
+			"linux-aarch64/beta",
+			"linux-aarch64/gamma",
+			"linux-x86_64/alpha",
+			"linux-x86_64/gamma",
+		]);
+		// The twin: the same targets with no components lists carry no component fields.
+		const plain = await prepare([
+			windows,
+			await fixture("linux-x86_64"),
+			await fixture("macos-arm64"),
+		]);
+		expect(Object.keys(plain)).toEqual(OLD_KEYS);
+	});
+
+	test("refuses components without a previous record, and accepts them with one", async () => {
+		const f = await withComponents("linux-x86_64", [bundled("alpha")]);
+		await expect(
+			prepare([f], { previousRecord: undefined }),
+		).rejects.toMatchObject({ reason: "missing-previous-record" });
+		await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
+			reason: "missing-previous-record",
+		});
+		expect(
+			(
+				await adaptJournalRelease({
+					...f.input,
+					previousRecord: previousRecord(),
+				})
+			).component_baseline,
+		).toBe("1.9.0");
+	});
+
+	test("refuses a previous record for the version being prepared, and accepts an earlier one", async () => {
+		const f = await withComponents("linux-x86_64", [bundled("alpha")]);
+		await expect(
+			prepare([f], {
+				previousRecord: { ...previousRecord(), version: f.input.version },
+			}),
+		).rejects.toMatchObject({ reason: "previous-record-same-version" });
+		expect((await prepare([f])).component_baseline).toBe("1.9.0");
+	});
+
+	const invalid: [string, () => unknown][] = [
+		["components that are not an array", () => ({ alpha: bundled() })],
+		["an id with an uppercase letter", () => [bundled("Alpha")]],
+		["an id starting with a hyphen", () => [bundled("-alpha")]],
+		["an empty id", () => [bundled("")]],
+		["an unknown delivery", () => [{ ...bundled(), delivery: "vendored" }]],
+		[
+			"a runtime-downloaded row with members",
+			() => [
+				{
+					...downloaded(),
+					members: [{ path: "bin/beta", sha256: hex("2") }],
+				},
+			],
+		],
+		["a bundled row with no members", () => [bundled("alpha", [])]],
+		["unsorted rows", () => [downloaded("beta"), bundled("alpha")]],
+		["duplicate rows", () => [bundled("alpha"), downloaded("alpha")]],
+		[
+			"unsorted inputs",
+			() => [
+				{
+					...downloaded(),
+					inputs: [...(downloaded().inputs as unknown[])].reverse(),
+				},
+			],
+		],
+		[
+			"duplicate inputs",
+			() => [
+				{
+					...downloaded(),
+					inputs: [
+						{ name: "same", sha256: hex("4") },
+						{ name: "same", sha256: hex("5") },
+					],
+				},
+			],
+		],
+		["no inputs", () => [{ ...downloaded(), inputs: [] }]],
+		[
+			"unsorted members",
+			() => [
+				bundled("alpha", [
+					{ path: "lib/x", sha256: hex("2") },
+					{ path: "bin/x", sha256: hex("3") },
+				]),
+			],
+		],
+		[
+			"duplicate members",
+			() => [
+				bundled("alpha", [
+					{ path: "bin/x", sha256: hex("2") },
+					{ path: "bin/x", sha256: hex("3") },
+				]),
+			],
+		],
+		["an extra row key", () => [{ ...bundled(), license: "synthetic" }]],
+		["a row without its source", () => [{ ...bundled(), source: undefined }]],
+		["an empty version", () => [{ ...bundled(), version: "" }]],
+		["an empty source", () => [{ ...bundled(), source: "" }]],
+		[
+			"an extra input key",
+			() => [
+				{
+					...downloaded(),
+					inputs: [{ name: "x", sha256: hex("4"), url: "x" }],
+				},
+			],
+		],
+		[
+			"an empty input name",
+			() => [{ ...downloaded(), inputs: [{ name: "", sha256: hex("4") }] }],
+		],
+		[
+			"an extra member key",
+			() => [bundled("alpha", [{ path: "bin/x", sha256: hex("2"), mode: 1 }])],
+		],
+		...(
+			[
+				"bin/../etc/x",
+				"/bin/x",
+				"etc/x",
+				"bin//x",
+				"bin/./x",
+				"bin/",
+				"bin",
+				"./bin/x",
+				"bin\\x",
+				"bin/x\n",
+				"bin/x\u007f",
+				"bin/x\u0085",
+				"bin/\u009fx",
+			] as const
+		).map((path): [string, () => unknown] => [
+			`the member path ${visible(path)}`,
+			() => [bundled("alpha", [{ path, sha256: hex("2") }])],
+		]),
+		[
+			"an uppercase member sha256",
+			() => [bundled("alpha", [{ path: "bin/x", sha256: hex("A") }])],
+		],
+		[
+			"a short input sha256",
+			() => [{ ...downloaded(), inputs: [{ name: "x", sha256: "ab" }] }],
+		],
+	];
+	for (const [name, rows] of invalid) {
+		test(`refuses ${name} as invalid-components, and accepts the valid twin`, async () => {
+			const valid = await withComponents("linux-x86_64", [
+				bundled("alpha"),
+				downloaded("beta"),
+			]);
+			expect((await prepare([valid])).components).toHaveLength(2);
+			const f = await withComponents(
+				"linux-x86_64",
+				JSON.parse(JSON.stringify(rows())),
+			);
+			await expect(prepare([f])).rejects.toMatchObject({
+				reason: "invalid-components",
+			});
+		});
+	}
+
+	test("accepts nested member paths under each of bin/, lib/ and share/", async () => {
+		const f = await withComponents("linux-x86_64", [
+			bundled("alpha", [
+				{ path: "bin/alpha", sha256: hex("2") },
+				{ path: "lib/alpha/plugins/a.so", sha256: hex("3") },
+				{ path: "share/alpha/..data", sha256: hex("4") },
+				{ path: "share/alpha/\u00e9t\u00e9", sha256: hex("5") },
+			]),
+		]);
+		expect((await prepare([f])).components?.[0]?.members).toHaveLength(4);
+	});
+});
+
+describe("declared component transitions", () => {
+	const current = () => [
+		bundled("alpha"),
+		bundled("beta"),
+		downloaded("epsilon"),
+	];
+	const linux = (rows: unknown[] = current()) =>
+		withComponents("linux-x86_64", rows);
+	// The previous release, against which `current` changes beta, epsilon and
+	// gamma. Its macOS row is for a target the new record does not cover, so
+	// it is never compared.
+	const previous = () =>
+		previousRecord([
+			...[bundled("alpha"), downloaded("beta"), bundled("gamma")].map(
+				(row) => ({ target: "linux-x86_64", ...row }),
+			),
+			{ target: "macos-arm64", ...bundled("delta") },
+		]);
+	const changes = [
+		{
+			target: "linux-x86_64",
+			id: "beta",
+			from: "runtime-downloaded",
+			to: "bundled",
+		},
+		{
+			target: "linux-x86_64",
+			id: "epsilon",
+			from: "absent",
+			to: "runtime-downloaded",
+		},
+		{ target: "linux-x86_64", id: "gamma", from: "bundled", to: "absent" },
+	];
+
+	test("a valid declaration is attached after the baseline", async () => {
+		const result = await prepare([await linux()], { transitions: changes });
+		expect(result.component_transitions).toEqual(changes as never);
+		expect(Object.keys(result)).toEqual([
+			...COMPONENT_KEYS.slice(0, 8),
+			"component_transitions",
+			...OLD_KEYS.slice(5),
+		]);
+	});
+
+	const refused: [string, () => unknown][] = [
+		[
+			"a transition to absent for a listed component",
+			() => [
+				{ target: "linux-x86_64", id: "alpha", from: "bundled", to: "absent" },
+			],
+		],
+		[
+			"a to state that is not the listed delivery",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: "absent",
+					to: "runtime-downloaded",
+				},
+			],
+		],
+		[
+			"a transition to a component that is not listed",
+			() => [
+				{ target: "linux-x86_64", id: "zeta", from: "absent", to: "bundled" },
+			],
+		],
+		[
+			"a transition for a target outside component_targets",
+			() => [
+				...changes,
+				{ target: "macos-arm64", id: "delta", from: "bundled", to: "absent" },
+			],
+		],
+		[
+			"from equal to to",
+			() => [
+				{ target: "linux-x86_64", id: "alpha", from: "bundled", to: "bundled" },
+			],
+		],
+		["unsorted transitions", () => [...changes].reverse()],
+		["duplicate transitions", () => [changes[0], changes[0]]],
+		["an unknown state", () => [{ ...changes[2], to: "removed" }]],
+		["an extra transition key", () => [{ ...changes[2], reason: "synthetic" }]],
+		["a non-array declaration", () => changes[0]],
+	];
+	for (const [name, transitions] of refused) {
+		test(`refuses ${name}, and accepts the valid twin`, async () => {
+			const f = await linux();
+			expect(
+				(await prepare([f], { transitions: changes })).component_transitions,
+			).toHaveLength(3);
+			await expect(
+				prepare([f], { transitions: transitions() }),
+			).rejects.toMatchObject({ reason: "invalid-transitions" });
+		});
+	}
+
+	test("refuses transitions when no supplied manifest lists components, and accepts them once one does", async () => {
+		const declared = [
+			{ target: "linux-x86_64", id: "gamma", from: "bundled", to: "absent" },
+		];
+		await expect(
+			prepare([await fixture()], { transitions: declared }),
+		).rejects.toMatchObject({ reason: "transitions-without-components" });
+		expect(
+			(await prepare([await linux([])], { transitions: declared }))
+				.component_transitions,
+		).toEqual(declared as never);
+	});
+
+	test("the delivery changes are computed over targets both records cover", async () => {
+		const next = await prepare([await linux()]);
+		expect(componentDeliveryChanges(previous(), next)).toEqual(
+			changes as never,
+		);
+		// The previous record covers macos-arm64 and the new one does not;
+		// the twin, where both cover it, compares it.
+		const macosNext = {
+			...next,
+			component_targets: ["linux-x86_64", "macos-arm64"],
+		};
+		expect(componentDeliveryChanges(previous(), macosNext)).toEqual([
+			...changes,
+			{ target: "macos-arm64", id: "delta", from: "bundled", to: "absent" },
+		] as never);
+	});
+
+	test("a target only the new record covers is not compared, and is compared once both cover it", async () => {
+		const x86 = await linux();
+		const arm = await withComponents("linux-aarch64", [bundled("theta")]);
+		const result = await prepare([x86, arm], {
+			transitions: changes,
+			previousRecord: previous(),
+		});
+		expect(result.component_targets).toEqual(["linux-aarch64", "linux-x86_64"]);
+		expect(result.component_transitions).toEqual(changes as never);
+		const covering = previousRecord(previous().components as never, [
+			"linux-aarch64",
+			"linux-x86_64",
+			"macos-arm64",
+		]);
+		await expect(
+			prepare([x86, arm], { transitions: changes, previousRecord: covering }),
+		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
+		const declared = [
+			{ target: "linux-aarch64", id: "theta", from: "absent", to: "bundled" },
+			...changes,
+		];
+		expect(
+			(
+				await prepare([x86, arm], {
+					transitions: declared,
+					previousRecord: covering,
+				})
+			).component_transitions,
+		).toEqual(declared as never);
+	});
+
+	test("declarations equal to the changes since the previous record are accepted, in either previous-record form", async () => {
+		const f = await linux();
+		for (const record of [
+			previous(),
+			{ product: "journal", version: "1.9.0", releasePredicate: previous() },
+		]) {
+			const result = await prepare([f], {
+				transitions: changes,
+				previousRecord: record,
+			});
+			expect(result.component_transitions).toEqual(changes as never);
+			expect(result.component_baseline).toBe("1.9.0");
+		}
+	});
+
+	test("a missing declaration is refused", async () => {
+		const f = await linux();
+		await expect(
+			prepare([f], {
+				transitions: changes.slice(0, 2),
+				previousRecord: previous(),
+			}),
+		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
+		await expect(
+			prepare([f], { previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
+	});
+
+	test("an extra declaration is refused", async () => {
+		await expect(
+			prepare([await linux()], {
+				transitions: [
+					{
+						target: "linux-x86_64",
+						id: "alpha",
+						from: "runtime-downloaded",
+						to: "bundled",
+					},
+					...changes,
+				],
+				previousRecord: previous(),
+			}),
+		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
+	});
+
+	test("an unchanged inventory needs no declaration", async () => {
+		const unchanged = previousRecord(
+			current().map((row) => ({ target: "linux-x86_64", ...row })),
+		);
+		const result = await prepare([await linux()], {
+			previousRecord: unchanged,
+		});
+		expect(result.component_transitions).toBeUndefined();
+	});
+
+	test("a previous record without components imposes no comparison", async () => {
+		const f = await linux();
+		expect((await prepare([f])).components).toHaveLength(3);
+		expect(
+			(await prepare([f], { transitions: changes.slice(1, 2) }))
+				.component_transitions,
+		).toEqual(changes.slice(1, 2) as never);
+	});
+
+	test("refuses an unusable previous record", async () => {
+		const f = await linux();
+		const { component_targets: _omitted, ...untargeted } = previous();
+		for (const record of [
+			{ ...previous(), releasePredicate: previous() },
+			{ releasePredicate: { ...previous(), schema: "other" } },
+			"not a record",
+			{ ...previousRecord(), component_transitions: [] },
+			untargeted,
+			{ ...previousRecord(), version: "1.9.0 beta" },
+		]) {
+			await expect(
+				prepare([f], { previousRecord: JSON.parse(JSON.stringify(record)) }),
+			).rejects.toMatchObject({ reason: "invalid-previous-record" });
+		}
+		await expect(
+			prepare([f], {
+				previousRecord: { ...previousRecord(), product: "other" },
+			}),
+		).rejects.toMatchObject({ reason: "previous-record-mismatch" });
+	});
+
+	test("CLI attaches declared transitions and checks them against the previous output", async () => {
+		const f = await linux();
+		const claimsPath = join(f.root, "claims.json");
+		const transitionsPath = join(f.root, "transitions.json");
+		const previousPath = join(f.root, "previous.json");
+		await writeFile(claimsPath, JSON.stringify(claims));
+		await writeFile(transitionsPath, JSON.stringify(changes));
+		await writeFile(
+			previousPath,
+			JSON.stringify({
+				product: "journal",
+				version: "1.9.0",
+				releasePredicate: previous(),
+				artifactDescriptors: previous().artifacts,
+			}),
+		);
+		const run = async (...extra: string[]) => {
+			const child = Bun.spawn(
+				[
+					process.execPath,
+					resolve("bin/journal-artifacts.ts"),
+					"--manifest",
+					f.input.manifestPath,
+					"--version",
+					f.input.version,
+					"--lane",
+					"staging",
+					"--claims",
+					claimsPath,
+					...extra,
+				],
+				{ stdout: "pipe", stderr: "pipe" },
+			);
+			return {
+				code: await child.exited,
+				stdout: await new Response(child.stdout).text(),
+				stderr: await new Response(child.stderr).text(),
+			};
+		};
+		const accepted = await run(
+			"--transitions",
+			transitionsPath,
+			"--previous-record",
+			previousPath,
+		);
+		expect(accepted.code).toBe(0);
+		const output = JSON.parse(accepted.stdout);
+		expect(output.releasePredicate.component_transitions).toEqual(changes);
+		expect(output.releasePredicate.components).toHaveLength(3);
+		expect(output.releasePredicate.component_targets).toEqual(["linux-x86_64"]);
+		expect(output.releasePredicate.component_baseline).toBe("1.9.0");
+		expect(
+			(await validateReleaseRecordPredicate(output.releasePredicate)).ok,
+		).toBe(true);
+
+		const undeclared = await run("--previous-record", previousPath);
+		expect(undeclared.code).toBe(1);
+		expect(JSON.parse(undeclared.stderr).reason).toBe(
+			"undeclared-component-transitions",
+		);
+		const unanchored = await run("--transitions", transitionsPath);
+		expect(unanchored.code).toBe(1);
+		expect(JSON.parse(unanchored.stderr).reason).toBe(
+			"missing-previous-record",
+		);
+		await writeFile(transitionsPath, "not json");
+		const unreadable = await run("--transitions", transitionsPath);
+		expect(unreadable.code).toBe(1);
+		expect(JSON.parse(unreadable.stderr).reason).toBe("invalid-transitions");
 	});
 });

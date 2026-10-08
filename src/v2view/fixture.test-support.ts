@@ -71,6 +71,8 @@ export interface FixtureRelease {
 	wrongPolicySha256?: boolean;
 	doesProve?: readonly string[];
 	doesNotProve?: readonly string[];
+	/** Optional predicate fields added to the signed record, such as components. */
+	predicateExtra?: Readonly<Record<string, unknown>>;
 }
 
 export interface FixtureOptions {
@@ -209,6 +211,7 @@ export async function buildFixture(options: FixtureOptions): Promise<Fixture> {
 			product: spec.product,
 			version: spec.version,
 			artifacts: [...artifacts],
+			...spec.predicateExtra,
 			does_prove: [...(spec.doesProve ?? SYNTHETIC_DOES_PROVE)],
 			does_not_prove: [...(spec.doesNotProve ?? SYNTHETIC_DOES_NOT_PROVE)],
 		};

@@ -6,9 +6,15 @@ import { constants } from "node:fs";
 import { open } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import {
+	type ComponentState,
+	type ComponentTransition,
 	RELEASE_RECORD_SCHEMA,
 	type ReleaseArtifact,
+	type ReleaseComponent,
 	type ReleaseRecordPredicate,
+	parseComponentTransitions,
+	parseManifestComponents,
+	validReleaseVersion,
 	validateReleaseRecordPredicate,
 } from "./records/release-record";
 import { admitTufJson } from "./tuf/admission";
@@ -27,12 +33,20 @@ export interface JournalAdapterInput {
 	claims: JournalClaims;
 }
 
-/** Combines the explicitly supplied target sets into one product/version record. */
-export async function adaptJournalReleaseSet(
-	input: Omit<JournalAdapterInput, "manifestPath"> & {
-		manifestPaths: readonly string[];
-	},
-): Promise<ReleaseRecordPredicate> {
+export type JournalSetInput = Omit<JournalAdapterInput, "manifestPath"> & {
+	manifestPaths: readonly string[];
+};
+
+interface AdaptedSet {
+	/** The record without component fields. */
+	predicate: ReleaseRecordPredicate;
+	/** Sorted targets whose manifest has a components key; undefined when none has. */
+	componentTargets?: string[];
+	/** Rows of those targets, sorted by target then id. */
+	components?: ReleaseComponent[];
+}
+
+async function adaptSet(input: JournalSetInput): Promise<AdaptedSet> {
 	if (input.manifestPaths.length === 0) {
 		refuse(
 			"missing-manifest",
@@ -41,8 +55,17 @@ export async function adaptJournalReleaseSet(
 	}
 	let combined: ReleaseRecordPredicate | undefined;
 	const artifacts = new Map<string, ReleaseArtifact>();
+	// A target whose manifest has no components key is left out of
+	// componentTargets: the record makes no component statement for it.
+	let componentTargets: string[] | undefined;
+	let components: ReleaseComponent[] | undefined;
 	for (const manifestPath of input.manifestPaths) {
-		const release = await adaptJournalRelease({ ...input, manifestPath });
+		const adapted = await adaptTarget({ ...input, manifestPath });
+		const release = adapted.predicate;
+		if (adapted.components !== undefined) {
+			componentTargets = [...(componentTargets ?? []), adapted.target];
+			components = [...(components ?? []), ...adapted.components];
+		}
 		for (const artifact of release.artifacts) {
 			const previous = artifacts.get(artifact.url);
 			if (previous !== undefined) {
@@ -71,11 +94,32 @@ export async function adaptJournalReleaseSet(
 			"Supply at least one journal producer manifest.",
 		);
 	return {
-		...combined,
-		artifacts: [...artifacts.values()].sort((left, right) =>
-			left.url < right.url ? -1 : left.url > right.url ? 1 : 0,
-		),
+		predicate: {
+			...combined,
+			artifacts: [...artifacts.values()].sort((left, right) =>
+				compareText(left.url, right.url),
+			),
+		},
+		...(componentTargets === undefined
+			? {}
+			: {
+					componentTargets: componentTargets.sort(compareText),
+					components: (components ?? []).sort(compareComponentKey),
+				}),
 	};
+}
+
+function compareText(left: string, right: string): number {
+	return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function compareComponentKey(
+	left: { target: string; id: string },
+	right: { target: string; id: string },
+): number {
+	return (
+		compareText(left.target, right.target) || compareText(left.id, right.id)
+	);
 }
 
 export class JournalAdapterError extends Error {
@@ -94,10 +138,6 @@ function refuse(reason: string, message: string): never {
 
 function object(value: unknown): value is Record<string, unknown> {
 	return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function safeComponent(value: string): boolean {
-	return /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value);
 }
 
 // Hash the same open file whose bytes are counted; large archives stay streamed.
@@ -134,10 +174,31 @@ async function measure(path: string, capture = false) {
 	}
 }
 
-/** Measures local producer output. Signing authority and remote publication are separate checks. */
+/**
+ * Measures the local producer output of one target. Signing authority and
+ * remote publication are separate checks. A manifest that lists components
+ * also needs the previous release's record; see prepareJournalReleaseRecord.
+ */
 export async function adaptJournalRelease(
-	input: JournalAdapterInput,
+	input: JournalAdapterInput &
+		Pick<JournalRecordInput, "transitions" | "previousRecord">,
 ): Promise<ReleaseRecordPredicate> {
+	const { manifestPath, ...rest } = input;
+	return prepareJournalReleaseRecord({
+		...rest,
+		manifestPaths: [manifestPath],
+	});
+}
+
+interface AdaptedTarget {
+	/** The target's record without component fields. */
+	predicate: ReleaseRecordPredicate;
+	target: string;
+	/** Present when the manifest has a components key. */
+	components?: ReleaseComponent[];
+}
+
+async function adaptTarget(input: JournalAdapterInput): Promise<AdaptedTarget> {
 	try {
 		return await adapt(input);
 	} catch (error) {
@@ -149,10 +210,8 @@ export async function adaptJournalRelease(
 	}
 }
 
-async function adapt(
-	input: JournalAdapterInput,
-): Promise<ReleaseRecordPredicate> {
-	if (!safeComponent(input.version)) {
+async function adapt(input: JournalAdapterInput): Promise<AdaptedTarget> {
+	if (!validReleaseVersion(input.version)) {
 		refuse(
 			"unsafe-version",
 			"Supply a version containing only letters, digits, dots, underscores, and hyphens.",
@@ -170,8 +229,13 @@ async function adapt(
 		);
 	}
 	const body = admitted.value;
+	const keys = Object.keys(body).sort().join("\u0000");
 	if (
-		Object.keys(body).sort().join(",") !== "files,product,target,version" ||
+		(keys !== ["files", "product", "target", "version"].join("\u0000") &&
+			keys !==
+				["components", "files", "product", "target", "version"].join(
+					"\u0000",
+				)) ||
 		body.product !== "solstone-journal" ||
 		body.version !== input.version ||
 		typeof body.target !== "string" ||
@@ -215,6 +279,17 @@ async function adapt(
 			"unsupported-lane",
 			"Windows journal evidence exists only for the release lane.",
 		);
+	}
+	let components: ReleaseComponent[] | undefined;
+	if (body.components !== undefined) {
+		const parsed = parseManifestComponents(body.components, body.target);
+		if (!parsed.ok) {
+			refuse(
+				"invalid-components",
+				`The manifest's components list is malformed at ${parsed.detail.path.join(".")}: expected ${String(parsed.detail.expected)}.`,
+			);
+		}
+		components = parsed.value;
 	}
 	const manifestName = `${base}.manifest.json`;
 	if (basename(input.manifestPath) !== manifestName) {
@@ -333,5 +408,180 @@ async function adapt(
 			"Supply _comment, does_prove, and does_not_prove arrays using the release's approved claim text.",
 		);
 	}
+	return {
+		predicate: validated.value,
+		target: body.target,
+		...(components === undefined ? {} : { components }),
+	};
+}
+
+export interface JournalRecordInput extends JournalSetInput {
+	/** Parsed JSON: the publisher's declared component transitions. */
+	transitions?: unknown;
+	/**
+	 * Parsed JSON: the previous release's record predicate, or an earlier
+	 * output of this preparation step whose `releasePredicate` member is one.
+	 * Required when a supplied manifest lists components.
+	 */
+	previousRecord?: unknown;
+}
+
+/**
+ * Builds the release-record predicate for a journal release set. When any
+ * supplied manifest lists components, the record carries the inventory, the
+ * targets it covers, the previous record's version as its baseline, and any
+ * declared transitions, which must equal the delivery changes between the
+ * previous record and this one when the previous record lists components.
+ */
+export async function prepareJournalReleaseRecord(
+	input: JournalRecordInput,
+): Promise<ReleaseRecordPredicate> {
+	const set = await adaptSet(input);
+	const { predicate } = set;
+	if (set.componentTargets === undefined || set.components === undefined) {
+		if (input.transitions !== undefined) {
+			refuse(
+				"transitions-without-components",
+				"Component transitions can be declared only when a supplied manifest lists components.",
+			);
+		}
+		if (input.previousRecord !== undefined)
+			await previousPredicate(input.previousRecord, predicate);
+		return predicate;
+	}
+	if (input.previousRecord === undefined) {
+		refuse(
+			"missing-previous-record",
+			"Supply --previous-record when a manifest lists components, so declared transitions are compared with the previous release.",
+		);
+	}
+	const previous = await previousPredicate(input.previousRecord, predicate);
+	let transitions: ComponentTransition[] | undefined;
+	if (input.transitions !== undefined) {
+		const parsed = parseComponentTransitions(
+			input.transitions,
+			set.components,
+			set.componentTargets,
+		);
+		if (!parsed.ok) {
+			refuse(
+				"invalid-transitions",
+				`The declared transitions are malformed at ${parsed.detail.path.join(".")}: expected ${String(parsed.detail.expected)}.`,
+			);
+		}
+		transitions = parsed.value;
+	}
+	const candidate: ReleaseRecordPredicate = {
+		...predicate,
+		component_targets: set.componentTargets,
+		components: set.components,
+		component_baseline: previous.version,
+		...(transitions === undefined
+			? {}
+			: { component_transitions: transitions }),
+	};
+	// A previous record without components, as before the first release to
+	// list them, is the baseline but is not compared.
+	const changes = componentDeliveryChanges(previous, candidate);
+	if (
+		previous.components !== undefined &&
+		JSON.stringify(changes) !== JSON.stringify(transitions ?? [])
+	) {
+		refuse(
+			"undeclared-component-transitions",
+			`The declared transitions must equal the component delivery changes since the previous record: ${JSON.stringify(changes)}.`,
+		);
+	}
+	const validated = await validateReleaseRecordPredicate(
+		candidate as unknown as TufJsonValue,
+	);
+	if (!validated.ok) {
+		refuse(
+			"invalid-components",
+			`The component inventory is malformed at ${validated.detail.path.join(".")}: expected ${String(validated.detail.expected)}.`,
+		);
+	}
 	return validated.value;
+}
+
+async function previousPredicate(
+	value: unknown,
+	next: ReleaseRecordPredicate,
+): Promise<ReleaseRecordPredicate> {
+	// A predicate has a schema member; an earlier output of this preparation
+	// step wraps one in releasePredicate. An object with both is ambiguous.
+	const hasSchema = object(value) && Object.hasOwn(value, "schema");
+	const hasWrapper = object(value) && Object.hasOwn(value, "releasePredicate");
+	const validated =
+		hasSchema && hasWrapper
+			? undefined
+			: await validateReleaseRecordPredicate(
+					(hasWrapper
+						? (value as Record<string, unknown>).releasePredicate
+						: value) as TufJsonValue,
+				);
+	if (validated === undefined || !validated.ok) {
+		refuse(
+			"invalid-previous-record",
+			"Supply the previous release-record predicate, or the earlier output of this command containing it as releasePredicate.",
+		);
+	}
+	if (!validReleaseVersion(validated.value.version)) {
+		refuse(
+			"invalid-previous-record",
+			"The previous record's version must contain only letters, digits, dots, underscores, and hyphens.",
+		);
+	}
+	if (validated.value.product !== next.product) {
+		refuse(
+			"previous-record-mismatch",
+			"Supply a previous record for the same product.",
+		);
+	}
+	if (validated.value.version === next.version) {
+		refuse(
+			"previous-record-same-version",
+			"Supply the record of a previous release, not one for the version being prepared.",
+		);
+	}
+	return validated.value;
+}
+
+/**
+ * Lists, sorted by (target, id), every component whose delivery differs
+ * between two records, over the targets in both records' component_targets.
+ * A component a record does not list is `absent` in that record. A record
+ * without a `component_targets` member contributes no targets, so nothing is
+ * compared; an empty `components` array on a listed target is compared.
+ */
+export function componentDeliveryChanges(
+	previous: ReleaseRecordPredicate,
+	next: ReleaseRecordPredicate,
+): ComponentTransition[] {
+	const nextTargets = new Set(next.component_targets ?? []);
+	const scope = new Set(
+		(previous.component_targets ?? []).filter((target) =>
+			nextTargets.has(target),
+		),
+	);
+	const states = new Map<
+		string,
+		{ target: string; id: string; from: ComponentState; to: ComponentState }
+	>();
+	const entry = (row: ReleaseComponent) => {
+		const key = `${row.target}\u0000${row.id}`;
+		let state = states.get(key);
+		if (state === undefined) {
+			state = { target: row.target, id: row.id, from: "absent", to: "absent" };
+			states.set(key, state);
+		}
+		return state;
+	};
+	for (const row of previous.components ?? [])
+		if (scope.has(row.target)) entry(row).from = row.delivery;
+	for (const row of next.components ?? [])
+		if (scope.has(row.target)) entry(row).to = row.delivery;
+	return [...states.values()]
+		.filter((state) => state.from !== state.to)
+		.sort(compareComponentKey);
 }
