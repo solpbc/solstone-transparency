@@ -35,12 +35,17 @@ export interface JournalAdapterInput {
 
 export type JournalSetInput = Omit<JournalAdapterInput, "manifestPath"> & {
 	manifestPaths: readonly string[];
+	/**
+	 * Components files, at most one per target, each naming a target whose
+	 * manifest is supplied and whose manifest has no components key.
+	 */
+	componentsPaths?: readonly string[];
 };
 
 interface AdaptedSet {
 	/** The record without component fields. */
 	predicate: ReleaseRecordPredicate;
-	/** Sorted targets whose manifest has a components key; undefined when none has. */
+	/** Sorted targets with a components list from their manifest or a components file; undefined when none has. */
 	componentTargets?: string[];
 	/** Rows of those targets, sorted by target then id. */
 	components?: ReleaseComponent[];
@@ -55,17 +60,17 @@ async function adaptSet(input: JournalSetInput): Promise<AdaptedSet> {
 	}
 	let combined: ReleaseRecordPredicate | undefined;
 	const artifacts = new Map<string, ReleaseArtifact>();
-	// A target whose manifest has no components key is left out of
-	// componentTargets: the record makes no component statement for it.
-	let componentTargets: string[] | undefined;
-	let components: ReleaseComponent[] | undefined;
+	// A target with no components list, from its manifest or a components
+	// file, is left out of componentTargets: the record makes no component
+	// statement for it.
+	const manifestTargets = new Set<string>();
+	const listed = new Map<string, ReleaseComponent[]>();
 	for (const manifestPath of input.manifestPaths) {
 		const adapted = await adaptTarget({ ...input, manifestPath });
 		const release = adapted.predicate;
-		if (adapted.components !== undefined) {
-			componentTargets = [...(componentTargets ?? []), adapted.target];
-			components = [...(components ?? []), ...adapted.components];
-		}
+		manifestTargets.add(adapted.target);
+		if (adapted.components !== undefined)
+			listed.set(adapted.target, adapted.components);
 		for (const artifact of release.artifacts) {
 			const previous = artifacts.get(artifact.url);
 			if (previous !== undefined) {
@@ -93,6 +98,25 @@ async function adaptSet(input: JournalSetInput): Promise<AdaptedSet> {
 			"missing-manifest",
 			"Supply at least one journal producer manifest.",
 		);
+	for (const path of input.componentsPaths ?? []) {
+		const file = await readComponentsFile(path, input.version);
+		if (!manifestTargets.has(file.target)) {
+			refuse(
+				"components-target-mismatch",
+				`The components file for ${file.target} names a target with no supplied manifest. Supply that target's manifest, or leave out its components file.`,
+			);
+		}
+		if (listed.has(file.target)) {
+			refuse(
+				"duplicate-components-source",
+				`Target ${file.target} has components from more than one source. Supply them once, in its manifest or in one components file.`,
+			);
+		}
+		listed.set(file.target, file.components);
+	}
+	const componentTargets =
+		listed.size === 0 ? undefined : [...listed.keys()].sort(compareText);
+	const components = [...listed.values()].flat();
 	return {
 		predicate: {
 			...combined,
@@ -104,9 +128,57 @@ async function adaptSet(input: JournalSetInput): Promise<AdaptedSet> {
 			? {}
 			: {
 					componentTargets: componentTargets.sort(compareText),
-					components: (components ?? []).sort(compareComponentKey),
+					components: components.sort(compareComponentKey),
 				}),
 	};
+}
+
+/**
+ * Reads a components file: a JSON object with exactly product, version,
+ * target and components, where components follows the manifest rules.
+ */
+async function readComponentsFile(
+	path: string,
+	version: string,
+): Promise<{ target: string; components: ReleaseComponent[] }> {
+	let bytes: Buffer;
+	try {
+		bytes = (await measure(path, true)).bytes;
+	} catch {
+		refuse(
+			"invalid-components-file",
+			"Could not read a components file. Supply each as a regular file smaller than 1 MiB.",
+		);
+	}
+	const admitted = admitTufJson(bytes);
+	if (
+		!admitted.ok ||
+		!object(admitted.value) ||
+		Object.keys(admitted.value).sort().join("\u0000") !==
+			["components", "product", "target", "version"].join("\u0000") ||
+		typeof admitted.value.target !== "string"
+	) {
+		refuse(
+			"invalid-components-file",
+			"Supply each components file as a JSON object with exactly product, version, target and components, with unique member names.",
+		);
+	}
+	const body = admitted.value;
+	const target = admitted.value.target;
+	if (body.product !== "solstone-journal" || body.version !== version) {
+		refuse(
+			"components-release-mismatch",
+			"Supply components files for solstone-journal at the requested version.",
+		);
+	}
+	const parsed = parseManifestComponents(body.components, target);
+	if (!parsed.ok) {
+		refuse(
+			"invalid-components",
+			`The components list for ${target} is malformed at ${parsed.detail.path.join(".")}: expected ${String(parsed.detail.expected)}.`,
+		);
+	}
+	return { target, components: parsed.value };
 }
 
 function compareText(left: string, right: string): number {
@@ -181,7 +253,10 @@ async function measure(path: string, capture = false) {
  */
 export async function adaptJournalRelease(
 	input: JournalAdapterInput &
-		Pick<JournalRecordInput, "transitions" | "previousRecord">,
+		Pick<
+			JournalRecordInput,
+			"componentsPaths" | "transitions" | "previousRecord"
+		>,
 ): Promise<ReleaseRecordPredicate> {
 	const { manifestPath, ...rest } = input;
 	return prepareJournalReleaseRecord({
@@ -421,17 +496,19 @@ export interface JournalRecordInput extends JournalSetInput {
 	/**
 	 * Parsed JSON: the previous release's record predicate, or an earlier
 	 * output of this preparation step whose `releasePredicate` member is one.
-	 * Required when a supplied manifest lists components.
+	 * Required when any components are listed, from a manifest or a
+	 * components file.
 	 */
 	previousRecord?: unknown;
 }
 
 /**
  * Builds the release-record predicate for a journal release set. When any
- * supplied manifest lists components, the record carries the inventory, the
- * targets it covers, the previous record's version as its baseline, and any
- * declared transitions, which must equal the delivery changes between the
- * previous record and this one when the previous record lists components.
+ * components are listed, in a supplied manifest or a components file, the
+ * record carries the inventory, the targets it covers, the previous record's
+ * version as its baseline, and any declared transitions, which must equal the
+ * delivery changes between the previous record and this one when the
+ * previous record lists components.
  */
 export async function prepareJournalReleaseRecord(
 	input: JournalRecordInput,
@@ -442,7 +519,7 @@ export async function prepareJournalReleaseRecord(
 		if (input.transitions !== undefined) {
 			refuse(
 				"transitions-without-components",
-				"Component transitions can be declared only when a supplied manifest lists components.",
+				"Component transitions can be declared only when components are listed, in a supplied manifest or a components file.",
 			);
 		}
 		if (input.previousRecord !== undefined)
@@ -452,7 +529,7 @@ export async function prepareJournalReleaseRecord(
 	if (input.previousRecord === undefined) {
 		refuse(
 			"missing-previous-record",
-			"Supply --previous-record when a manifest lists components, so declared transitions are compared with the previous release.",
+			"Supply --previous-record when components are listed, so declared transitions are compared with the previous release.",
 		);
 	}
 	const previous = await previousPredicate(input.previousRecord, predicate);

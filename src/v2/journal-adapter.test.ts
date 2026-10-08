@@ -1176,3 +1176,297 @@ describe("declared component transitions", () => {
 		expect(JSON.parse(unreadable.stderr).reason).toBe("invalid-transitions");
 	});
 });
+
+describe("components files", () => {
+	/** Writes a components file beside the target's release set, outside its manifest. */
+	async function componentsFile(
+		f: Fixture,
+		rows: unknown,
+		overrides: Record<string, unknown> = {},
+		name = `${f.base}.components.json`,
+	) {
+		const path = join(f.root, name);
+		await writeFile(
+			path,
+			`${JSON.stringify(
+				{
+					product: "solstone-journal",
+					version: f.input.version,
+					target: f.manifest.target,
+					components: rows,
+					...overrides,
+				},
+				null,
+				2,
+			)}\n`,
+		);
+		return path;
+	}
+	const rows = () => [bundled("alpha"), downloaded("beta")];
+
+	test("a file-sourced inventory yields the same component fields as a manifest-sourced one, and leaves the artifacts untouched", async () => {
+		const fromManifest = await prepare([
+			await withComponents("linux-x86_64", rows()),
+		]);
+		const plain = await fixture();
+		const fromFile = await prepare([plain], {
+			componentsPaths: [await componentsFile(plain, rows())],
+		});
+		const withoutComponents = await prepare([plain]);
+		// The manifest carrying a components key has different bytes, so only
+		// its descriptor differs; every other member is identical.
+		expect({ ...fromFile, artifacts: [] }).toStrictEqual({
+			...fromManifest,
+			artifacts: [],
+		});
+		expect(JSON.stringify({ ...fromFile, artifacts: [] })).toBe(
+			JSON.stringify({ ...fromManifest, artifacts: [] }),
+		);
+		expect(Object.keys(fromFile)).toEqual(COMPONENT_KEYS);
+		expect(fromFile.artifacts).toStrictEqual(withoutComponents.artifacts);
+		expect(
+			fromFile.artifacts.some((artifact) =>
+				artifact.url.endsWith(".components.json"),
+			),
+		).toBe(false);
+	});
+
+	test("an empty file list covers its target with no rows, and no file leaves it uncovered", async () => {
+		const linux = await fixture();
+		const macos = await fixture("macos-arm64");
+		const result = await prepare([linux, macos], {
+			componentsPaths: [await componentsFile(macos, [])],
+		});
+		expect(result.component_targets).toEqual(["macos-arm64"]);
+		expect(result.components).toEqual([]);
+		const none = await prepare([linux, macos], { componentsPaths: [] });
+		expect(Object.keys(none)).toEqual(OLD_KEYS);
+	});
+
+	test("manifest and file sources combine across targets, and a target with neither stays uncovered", async () => {
+		const x86 = await withComponents("linux-x86_64", [bundled("alpha")]);
+		const macos = await fixture("macos-arm64");
+		const windows = await fixture("windows-x86_64");
+		const result = await prepare([windows, x86, macos], {
+			componentsPaths: [await componentsFile(macos, [downloaded("beta")])],
+		});
+		expect(result.component_targets).toEqual(["linux-x86_64", "macos-arm64"]);
+		expect(result.components?.map((row) => `${row.target}/${row.id}`)).toEqual([
+			"linux-x86_64/alpha",
+			"macos-arm64/beta",
+		]);
+	});
+
+	test("refuses file-sourced components without a previous record, and accepts them with one", async () => {
+		const f = await fixture();
+		const path = await componentsFile(f, rows());
+		await expect(
+			prepare([f], { componentsPaths: [path], previousRecord: undefined }),
+		).rejects.toMatchObject({ reason: "missing-previous-record" });
+		expect(
+			(await prepare([f], { componentsPaths: [path] })).component_baseline,
+		).toBe("1.9.0");
+	});
+
+	test("refuses a file for a target with no supplied manifest, and accepts it once the manifest is supplied", async () => {
+		const linux = await fixture();
+		const macos = await fixture("macos-arm64");
+		const path = await componentsFile(macos, rows());
+		await expect(
+			prepare([linux], { componentsPaths: [path] }),
+		).rejects.toMatchObject({ reason: "components-target-mismatch" });
+		expect(
+			(await prepare([linux, macos], { componentsPaths: [path] }))
+				.component_targets,
+		).toEqual(["macos-arm64"]);
+	});
+
+	test("refuses two files for one target, and accepts one", async () => {
+		const f = await fixture();
+		const first = await componentsFile(f, rows());
+		const second = await componentsFile(f, rows(), {}, "second.json");
+		await expect(
+			prepare([f], { componentsPaths: [first, second] }),
+		).rejects.toMatchObject({ reason: "duplicate-components-source" });
+		await expect(
+			prepare([f], { componentsPaths: [first, first] }),
+		).rejects.toMatchObject({ reason: "duplicate-components-source" });
+		expect(
+			(await prepare([f], { componentsPaths: [first] })).components,
+		).toHaveLength(2);
+	});
+
+	test("refuses a file for a target whose manifest has a components key, and accepts either source alone", async () => {
+		const f = await withComponents("linux-x86_64", rows());
+		const path = await componentsFile(f, rows());
+		await expect(
+			prepare([f], { componentsPaths: [path] }),
+		).rejects.toMatchObject({ reason: "duplicate-components-source" });
+		expect((await prepare([f])).components).toHaveLength(2);
+		const plain = await fixture();
+		expect(
+			(
+				await prepare([plain], {
+					componentsPaths: [await componentsFile(plain, rows())],
+				})
+			).components,
+		).toHaveLength(2);
+	});
+
+	const releaseMismatches: [string, Record<string, unknown>][] = [
+		["another product", { product: "solstone-linux" }],
+		["another version", { version: "2.0.1" }],
+	];
+	for (const [name, overrides] of releaseMismatches) {
+		test(`refuses a file for ${name}, and accepts the matching twin`, async () => {
+			const f = await fixture();
+			expect(
+				(
+					await prepare([f], {
+						componentsPaths: [await componentsFile(f, rows())],
+					})
+				).components,
+			).toHaveLength(2);
+			await expect(
+				prepare([f], {
+					componentsPaths: [await componentsFile(f, rows(), overrides)],
+				}),
+			).rejects.toMatchObject({ reason: "components-release-mismatch" });
+		});
+	}
+
+	const malformed: [string, (f: Fixture, path: string) => Promise<unknown>][] =
+		[
+			["an extra key", (f) => componentsFile(f, rows(), { lane: "staging" })],
+			[
+				"a missing key",
+				(f) => componentsFile(f, rows(), { product: undefined }),
+			],
+			["a non-string target", (f) => componentsFile(f, rows(), { target: 1 })],
+			[
+				"a duplicate member name",
+				(_f, path) =>
+					writeFile(
+						path,
+						(
+							JSON.stringify({
+								product: "solstone-journal",
+								version: "2.0.0-test.1",
+								target: "linux-x86_64",
+								components: [],
+							}) as string
+						).replace('"target":', '"target":"macos-arm64","target":'),
+					),
+			],
+			["text that is not JSON", (_f, path) => writeFile(path, "not json")],
+			["a JSON array", (_f, path) => writeFile(path, "[]")],
+			[
+				"a symlink",
+				async (f, path) => {
+					const real = join(f.root, "elsewhere.json");
+					await writeFile(real, await readFile(path));
+					await rm(path);
+					await symlink(real, path);
+				},
+			],
+			["a missing file", (_f, path) => rm(path)],
+		];
+	for (const [name, change] of malformed) {
+		test(`refuses a components file with ${name} as invalid-components-file, and accepts the valid twin`, async () => {
+			const f = await fixture();
+			const path = await componentsFile(f, rows());
+			expect(
+				(await prepare([f], { componentsPaths: [path] })).components,
+			).toHaveLength(2);
+			await change(f, path);
+			await expect(
+				prepare([f], { componentsPaths: [path] }),
+			).rejects.toMatchObject({ reason: "invalid-components-file" });
+		});
+	}
+
+	test("refuses invalid rows in a file as invalid-components, and accepts the valid twin", async () => {
+		const f = await fixture();
+		expect(
+			(
+				await prepare([f], {
+					componentsPaths: [await componentsFile(f, rows())],
+				})
+			).components,
+		).toHaveLength(2);
+		for (const invalid of [
+			[downloaded("beta"), bundled("alpha")],
+			[bundled("alpha", [])],
+			[bundled("alpha", [{ path: "etc/x", sha256: hex("2") }])],
+			{ alpha: bundled() },
+		]) {
+			await expect(
+				prepare([f], {
+					componentsPaths: [await componentsFile(f, invalid)],
+				}),
+			).rejects.toMatchObject({ reason: "invalid-components" });
+		}
+	});
+
+	test("CLI reads repeated --components files", async () => {
+		const linux = await fixture();
+		const macos = await fixture("macos-arm64");
+		const claimsPath = join(linux.root, "claims.json");
+		const previousPath = join(linux.root, "previous.json");
+		await writeFile(claimsPath, JSON.stringify(claims));
+		await writeFile(previousPath, JSON.stringify(previousRecord()));
+		const linuxFile = await componentsFile(linux, rows());
+		const macosFile = await componentsFile(macos, []);
+		const run = async (...extra: string[]) => {
+			const child = Bun.spawn(
+				[
+					process.execPath,
+					resolve("bin/journal-artifacts.ts"),
+					"--manifest",
+					linux.input.manifestPath,
+					"--manifest",
+					macos.input.manifestPath,
+					"--version",
+					linux.input.version,
+					"--lane",
+					"staging",
+					"--claims",
+					claimsPath,
+					"--previous-record",
+					previousPath,
+					...extra,
+				],
+				{ stdout: "pipe", stderr: "pipe" },
+			);
+			return {
+				code: await child.exited,
+				stdout: await new Response(child.stdout).text(),
+				stderr: await new Response(child.stderr).text(),
+			};
+		};
+		const accepted = await run(
+			"--components",
+			linuxFile,
+			"--components",
+			macosFile,
+		);
+		expect(accepted.code).toBe(0);
+		const predicate = JSON.parse(accepted.stdout).releasePredicate;
+		expect(predicate.component_targets).toEqual([
+			"linux-x86_64",
+			"macos-arm64",
+		]);
+		expect(predicate.components).toHaveLength(2);
+		expect((await validateReleaseRecordPredicate(predicate)).ok).toBe(true);
+		const refused = await run(
+			"--components",
+			linuxFile,
+			"--components",
+			linuxFile,
+		);
+		expect(refused.code).toBe(1);
+		expect(JSON.parse(refused.stderr).reason).toBe(
+			"duplicate-components-source",
+		);
+	});
+});
