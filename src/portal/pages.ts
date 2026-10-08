@@ -55,6 +55,8 @@ import type {
 } from "../legacy/types";
 import {
 	ABOUT_READABLE_BODY_LEAD,
+	APPS_SEPARATE_LINE,
+	APP_PAGE_SCOPE_LINE,
 	AXIS_PUBLICATION_A,
 	AXIS_PUBLICATION_B,
 	HOME_PUBLICATION_DECLARATION_A,
@@ -65,6 +67,7 @@ import {
 	HOME_REGISTER_SUMMARY_ROW_V1_CLOSED,
 	HOME_REGISTER_SUMMARY_ROW_V1_CLOSED_UNCHECKED,
 	HOME_REGISTER_SUMMARY_ROW_V2,
+	JOURNAL_PLATFORMS_LINE,
 	KEYS_V1_ROLE_STATEMENT_A,
 	KEYS_V1_STATUS,
 	KEYS_V2_ROOT_INTRO,
@@ -344,9 +347,68 @@ function boundProducts(v2: V2VerifiedModel): string {
 		const slug = slugForProduct(p.product);
 		return slug === undefined ? p.product : PRODUCT_DISPLAY[slug];
 	});
-	return names.length <= 1
-		? (names[0] ?? "")
-		: `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+	return andList(names);
+}
+
+function andList(words: readonly string[]): string {
+	return words.length <= 1
+		? (words[0] ?? "")
+		: `${words.slice(0, -1).join(", ")} and ${words[words.length - 1]}`;
+}
+
+/** File-name platform tokens in reading order, with their reader words. */
+const PLATFORM_WORDS = [
+	["macos", "mac"],
+	["windows", "windows"],
+	["linux", "linux"],
+] as const;
+
+/**
+ * The platforms a record's files are named for (`…-macos-…`, `…-windows-…`,
+ * `…-linux-…`), read from the signed artifact list. A file with no platform
+ * in its name adds nothing; a record with none yields an empty list.
+ */
+export function recordPlatforms(record: V2ReleaseRecord): string[] {
+	const found = new Set<string>();
+	for (const a of record.artifacts) {
+		const name = a.url.slice(a.url.lastIndexOf("/") + 1);
+		const m = /-(macos|windows|linux)-/.exec(name);
+		if (m?.[1] !== undefined) found.add(m[1]);
+	}
+	return PLATFORM_WORDS.filter(([token]) => found.has(token)).map(
+		([, word]) => word,
+	);
+}
+
+/**
+ * Coverage beside the per-OS app entries: which platforms the journal's
+ * newest valid record names files for. Empty when there is no such record
+ * or it names no platform, so the line is never asserted without evidence.
+ */
+function journalPlatformsLine(v2: V2Model): string {
+	const latest = latestV2(v2, "journal");
+	if (latest === undefined) return "";
+	const platforms = recordPlatforms(latest);
+	if (platforms.length === 0) return "";
+	const text = substituteCopy(JOURNAL_PLATFORMS_LINE, {
+		version: latest.version,
+		platforms: andList(platforms),
+	});
+	return `<p>${kindTag("signed")} ${text}</p>`;
+}
+
+/** The platforms line and the apps-are-separate line, for the home register and the software index. */
+function appRowsCoverage(v2: V2Model): string {
+	const platforms = journalPlatformsLine(v2);
+	if (platforms === "") return "";
+	return `${platforms}\n<p>${trustedText(APPS_SEPARATE_LINE)}</p>`;
+}
+
+/** The same coverage at the top of an app's own page, with the way to the journal. */
+function appPageCoverage(v2: V2Model, product: "linux" | "windows"): string {
+	const platforms = journalPlatformsLine(v2);
+	if (platforms === "") return "";
+	return `<p>${substituteCopy(APP_PAGE_SCOPE_LINE, { product: PRODUCT_DISPLAY[product] })}</p>\n${platforms}\n<p><a href="/software/journal/">${trustedText("the journal's records")}</a></p>`;
 }
 
 function legacyBindingLine(v2: V2VerifiedModel): string {
@@ -790,6 +852,7 @@ export function renderHome(
 ${declarationBlock}
 <h2>${trustedText("the register, at a glance")}</h2>
 <p>${trustedText(HOME_REGISTER_SUMMARY_LEAD)}</p>
+${appRowsCoverage(v2)}
 <table class="register-table">
 <caption class="sr-only">${trustedText("software publication register summary")}</caption>
 <thead><tr><th scope="col">${trustedText("product")}</th><th scope="col">${trustedText("publication")}</th><th scope="col">${trustedText("latest recorded release")}</th></tr></thead>
@@ -865,6 +928,7 @@ export function renderSoftwareIndex(
 <p>${trustedText(SOFTWARE_SCOPE_LINE)}</p>
 ${coverage}${unmapped}
 <h2>${trustedText("products")}</h2>
+${appRowsCoverage(v2)}
 <div class="card-grid">
 <div class="card"><a class="card-link" href="/software/journal/"><h3>${trustedText(PRODUCT_DISPLAY.journal)}</h3><p>${card("journal", jTip)}</p></a></div>
 <div class="card"><a class="card-link" href="/software/linux/"><h3>${trustedText(PRODUCT_DISPLAY.linux)}</h3><p>${card("linux", lTip)}</p></a></div>
@@ -926,6 +990,7 @@ export function renderProduct(
 		if (latest !== undefined && v2.state === "verified") {
 			const main = `
 <h1>${trustedText(PRODUCT_DISPLAY.windows)}</h1>
+${appPageCoverage(v2, "windows")}
 <p>${substituteCopy(PRODUCT_PLAIN_SUMMARY_B, { product: PRODUCT_DISPLAY.windows, version: latest.version, issued_at: latest.issuedAt })}</p>
 ${v2AxisBlock({
 	publication: {
@@ -956,6 +1021,7 @@ ${v2RecordsSection(v2, "windows", undefined)}
 			: WINDOWS_ABSENCE_EXPLAINER;
 		const main = `
 <h1>${trustedText(PRODUCT_DISPLAY.windows)}</h1>
+${appPageCoverage(v2, "windows")}
 ${declaration({ kind: "register", text: explainer, tone: "neutral" })}
 <p>${trustedText(WINDOWS_ONE_FACT)}</p>${v2RecordsSection(v2, "windows", undefined)}
 <p><a href="/software/">${trustedText("back to the software register")}</a></p>`;
@@ -978,6 +1044,7 @@ ${declaration({ kind: "register", text: explainer, tone: "neutral" })}
 		: "release timeline";
 	const main = `
 <h1>${trustedText(PRODUCT_DISPLAY[product])}</h1>
+${product === "linux" ? appPageCoverage(v2, "linux") : ""}
 <p>${summaryForProduct(product, subject.timeline, v2)}</p>
 ${productAxes(model, v2, product, subject)}
 ${proveColumns(

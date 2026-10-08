@@ -32,6 +32,7 @@ import {
 import type { PortalModelResult } from "../legacy/types";
 import { buildV2Model } from "../v2view/build";
 import {
+	APPS_SEPARATE_LINE,
 	AXIS_PUBLICATION_A,
 	AXIS_PUBLICATION_B,
 	HOME_PUBLICATION_DECLARATION_A,
@@ -225,7 +226,9 @@ describe("state (a): root and legacy binding, no release record", () => {
 	test("windows renders the decided closed-fact framing once a root is known, and today's framing when none is", () => {
 		const body = handle("/software/windows/", v1, stateA).body;
 		expect(body).toContain(trustedText(WINDOWS_ABSENCE_EXPLAINER_STATE_A));
-		expect(body).toContain("recorded no windows release and is closed");
+		expect(body).toContain(
+			"recorded no release of solstone for windows and is closed",
+		);
 		expect(body).not.toContain(trustedText(WINDOWS_ABSENCE_EXPLAINER));
 		expect(handle("/software/windows/", v1, ABSENT_NO_PIN).body).toContain(
 			trustedText(WINDOWS_ABSENCE_EXPLAINER),
@@ -427,6 +430,72 @@ describe("state (b): a release record", () => {
 		const nativeOnly = await page([native]);
 		expect(nativeOnly).toContain(`href="${native}"`);
 		expect(nativeOnly).not.toContain("/release/windows/");
+	});
+
+	test("the per-OS app entries carry the journal's platforms, read from its newest record's file names", async () => {
+		const base = "https://updates.solstone.app/solstone-journal/release";
+		const files = (version: string, names: string[]) =>
+			names.map((name, i) => ({
+				url: `${base}/${version}/solstone-journal-${version}-${name}`,
+				length: i + 1,
+				sha256: String(i % 10).repeat(64),
+			}));
+		const model = await v2For([
+			{
+				product: "journal",
+				version: "2.0.0",
+				artifacts: files("2.0.0", ["linux-x86_64.tar.gz", "macos-arm64.pkg"]),
+			},
+			{
+				product: "journal",
+				version: "2.0.1",
+				artifacts: [
+					...files("2.0.1", [
+						"linux-x86_64.tar.gz",
+						"install.sh",
+						"windows-x86_64-setup.exe",
+						"macos-arm64.pkg",
+					]),
+				],
+			},
+		]);
+		const line =
+			"the journal's newest record, 2.0.1, names files for mac, windows and linux.";
+		const home = text(handle("/", v1, model).body);
+		expect(home).toContain(line);
+		expect(home).toContain(APPS_SEPARATE_LINE);
+		// Above the rows it explains, not after them.
+		expect(home.indexOf(line)).toBeLessThan(
+			home.indexOf("solstone for windows ▤"),
+		);
+		expect(text(handle("/software/", v1, model).body)).toContain(line);
+		for (const slug of ["windows", "linux"]) {
+			const page = handle(`/software/${slug}/`, v1, model).body;
+			expect(text(page)).toContain(line);
+			expect(text(page)).toContain(
+				`this page is about solstone for ${slug}, the solstone app.`,
+			);
+			expect(page).toContain('href="/software/journal/"');
+		}
+		expect(text(handle("/software/journal/", v1, model).body)).not.toContain(
+			line,
+		);
+	});
+
+	test("with no journal record naming a platform, no coverage line is asserted", () => {
+		for (const model of [stateA, stateB]) {
+			for (const path of [
+				"/",
+				"/software/",
+				"/software/windows/",
+				"/software/linux/",
+			]) {
+				const t = text(handle(path, v1, model).body);
+				expect(t).not.toContain("names files for");
+				expect(t).not.toContain(APPS_SEPARATE_LINE);
+				expect(t).not.toContain("this page is about");
+			}
+		}
 	});
 
 	test("a v1 record page in the v2 era drops the pause sentence for the closed-chain one", () => {

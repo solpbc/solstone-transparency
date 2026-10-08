@@ -143,4 +143,20 @@ export const SOFTWARE_UNMAPPED_PRODUCTS =
  * string, not a code change.
  */
 export const WINDOWS_ABSENCE_EXPLAINER_STATE_A =
-	"the v1 chain recorded no windows release and is closed, so it never will record one. any windows record will appear under the v2 root and this page will show it.";
+	"the v1 chain recorded no release of solstone for windows and is closed, so it never will record one. any record of solstone for windows will appear under the v2 root and this page will show it.";
+
+/**
+ * Coverage beside the per-OS app rows: the journal is one product across
+ * platforms, and its platforms are read from its newest record's file names.
+ * Without this, "solstone for windows: no records" reads as "nothing for
+ * windows" beside a journal record that names windows files.
+ */
+export const JOURNAL_PLATFORMS_LINE =
+	"the journal's newest record, {version}, names files for {platforms}.";
+
+export const APPS_SEPARATE_LINE =
+	"solstone for linux and solstone for windows are separate from the journal; what this register shows for them is about those apps alone.";
+
+/** The same scope on an app's own page. */
+export const APP_PAGE_SCOPE_LINE =
+	"this page is about {product}, the solstone app. the journal is a separate product, with its own records.";
