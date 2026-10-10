@@ -6,13 +6,15 @@ import { constants } from "node:fs";
 import { open } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import {
-	type ComponentState,
-	type ComponentTransition,
+	type ComponentChange,
+	type ComponentSnapshot,
 	RELEASE_RECORD_SCHEMA,
 	type ReleaseArtifact,
 	type ReleaseComponent,
 	type ReleaseRecordPredicate,
-	parseComponentTransitions,
+	componentChangesEqual,
+	componentSnapshotsEqual,
+	parseComponentChanges,
 	parseManifestComponents,
 	validReleaseVersion,
 	validateReleaseRecordPredicate,
@@ -253,10 +255,7 @@ async function measure(path: string, capture = false) {
  */
 export async function adaptJournalRelease(
 	input: JournalAdapterInput &
-		Pick<
-			JournalRecordInput,
-			"componentsPaths" | "transitions" | "previousRecord"
-		>,
+		Pick<JournalRecordInput, "componentsPaths" | "changes" | "previousRecord">,
 ): Promise<ReleaseRecordPredicate> {
 	const { manifestPath, ...rest } = input;
 	return prepareJournalReleaseRecord({
@@ -491,8 +490,8 @@ async function adapt(input: JournalAdapterInput): Promise<AdaptedTarget> {
 }
 
 export interface JournalRecordInput extends JournalSetInput {
-	/** Parsed JSON: the publisher's declared component transitions. */
-	transitions?: unknown;
+	/** Parsed JSON: the publisher's declared component changes. */
+	changes?: unknown;
 	/**
 	 * Parsed JSON: the previous release's record predicate, or an earlier
 	 * output of this preparation step whose `releasePredicate` member is one.
@@ -506,9 +505,8 @@ export interface JournalRecordInput extends JournalSetInput {
  * Builds the release-record predicate for a journal release set. When any
  * components are listed, in a supplied manifest or a components file, the
  * record carries the inventory, the targets it covers, the previous record's
- * version as its baseline, and any declared transitions, which must equal the
- * delivery changes between the previous record and this one when the
- * previous record lists components.
+ * version as its baseline, and declared component changes, which must equal
+ * the snapshot diff since the previous release.
  */
 export async function prepareJournalReleaseRecord(
 	input: JournalRecordInput,
@@ -516,57 +514,73 @@ export async function prepareJournalReleaseRecord(
 	const set = await adaptSet(input);
 	const { predicate } = set;
 	if (set.componentTargets === undefined || set.components === undefined) {
-		if (input.transitions !== undefined) {
+		if (input.changes !== undefined) {
 			refuse(
-				"transitions-without-components",
-				"Component transitions can be declared only when components are listed, in a supplied manifest or a components file.",
+				"changes-without-components",
+				"Component changes can be declared only when components are listed, in a supplied manifest or a components file.",
 			);
 		}
-		if (input.previousRecord !== undefined)
-			await previousPredicate(input.previousRecord, predicate);
+		if (input.previousRecord !== undefined) {
+			const previous = await previousPredicate(input.previousRecord, predicate);
+			if (previous.component_targets !== undefined) {
+				refuse(
+					"uncomparable-component-coverage",
+					"The previous record lists components but this candidate lists none.",
+				);
+			}
+		}
 		return predicate;
 	}
 	if (input.previousRecord === undefined) {
 		refuse(
 			"missing-previous-record",
-			"Supply --previous-record when components are listed, so declared transitions are compared with the previous release.",
+			"Supply --previous-record when components are listed, so declared changes are compared with the previous release.",
 		);
 	}
 	const previous = await previousPredicate(input.previousRecord, predicate);
-	let transitions: ComponentTransition[] | undefined;
-	if (input.transitions !== undefined) {
-		const parsed = parseComponentTransitions(
-			input.transitions,
+	if (
+		previous.component_targets === undefined ||
+		previous.component_targets.length === 0 ||
+		set.componentTargets.length === 0 ||
+		previous.component_targets.length !== set.componentTargets.length ||
+		previous.component_targets.some(
+			(target, index) => target !== set.componentTargets?.[index],
+		)
+	) {
+		refuse(
+			"uncomparable-component-coverage",
+			"Candidate and previous record component targets must be identical non-empty sequences.",
+		);
+	}
+	let declared: ComponentChange[];
+	if (input.changes === undefined) {
+		declared = [];
+	} else {
+		const parsed = parseComponentChanges(
+			input.changes,
 			set.components,
 			set.componentTargets,
 		);
 		if (!parsed.ok) {
 			refuse(
-				"invalid-transitions",
-				`The declared transitions are malformed at ${parsed.detail.path.join(".")}: expected ${String(parsed.detail.expected)}.`,
+				"invalid-changes",
+				`The declared component changes are malformed at ${parsed.detail.path.join(".")}: expected ${String(parsed.detail.expected)}.`,
 			);
 		}
-		transitions = parsed.value;
+		declared = parsed.value;
 	}
 	const candidate: ReleaseRecordPredicate = {
 		...predicate,
 		component_targets: set.componentTargets,
 		components: set.components,
 		component_baseline: previous.version,
-		...(transitions === undefined
-			? {}
-			: { component_transitions: transitions }),
+		component_changes: declared,
 	};
-	// A previous record without components, as before the first release to
-	// list them, is the baseline but is not compared.
-	const changes = componentDeliveryChanges(previous, candidate);
-	if (
-		previous.components !== undefined &&
-		JSON.stringify(changes) !== JSON.stringify(transitions ?? [])
-	) {
+	const derived = componentSnapshotDiff(previous, candidate);
+	if (!componentChangesEqual(declared, derived)) {
 		refuse(
-			"undeclared-component-transitions",
-			`The declared transitions must equal the component delivery changes since the previous record: ${JSON.stringify(changes)}.`,
+			"undeclared-component-changes",
+			"The declared component changes must equal the component snapshot changes since the previous record.",
 		);
 	}
 	const validated = await validateReleaseRecordPredicate(
@@ -624,41 +638,40 @@ async function previousPredicate(
 	return validated.value;
 }
 
-/**
- * Lists, sorted by (target, id), every component whose delivery differs
- * between two records, over the targets in both records' component_targets.
- * A component a record does not list is `absent` in that record. A record
- * without a `component_targets` member contributes no targets, so nothing is
- * compared; an empty `components` array on a listed target is compared.
- */
-export function componentDeliveryChanges(
+function rowSnapshot(
+	row: ReleaseComponent | undefined,
+): ComponentSnapshot | null {
+	if (row === undefined) return null;
+	return {
+		version: row.version,
+		delivery: row.delivery,
+		source: row.source,
+		inputs: row.inputs,
+		members: row.members,
+	};
+}
+
+function componentSnapshotDiff(
 	previous: ReleaseRecordPredicate,
 	next: ReleaseRecordPredicate,
-): ComponentTransition[] {
-	const nextTargets = new Set(next.component_targets ?? []);
-	const scope = new Set(
-		(previous.component_targets ?? []).filter((target) =>
-			nextTargets.has(target),
-		),
-	);
-	const states = new Map<
-		string,
-		{ target: string; id: string; from: ComponentState; to: ComponentState }
-	>();
-	const entry = (row: ReleaseComponent) => {
-		const key = `${row.target}\u0000${row.id}`;
-		let state = states.get(key);
-		if (state === undefined) {
-			state = { target: row.target, id: row.id, from: "absent", to: "absent" };
-			states.set(key, state);
+): ComponentChange[] {
+	const prevRows = new Map<string, ReleaseComponent>();
+	for (const row of previous.components ?? []) {
+		prevRows.set(`${row.target}\u0000${row.id}`, row);
+	}
+	const nextRows = new Map<string, ReleaseComponent>();
+	for (const row of next.components ?? []) {
+		nextRows.set(`${row.target}\u0000${row.id}`, row);
+	}
+	const allKeys = new Set<string>([...prevRows.keys(), ...nextRows.keys()]);
+	const changes: ComponentChange[] = [];
+	for (const key of allKeys) {
+		const [target, id] = key.split("\u0000") as [string, string];
+		const from = rowSnapshot(prevRows.get(key));
+		const to = rowSnapshot(nextRows.get(key));
+		if (!componentSnapshotsEqual(from, to)) {
+			changes.push({ target, id, from, to });
 		}
-		return state;
-	};
-	for (const row of previous.components ?? [])
-		if (scope.has(row.target)) entry(row).from = row.delivery;
-	for (const row of next.components ?? [])
-		if (scope.has(row.target)) entry(row).to = row.delivery;
-	return [...states.values()]
-		.filter((state) => state.from !== state.to)
-		.sort(compareComponentKey);
+	}
+	return changes.sort(compareComponentKey);
 }

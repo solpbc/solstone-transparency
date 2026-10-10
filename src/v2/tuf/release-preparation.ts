@@ -10,7 +10,10 @@ import {
 } from "../records/migration-manifest";
 import { RELEASE_RECORD_PREDICATE_TYPE } from "../records/predicates";
 import { verifyEvidenceRecord } from "../records/record";
-import type { ReleaseRecordPredicate } from "../records/release-record";
+import {
+	type ReleaseRecordPredicate,
+	admitReleaseComponentDeclaration,
+} from "../records/release-record";
 import { admitTufJson } from "./admission";
 import { expiresAt, metaDescription, signMetadata } from "./builder";
 import { canonicalizeTufJson } from "./canonical";
@@ -332,6 +335,9 @@ export async function prepareIncrementalRelease(
 			observed: producerKeyid.value,
 		});
 	}
+
+	const admitted = admitReleaseComponentDeclaration(input.releasePredicate);
+	if (!admitted.ok) return admitted;
 
 	const record = await signEvidenceRecord({
 		predicateType: RELEASE_RECORD_PREDICATE_TYPE,

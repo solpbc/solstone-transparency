@@ -477,3 +477,185 @@ test("refuses root and top-level targets by key identity in every release signin
 	}
 	expect((await prepareIncrementalRelease(built.input)).ok).toBe(true);
 });
+
+test("refuses a historical component_transitions predicate via admission gate", async () => {
+	const built = await fixture();
+	const historicalPredicate: ReleaseRecordPredicate = {
+		...built.input.releasePredicate,
+		component_targets: ["linux-x86_64"],
+		components: [
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				version: "1.0.0",
+				delivery: "bundled",
+				source: "https://example.invalid/alpha",
+				inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+				members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+			},
+		],
+		component_baseline: "1.9.0",
+		component_transitions: [
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				from: "runtime-downloaded",
+				to: "bundled",
+			},
+		],
+	};
+	const result = await prepareIncrementalRelease({
+		...built.input,
+		releasePredicate: historicalPredicate,
+	});
+	expect(result).toMatchObject({ ok: false, reason: "malformed" });
+	expect("releaseRecordBytes" in result).toBe(false);
+});
+
+test("validates typed component inventories before accessing the producer signing key", async () => {
+	const built = await fixture();
+	let privateKeyReads = 0;
+	const producerRelease: Ed25519SigningKey = {
+		...built.input.keys.producerRelease,
+		get privateKey() {
+			privateKeyReads++;
+			return built.input.keys.producerRelease.privateKey;
+		},
+	};
+	const row = {
+		target: "linux-x86_64",
+		id: "alpha",
+		version: "1.0.0",
+		delivery: "bundled" as const,
+		source: "https://example.invalid/alpha",
+		inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+		members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+	};
+	const rowBeta = {
+		target: "linux-x86_64",
+		id: "beta",
+		version: "1.0.0",
+		delivery: "bundled" as const,
+		source: "https://example.invalid/beta",
+		inputs: [{ name: "beta.tar.gz", sha256: "1".repeat(64) }],
+		members: [{ path: "bin/beta", sha256: "2".repeat(64) }],
+	};
+	const alphaSnapshot = {
+		version: row.version,
+		delivery: row.delivery,
+		source: row.source,
+		inputs: row.inputs,
+		members: row.members,
+	};
+	const changeEntry = {
+		target: "linux-x86_64",
+		id: "alpha",
+		from: { ...alphaSnapshot, version: "0.9.0" },
+		to: alphaSnapshot,
+	};
+	const valid: ReleaseRecordPredicate = {
+		...built.input.releasePredicate,
+		component_targets: [row.target],
+		components: [row],
+		component_baseline: "1.9.0",
+		component_changes: [],
+	};
+	const emptyInventory: ReleaseRecordPredicate = {
+		...built.input.releasePredicate,
+		component_targets: [row.target],
+		components: [],
+		component_baseline: "1.9.0",
+		component_changes: [],
+	};
+	const invalid: ReleaseRecordPredicate[] = [
+		{ ...valid, component_targets: [], components: [] },
+		{ ...valid, component_targets: ["windows-x86_64", row.target] },
+		{ ...valid, components: [row, row] },
+		{ ...valid, component_baseline: valid.version },
+		{
+			...valid,
+			components: [
+				{ ...row, members: [{ path: "../alpha", sha256: "2".repeat(64) }] },
+			],
+		},
+		{
+			...valid,
+			components: [rowBeta, row],
+			component_changes: [changeEntry],
+		},
+	];
+	for (const releasePredicate of invalid) {
+		privateKeyReads = 0;
+		const result = await prepareIncrementalRelease({
+			...built.input,
+			keys: { ...built.input.keys, producerRelease },
+			releasePredicate,
+		});
+		expect(result.ok).toBe(false);
+		if (!result.ok) expect(result.reason).toBe("malformed");
+		expect(privateKeyReads).toBe(0);
+	}
+	for (const releasePredicate of [valid, emptyInventory]) {
+		privateKeyReads = 0;
+		const accepted = await prepareIncrementalRelease({
+			...built.input,
+			keys: { ...built.input.keys, producerRelease },
+			releasePredicate,
+		});
+		expect(accepted.ok).toBe(true);
+		expect(privateKeyReads).toBeGreaterThan(0);
+	}
+});
+
+test("admits a valid component_changes predicate and preserves declaration in signed payload", async () => {
+	const built = await fixture();
+	const declaredChanges = [
+		{
+			target: "linux-x86_64",
+			id: "alpha",
+			from: {
+				version: "0.9.0",
+				delivery: "bundled" as const,
+				source: "https://example.invalid/alpha-old",
+				inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+				members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+			},
+			to: {
+				version: "1.0.0",
+				delivery: "bundled" as const,
+				source: "https://example.invalid/alpha",
+				inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+				members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+			},
+		},
+	];
+	const validPredicateWithChanges: ReleaseRecordPredicate = {
+		...built.input.releasePredicate,
+		component_targets: ["linux-x86_64"],
+		components: [
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				version: "1.0.0",
+				delivery: "bundled",
+				source: "https://example.invalid/alpha",
+				inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+				members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+			},
+		],
+		component_baseline: "1.9.0",
+		component_changes: declaredChanges,
+	};
+	const prepared = await prepareIncrementalRelease({
+		...built.input,
+		releasePredicate: validPredicateWithChanges,
+	});
+	expect(prepared.ok).toBe(true);
+	if (!prepared.ok) return;
+	const record = JSON.parse(
+		new TextDecoder().decode(prepared.value.releaseRecordBytes),
+	);
+	const statement = JSON.parse(atob(record.envelope.payload));
+	expect(statement.predicate.component_changes).toEqual(declaredChanges);
+	expect(statement.predicate.component_transitions).toBeUndefined();
+});

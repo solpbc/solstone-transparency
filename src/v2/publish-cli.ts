@@ -19,7 +19,10 @@ import {
 	MIGRATION_MANIFEST_PREDICATE_TYPE,
 	RELEASE_RECORD_PREDICATE_TYPE,
 } from "./records/predicates";
-import { validateReleaseRecordPredicate } from "./records/release-record";
+import {
+	admitReleaseComponentDeclaration,
+	validateReleaseRecordPredicate,
+} from "./records/release-record";
 import { type TufTargetDescription, buildRepository } from "./tuf/builder";
 import { canonicalizeTufJson } from "./tuf/canonical";
 import { loadRepositorySigningKeys } from "./tuf/keyset";
@@ -119,6 +122,14 @@ export async function publishRepository(
 	const issuedAt = (options.now ?? new Date()).toISOString();
 
 	// 6. Sign release-record EvidenceRecord
+	const admittedRelease = admitReleaseComponentDeclaration(releasePredicate);
+	if (!admittedRelease.ok) {
+		console.error(
+			`release record rejected by admission: ${admittedRelease.reason} (path: ${admittedRelease.detail?.path?.join(".") ?? "root"})`,
+		);
+		return 1;
+	}
+
 	const releaseArtifactDigest = await descriptorDigest(
 		releasePredicate.artifacts,
 	);

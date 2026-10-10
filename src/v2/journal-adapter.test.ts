@@ -9,10 +9,11 @@ import { join, resolve } from "node:path";
 import {
 	type JournalAdapterInput,
 	adaptJournalRelease,
-	componentDeliveryChanges,
 	prepareJournalReleaseRecord,
 } from "./journal-adapter";
 import {
+	type ComponentChange,
+	type ComponentSnapshot,
 	RELEASE_RECORD_SCHEMA,
 	type ReleaseRecordPredicate,
 	validateReleaseRecordPredicate,
@@ -580,6 +581,7 @@ const COMPONENT_KEYS = [
 	"component_targets",
 	"components",
 	"component_baseline",
+	"component_changes",
 	...OLD_KEYS.slice(5),
 ];
 
@@ -613,16 +615,18 @@ describe("journal component inventory", () => {
 			await adaptJournalRelease(linux.input),
 			await prepare([linux], { previousRecord: undefined }),
 			await prepare([linux]),
-			await prepare([linux], {
-				previousRecord: previousRecord([
-					{ target: "linux-x86_64", ...bundled() },
-				]),
-			}),
 		]) {
 			expect(result).toStrictEqual(expected);
 			expect(Object.keys(result)).toEqual(OLD_KEYS);
 			expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
 		}
+		await expect(
+			prepare([linux], {
+				previousRecord: previousRecord([
+					{ target: "linux-x86_64", ...bundled() },
+				]),
+			}),
+		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
 		expect(Object.keys(await prepare([linux, macos]))).toEqual(OLD_KEYS);
 	});
 
@@ -631,13 +635,17 @@ describe("journal component inventory", () => {
 			bundled("alpha"),
 			downloaded("beta"),
 		]);
-		const result = await prepare([f]);
-		expect(result.component_targets).toEqual(["linux-x86_64"]);
-		expect(result.components).toEqual([
+		const matchingRows = [
 			{ target: "linux-x86_64", ...bundled("alpha") },
 			{ target: "linux-x86_64", ...downloaded("beta") },
-		] as never);
+		];
+		const result = await prepare([f], {
+			previousRecord: previousRecord(matchingRows, ["linux-x86_64"]),
+		});
+		expect(result.component_targets).toEqual(["linux-x86_64"]);
+		expect(result.components).toEqual(matchingRows as never);
 		expect(result.component_baseline).toBe("1.9.0");
+		expect(result.component_changes).toEqual([]);
 		expect(Object.keys(result)).toEqual(COMPONENT_KEYS);
 		expect(Object.keys(result.components?.[0] ?? {})).toEqual([
 			"target",
@@ -656,9 +664,12 @@ describe("journal component inventory", () => {
 
 	test("an empty components list covers its target with no rows", async () => {
 		const f = await withComponents("linux-x86_64", []);
-		const result = await prepare([f]);
+		const result = await prepare([f], {
+			previousRecord: previousRecord([], ["linux-x86_64"]),
+		});
 		expect(result.component_targets).toEqual(["linux-x86_64"]);
 		expect(result.components).toEqual([]);
+		expect(result.component_changes).toEqual([]);
 	});
 
 	test("a mixed set covers only the targets whose manifest has a components list", async () => {
@@ -672,7 +683,16 @@ describe("journal component inventory", () => {
 		]);
 		const macos = await withComponents("macos-arm64", []);
 		const windows = await fixture("windows-x86_64");
-		const result = await prepare([windows, x86, macos, arm]);
+		const matchingRows = [
+			{ target: "linux-aarch64", ...bundled("beta") },
+			{ target: "linux-aarch64", ...downloaded("gamma") },
+			{ target: "linux-x86_64", ...bundled("alpha") },
+			{ target: "linux-x86_64", ...downloaded("gamma") },
+		];
+		const matchingTargets = ["linux-aarch64", "linux-x86_64", "macos-arm64"];
+		const result = await prepare([windows, x86, macos, arm], {
+			previousRecord: previousRecord(matchingRows, matchingTargets),
+		});
 		expect(result.component_targets).toEqual([
 			"linux-aarch64",
 			"linux-x86_64",
@@ -705,7 +725,10 @@ describe("journal component inventory", () => {
 			(
 				await adaptJournalRelease({
 					...f.input,
-					previousRecord: previousRecord(),
+					previousRecord: previousRecord(
+						[{ target: "linux-x86_64", ...bundled("alpha") }],
+						["linux-x86_64"],
+					),
 				})
 			).component_baseline,
 		).toBe("1.9.0");
@@ -713,12 +736,18 @@ describe("journal component inventory", () => {
 
 	test("refuses a previous record for the version being prepared, and accepts an earlier one", async () => {
 		const f = await withComponents("linux-x86_64", [bundled("alpha")]);
+		const baseline = previousRecord(
+			[{ target: "linux-x86_64", ...bundled("alpha") }],
+			["linux-x86_64"],
+		);
 		await expect(
 			prepare([f], {
-				previousRecord: { ...previousRecord(), version: f.input.version },
+				previousRecord: { ...baseline, version: f.input.version },
 			}),
 		).rejects.toMatchObject({ reason: "previous-record-same-version" });
-		expect((await prepare([f])).component_baseline).toBe("1.9.0");
+		expect(
+			(await prepare([f], { previousRecord: baseline })).component_baseline,
+		).toBe("1.9.0");
 	});
 
 	const invalid: [string, () => unknown][] = [
@@ -835,7 +864,17 @@ describe("journal component inventory", () => {
 				bundled("alpha"),
 				downloaded("beta"),
 			]);
-			expect((await prepare([valid])).components).toHaveLength(2);
+			const matchingBaseline = previousRecord(
+				[
+					{ target: "linux-x86_64", ...bundled("alpha") },
+					{ target: "linux-x86_64", ...downloaded("beta") },
+				],
+				["linux-x86_64"],
+			);
+			expect(
+				(await prepare([valid], { previousRecord: matchingBaseline }))
+					.components,
+			).toHaveLength(2);
 			const f = await withComponents(
 				"linux-x86_64",
 				JSON.parse(JSON.stringify(rows())),
@@ -847,240 +886,402 @@ describe("journal component inventory", () => {
 	}
 
 	test("accepts nested member paths under each of bin/, lib/ and share/", async () => {
-		const f = await withComponents("linux-x86_64", [
-			bundled("alpha", [
-				{ path: "bin/alpha", sha256: hex("2") },
-				{ path: "lib/alpha/plugins/a.so", sha256: hex("3") },
-				{ path: "share/alpha/..data", sha256: hex("4") },
-				{ path: "share/alpha/\u00e9t\u00e9", sha256: hex("5") },
-			]),
-		]);
-		expect((await prepare([f])).components?.[0]?.members).toHaveLength(4);
+		const members = [
+			{ path: "bin/alpha", sha256: hex("2") },
+			{ path: "lib/alpha/plugins/a.so", sha256: hex("3") },
+			{ path: "share/alpha/..data", sha256: hex("4") },
+			{ path: "share/alpha/\u00e9t\u00e9", sha256: hex("5") },
+		];
+		const f = await withComponents("linux-x86_64", [bundled("alpha", members)]);
+		const matchingBaseline = previousRecord(
+			[{ target: "linux-x86_64", ...bundled("alpha", members) }],
+			["linux-x86_64"],
+		);
+		expect(
+			(await prepare([f], { previousRecord: matchingBaseline })).components?.[0]
+				?.members,
+		).toHaveLength(4);
 	});
 });
 
-describe("declared component transitions", () => {
-	const current = () => [
-		bundled("alpha"),
-		bundled("beta"),
-		downloaded("epsilon"),
+describe("declared component changes", () => {
+	const snapshot = (row: Row): ComponentSnapshot => ({
+		version: row.version as string,
+		delivery: row.delivery as "bundled" | "runtime-downloaded",
+		source: row.source as string,
+		inputs: row.inputs as ComponentSnapshot["inputs"],
+		members: row.members as ComponentSnapshot["members"],
+	});
+
+	const isolatedChanges: [string, Row | null, Row | null][] = [
+		["version", bundled(), { ...bundled(), version: "1.0.1" }],
+		[
+			"source",
+			bundled(),
+			{ ...bundled(), source: "https://example.invalid/alternate.tar.gz" },
+		],
+		[
+			"input name",
+			bundled(),
+			{
+				...bundled(),
+				inputs: [{ name: "alternate.tar.gz", sha256: hex("1") }],
+			},
+		],
+		[
+			"input digest",
+			bundled(),
+			{
+				...bundled(),
+				inputs: [{ name: "alpha-1.0.0.tar.gz", sha256: hex("a") }],
+			},
+		],
+		[
+			"member path",
+			bundled(),
+			bundled("alpha", [
+				{ path: "bin/renamed-alpha", sha256: hex("2") },
+				{ path: "lib/libalpha.so.1", sha256: hex("3") },
+			]),
+		],
+		[
+			"member digest",
+			bundled(),
+			bundled("alpha", [
+				{ path: "bin/alpha", sha256: hex("a") },
+				{ path: "lib/libalpha.so.1", sha256: hex("3") },
+			]),
+		],
+		[
+			"delivery mode",
+			bundled(),
+			{ ...bundled(), delivery: "runtime-downloaded", members: [] },
+		],
+		["addition", null, bundled()],
+		["removal", bundled(), null],
 	];
-	const linux = (rows: unknown[] = current()) =>
-		withComponents("linux-x86_64", rows);
-	// The previous release, against which `current` changes beta, epsilon and
-	// gamma. Its macOS row is for a target the new record does not cover, so
-	// it is never compared.
-	const previous = () =>
-		previousRecord([
-			...[bundled("alpha"), downloaded("beta"), bundled("gamma")].map(
-				(row) => ({ target: "linux-x86_64", ...row }),
-			),
-			{ target: "macos-arm64", ...bundled("delta") },
-		]);
-	const changes = [
+	for (const [name, before, after] of isolatedChanges) {
+		test(`requires an exact declaration for an isolated ${name} change`, async () => {
+			const f = await withComponents("linux-x86_64", after ? [after] : []);
+			const baseline = previousRecord(
+				before ? [{ target: "linux-x86_64", ...before }] : [],
+				["linux-x86_64"],
+			);
+			const change: ComponentChange = {
+				target: "linux-x86_64",
+				id: "alpha",
+				from: before ? snapshot(before) : null,
+				to: after ? snapshot(after) : null,
+			};
+			expect(
+				(await prepare([f], { previousRecord: baseline, changes: [change] }))
+					.component_changes,
+			).toEqual([change]);
+			await expect(
+				prepare([f], { previousRecord: baseline, changes: [] }),
+			).rejects.toMatchObject({ reason: "undeclared-component-changes" });
+			const fabricatedFrom = {
+				...change,
+				from: { ...(change.from ?? snapshot(bundled())), version: "0.0.0" },
+			};
+			await expect(
+				prepare([f], { previousRecord: baseline, changes: [fabricatedFrom] }),
+			).rejects.toMatchObject({ reason: "undeclared-component-changes" });
+			const alteredTo = {
+				...change,
+				to: { ...(change.to ?? snapshot(bundled())), version: "9.0.0" },
+			};
+			await expect(
+				prepare([f], { previousRecord: baseline, changes: [alteredTo] }),
+			).rejects.toMatchObject({ reason: "invalid-changes" });
+		});
+	}
+
+	const prevAlpha = bundled("alpha");
+	const prevBeta = downloaded("beta");
+	const prevDelta = bundled("delta");
+	const prevEpsilon = bundled("epsilon");
+	const prevGamma = bundled("gamma");
+
+	const nextAlpha = {
+		...bundled("alpha"),
+		version: "1.0.1",
+		source: "https://example.invalid/alpha-1.0.1.tar.gz",
+		inputs: [{ name: "alpha-1.0.1.tar.gz", sha256: hex("1") }],
+	};
+	const nextBeta = bundled("beta");
+	const nextDelta = {
+		...bundled("delta"),
+		inputs: [{ name: "delta-1.0.0.tar.gz", sha256: hex("a") }],
+	};
+	const nextEpsilon = {
+		...bundled("epsilon"),
+		members: [
+			{ path: "bin/epsilon", sha256: hex("b") },
+			{ path: "lib/libepsilon.so.1", sha256: hex("3") },
+		],
+	};
+	const nextZeta = bundled("zeta");
+
+	const prevRows = [prevAlpha, prevBeta, prevDelta, prevEpsilon, prevGamma].map(
+		(row) => ({ target: "linux-x86_64", ...row }),
+	);
+
+	const candidateRows = [nextAlpha, nextBeta, nextDelta, nextEpsilon, nextZeta];
+
+	const diff: ComponentChange[] = [
+		{
+			target: "linux-x86_64",
+			id: "alpha",
+			from: snapshot(prevAlpha),
+			to: snapshot(nextAlpha),
+		},
 		{
 			target: "linux-x86_64",
 			id: "beta",
-			from: "runtime-downloaded",
-			to: "bundled",
+			from: snapshot(prevBeta),
+			to: snapshot(nextBeta),
+		},
+		{
+			target: "linux-x86_64",
+			id: "delta",
+			from: snapshot(prevDelta),
+			to: snapshot(nextDelta),
 		},
 		{
 			target: "linux-x86_64",
 			id: "epsilon",
-			from: "absent",
-			to: "runtime-downloaded",
+			from: snapshot(prevEpsilon),
+			to: snapshot(nextEpsilon),
 		},
-		{ target: "linux-x86_64", id: "gamma", from: "bundled", to: "absent" },
+		{
+			target: "linux-x86_64",
+			id: "gamma",
+			from: snapshot(prevGamma),
+			to: null,
+		},
+		{
+			target: "linux-x86_64",
+			id: "zeta",
+			from: null,
+			to: snapshot(nextZeta),
+		},
 	];
 
-	test("a valid declaration is attached after the baseline", async () => {
-		const result = await prepare([await linux()], { transitions: changes });
-		expect(result.component_transitions).toEqual(changes as never);
-		expect(Object.keys(result)).toEqual([
-			...COMPONENT_KEYS.slice(0, 8),
-			"component_transitions",
-			...OLD_KEYS.slice(5),
-		]);
-	});
+	const linux = (rows: unknown[] = candidateRows) =>
+		withComponents("linux-x86_64", rows);
+	const previous = () => previousRecord(prevRows, ["linux-x86_64"]);
 
-	const refused: [string, () => unknown][] = [
-		[
-			"a transition to absent for a listed component",
-			() => [
-				{ target: "linux-x86_64", id: "alpha", from: "bundled", to: "absent" },
-			],
-		],
-		[
-			"a to state that is not the listed delivery",
-			() => [
-				{
-					target: "linux-x86_64",
-					id: "alpha",
-					from: "absent",
-					to: "runtime-downloaded",
-				},
-			],
-		],
-		[
-			"a transition to a component that is not listed",
-			() => [
-				{ target: "linux-x86_64", id: "zeta", from: "absent", to: "bundled" },
-			],
-		],
-		[
-			"a transition for a target outside component_targets",
-			() => [
-				...changes,
-				{ target: "macos-arm64", id: "delta", from: "bundled", to: "absent" },
-			],
-		],
-		[
-			"from equal to to",
-			() => [
-				{ target: "linux-x86_64", id: "alpha", from: "bundled", to: "bundled" },
-			],
-		],
-		["unsorted transitions", () => [...changes].reverse()],
-		["duplicate transitions", () => [changes[0], changes[0]]],
-		["an unknown state", () => [{ ...changes[2], to: "removed" }]],
-		["an extra transition key", () => [{ ...changes[2], reason: "synthetic" }]],
-		["a non-array declaration", () => changes[0]],
-	];
-	for (const [name, transitions] of refused) {
-		test(`refuses ${name}, and accepts the valid twin`, async () => {
-			const f = await linux();
-			expect(
-				(await prepare([f], { transitions: changes })).component_transitions,
-			).toHaveLength(3);
-			await expect(
-				prepare([f], { transitions: transitions() }),
-			).rejects.toMatchObject({ reason: "invalid-transitions" });
-		});
-	}
-
-	test("refuses transitions when no supplied manifest lists components, and accepts them once one does", async () => {
-		const declared = [
-			{ target: "linux-x86_64", id: "gamma", from: "bundled", to: "absent" },
-		];
-		await expect(
-			prepare([await fixture()], { transitions: declared }),
-		).rejects.toMatchObject({ reason: "transitions-without-components" });
-		expect(
-			(await prepare([await linux([])], { transitions: declared }))
-				.component_transitions,
-		).toEqual(declared as never);
-	});
-
-	test("the delivery changes are computed over targets both records cover", async () => {
-		const next = await prepare([await linux()]);
-		expect(componentDeliveryChanges(previous(), next)).toEqual(
-			changes as never,
-		);
-		// The previous record covers macos-arm64 and the new one does not;
-		// the twin, where both cover it, compares it.
-		const macosNext = {
-			...next,
-			component_targets: ["linux-x86_64", "macos-arm64"],
-		};
-		expect(componentDeliveryChanges(previous(), macosNext)).toEqual([
-			...changes,
-			{ target: "macos-arm64", id: "delta", from: "bundled", to: "absent" },
-		] as never);
-	});
-
-	test("a target only the new record covers is not compared, and is compared once both cover it", async () => {
-		const x86 = await linux();
-		const arm = await withComponents("linux-aarch64", [bundled("theta")]);
-		const result = await prepare([x86, arm], {
-			transitions: changes,
+	test("attaches valid declared changes matching the snapshot diff", async () => {
+		const f = await linux();
+		const result = await prepare([f], {
+			changes: diff,
 			previousRecord: previous(),
 		});
-		expect(result.component_targets).toEqual(["linux-aarch64", "linux-x86_64"]);
-		expect(result.component_transitions).toEqual(changes as never);
-		const covering = previousRecord(previous().components as never, [
-			"linux-aarch64",
+		expect(result.component_changes).toEqual(diff);
+		expect(result.component_transitions).toBeUndefined();
+		expect(Object.keys(result)).toEqual(COMPONENT_KEYS);
+	});
+
+	test("omitted changes and explicit [] succeed only when the diff is empty", async () => {
+		const f = await linux();
+		const candidateAsPrev = candidateRows.map((row) => ({
+			target: "linux-x86_64",
+			...row,
+		}));
+		const baseline = previousRecord(candidateAsPrev, ["linux-x86_64"]);
+		const omitted = await prepare([f], { previousRecord: baseline });
+		expect(omitted.component_changes).toEqual([]);
+		const explicit = await prepare([f], {
+			changes: [],
+			previousRecord: baseline,
+		});
+		expect(explicit.component_changes).toEqual([]);
+	});
+
+	test("omitted changes or explicit [] refuses undeclared-component-changes when diff is non-empty", async () => {
+		const f = await linux();
+		await expect(
+			prepare([f], { previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "undeclared-component-changes" });
+		await expect(
+			prepare([f], { changes: [], previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "undeclared-component-changes" });
+	});
+
+	test("a fabricated or altered entry refuses undeclared-component-changes", async () => {
+		const f = await linux();
+		const altered = [
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				from: { ...snapshot(prevAlpha), version: "0.9.0" },
+				to: snapshot(nextAlpha),
+			},
+			...diff.slice(1),
+		];
+		await expect(
+			prepare([f], { changes: altered, previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "undeclared-component-changes" });
+		await expect(
+			prepare([f], { changes: diff.slice(0, -1), previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "undeclared-component-changes" });
+	});
+
+	test("reordered object keys inside a snapshot compare equal after validation and succeed", async () => {
+		const f = await linux();
+		const reorderSnapshot = (s: ComponentSnapshot | null) =>
+			s
+				? {
+						members: s.members.map((m) => ({
+							sha256: m.sha256,
+							path: m.path,
+						})),
+						source: s.source,
+						version: s.version,
+						delivery: s.delivery,
+						inputs: s.inputs.map((i) => ({
+							sha256: i.sha256,
+							name: i.name,
+						})),
+					}
+				: null;
+		const reorderedDiff = diff.map((change) => ({
+			...change,
+			from: reorderSnapshot(change.from),
+			to: reorderSnapshot(change.to),
+		}));
+		const result = await prepare([f], {
+			changes: reorderedDiff,
+			previousRecord: previous(),
+		});
+		expect(result.component_changes).toBeDefined();
+	});
+
+	test("unsorted entries, inputs, or members fail invalid-changes", async () => {
+		const f = await linux();
+		await expect(
+			prepare([f], {
+				changes: [...diff].reverse(),
+				previousRecord: previous(),
+			}),
+		).rejects.toMatchObject({ reason: "invalid-changes" });
+
+		const badInputsDiff = diff.map((change) =>
+			change.id === "beta" && change.from
+				? {
+						...change,
+						from: {
+							...change.from,
+							inputs: [...change.from.inputs].reverse(),
+						},
+					}
+				: change,
+		);
+		await expect(
+			prepare([f], {
+				changes: badInputsDiff,
+				previousRecord: previous(),
+			}),
+		).rejects.toMatchObject({ reason: "invalid-changes" });
+
+		const badMembersDiff = diff.map((change) =>
+			change.id === "alpha" && change.to
+				? {
+						...change,
+						to: {
+							...change.to,
+							members: [...change.to.members].reverse(),
+						},
+					}
+				: change,
+		);
+		await expect(
+			prepare([f], {
+				changes: badMembersDiff,
+				previousRecord: previous(),
+			}),
+		).rejects.toMatchObject({ reason: "invalid-changes" });
+	});
+
+	test("unequal target lists, including a target present on only one side, refuse uncomparable-component-coverage", async () => {
+		const f = await linux();
+		const prevCoveringMac = previousRecord(prevRows, [
 			"linux-x86_64",
 			"macos-arm64",
 		]);
 		await expect(
-			prepare([x86, arm], { transitions: changes, previousRecord: covering }),
-		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
-		const declared = [
-			{ target: "linux-aarch64", id: "theta", from: "absent", to: "bundled" },
-			...changes,
-		];
-		expect(
-			(
-				await prepare([x86, arm], {
-					transitions: declared,
-					previousRecord: covering,
-				})
-			).component_transitions,
-		).toEqual(declared as never);
+			prepare([f], { changes: diff, previousRecord: prevCoveringMac }),
+		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
+
+		const mac = await withComponents("macos-arm64", []);
+		await expect(
+			prepare([f, mac], { changes: diff, previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
 	});
 
-	test("declarations equal to the changes since the previous record are accepted, in either previous-record form", async () => {
-		const f = await linux();
-		for (const record of [
-			previous(),
-			{ product: "journal", version: "1.9.0", releasePredicate: previous() },
-		]) {
-			const result = await prepare([f], {
-				transitions: changes,
-				previousRecord: record,
-			});
-			expect(result.component_transitions).toEqual(changes as never);
-			expect(result.component_baseline).toBe("1.9.0");
-		}
+	test("empty components with equal non-empty targets is comparable", async () => {
+		const f = await linux([]);
+		const baselineEmpty = previousRecord([], ["linux-x86_64"]);
+		const result = await prepare([f], { previousRecord: baselineEmpty });
+		expect(result.component_changes).toEqual([]);
+		expect(result.components).toEqual([]);
 	});
 
-	test("a missing declaration is refused", async () => {
+	test("candidate with inventory, baseline with no triple, and no changes refuses uncomparable-component-coverage", async () => {
 		const f = await linux();
 		await expect(
-			prepare([f], {
-				transitions: changes.slice(0, 2),
-				previousRecord: previous(),
-			}),
-		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
-		await expect(
-			prepare([f], { previousRecord: previous() }),
-		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
+			prepare([f], { previousRecord: previousRecord() }),
+		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
 	});
 
-	test("an extra declaration is refused", async () => {
+	test("candidate with no inventory and changes supplied refuses changes-without-components", async () => {
+		const plain = await fixture();
 		await expect(
-			prepare([await linux()], {
-				transitions: [
-					{
-						target: "linux-x86_64",
-						id: "alpha",
-						from: "runtime-downloaded",
-						to: "bundled",
-					},
-					...changes,
-				],
-				previousRecord: previous(),
-			}),
-		).rejects.toMatchObject({ reason: "undeclared-component-transitions" });
+			prepare([plain], { changes: diff, previousRecord: previousRecord() }),
+		).rejects.toMatchObject({ reason: "changes-without-components" });
+
+		await expect(
+			prepare([plain], { changes: diff, previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "changes-without-components" });
 	});
 
-	test("an unchanged inventory needs no declaration", async () => {
-		const unchanged = previousRecord(
-			current().map((row) => ({ target: "linux-x86_64", ...row })),
-		);
-		const result = await prepare([await linux()], {
-			previousRecord: unchanged,
+	test("historical predicate baseline emits full snapshots in component_changes", async () => {
+		const historicalPrevious: ReleaseRecordPredicate = {
+			...previous(),
+			component_transitions: [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: "absent",
+					to: "bundled",
+				},
+			],
+		};
+		const f = await linux();
+		const result = await prepare([f], {
+			changes: diff,
+			previousRecord: historicalPrevious,
 		});
-		expect(result.component_transitions).toBeUndefined();
-	});
-
-	test("a previous record without components imposes no comparison", async () => {
-		const f = await linux();
-		expect((await prepare([f])).components).toHaveLength(3);
-		expect(
-			(await prepare([f], { transitions: changes.slice(1, 2) }))
-				.component_transitions,
-		).toEqual(changes.slice(1, 2) as never);
+		expect(result.component_changes).toEqual(diff);
+		for (const change of result.component_changes ?? []) {
+			expect(typeof change.from).not.toBe("string");
+			expect(typeof change.to).not.toBe("string");
+			if (change.from) {
+				expect(change.from).toHaveProperty("version");
+				expect(change.from).toHaveProperty("delivery");
+				expect(change.from).toHaveProperty("source");
+				expect(change.from).toHaveProperty("inputs");
+				expect(change.from).toHaveProperty("members");
+			}
+			if (change.to) {
+				expect(change.to).toHaveProperty("version");
+				expect(change.to).toHaveProperty("delivery");
+				expect(change.to).toHaveProperty("source");
+				expect(change.to).toHaveProperty("inputs");
+				expect(change.to).toHaveProperty("members");
+			}
+		}
 	});
 
 	test("refuses an unusable previous record", async () => {
@@ -1105,20 +1306,21 @@ describe("declared component transitions", () => {
 		).rejects.toMatchObject({ reason: "previous-record-mismatch" });
 	});
 
-	test("CLI attaches declared transitions and checks them against the previous output", async () => {
+	test("CLI attaches declared changes and checks them against the previous output", async () => {
 		const f = await linux();
 		const claimsPath = join(f.root, "claims.json");
-		const transitionsPath = join(f.root, "transitions.json");
+		const changesPath = join(f.root, "changes.json");
 		const previousPath = join(f.root, "previous.json");
 		await writeFile(claimsPath, JSON.stringify(claims));
-		await writeFile(transitionsPath, JSON.stringify(changes));
+		await writeFile(changesPath, JSON.stringify(diff));
+		const prev = previous();
 		await writeFile(
 			previousPath,
 			JSON.stringify({
 				product: "journal",
 				version: "1.9.0",
-				releasePredicate: previous(),
-				artifactDescriptors: previous().artifacts,
+				releasePredicate: prev,
+				artifactDescriptors: prev.artifacts,
 			}),
 		);
 		const run = async (...extra: string[]) => {
@@ -1145,15 +1347,18 @@ describe("declared component transitions", () => {
 			};
 		};
 		const accepted = await run(
-			"--transitions",
-			transitionsPath,
+			"--changes",
+			changesPath,
 			"--previous-record",
 			previousPath,
 		);
 		expect(accepted.code).toBe(0);
 		const output = JSON.parse(accepted.stdout);
-		expect(output.releasePredicate.component_transitions).toEqual(changes);
-		expect(output.releasePredicate.components).toHaveLength(3);
+		expect(output.releasePredicate.component_changes).toEqual(diff);
+		expect(output.releasePredicate.component_transitions).toBeUndefined();
+		expect(output.releasePredicate.components).toHaveLength(
+			candidateRows.length,
+		);
 		expect(output.releasePredicate.component_targets).toEqual(["linux-x86_64"]);
 		expect(output.releasePredicate.component_baseline).toBe("1.9.0");
 		expect(
@@ -1163,17 +1368,17 @@ describe("declared component transitions", () => {
 		const undeclared = await run("--previous-record", previousPath);
 		expect(undeclared.code).toBe(1);
 		expect(JSON.parse(undeclared.stderr).reason).toBe(
-			"undeclared-component-transitions",
+			"undeclared-component-changes",
 		);
-		const unanchored = await run("--transitions", transitionsPath);
+		const unanchored = await run("--changes", changesPath);
 		expect(unanchored.code).toBe(1);
 		expect(JSON.parse(unanchored.stderr).reason).toBe(
 			"missing-previous-record",
 		);
-		await writeFile(transitionsPath, "not json");
-		const unreadable = await run("--transitions", transitionsPath);
+		await writeFile(changesPath, "not json");
+		const unreadable = await run("--changes", changesPath);
 		expect(unreadable.code).toBe(1);
-		expect(JSON.parse(unreadable.stderr).reason).toBe("invalid-transitions");
+		expect(JSON.parse(unreadable.stderr).reason).toBe("invalid-changes");
 	});
 });
 
@@ -1205,12 +1410,18 @@ describe("components files", () => {
 	const rows = () => [bundled("alpha"), downloaded("beta")];
 
 	test("a file-sourced inventory yields the same component fields as a manifest-sourced one, and leaves the artifacts untouched", async () => {
-		const fromManifest = await prepare([
-			await withComponents("linux-x86_64", rows()),
-		]);
+		const matchingBaseline = previousRecord(
+			rows().map((row) => ({ target: "linux-x86_64", ...row })),
+			["linux-x86_64"],
+		);
+		const fromManifest = await prepare(
+			[await withComponents("linux-x86_64", rows())],
+			{ previousRecord: matchingBaseline },
+		);
 		const plain = await fixture();
 		const fromFile = await prepare([plain], {
 			componentsPaths: [await componentsFile(plain, rows())],
+			previousRecord: matchingBaseline,
 		});
 		const withoutComponents = await prepare([plain]);
 		// The manifest carrying a components key has different bytes, so only
@@ -1223,6 +1434,7 @@ describe("components files", () => {
 			JSON.stringify({ ...fromManifest, artifacts: [] }),
 		);
 		expect(Object.keys(fromFile)).toEqual(COMPONENT_KEYS);
+		expect(fromFile.component_changes).toEqual([]);
 		expect(fromFile.artifacts).toStrictEqual(withoutComponents.artifacts);
 		expect(
 			fromFile.artifacts.some((artifact) =>
@@ -1236,9 +1448,11 @@ describe("components files", () => {
 		const macos = await fixture("macos-arm64");
 		const result = await prepare([linux, macos], {
 			componentsPaths: [await componentsFile(macos, [])],
+			previousRecord: previousRecord([], ["macos-arm64"]),
 		});
 		expect(result.component_targets).toEqual(["macos-arm64"]);
 		expect(result.components).toEqual([]);
+		expect(result.component_changes).toEqual([]);
 		const none = await prepare([linux, macos], { componentsPaths: [] });
 		expect(Object.keys(none)).toEqual(OLD_KEYS);
 	});
@@ -1247,8 +1461,16 @@ describe("components files", () => {
 		const x86 = await withComponents("linux-x86_64", [bundled("alpha")]);
 		const macos = await fixture("macos-arm64");
 		const windows = await fixture("windows-x86_64");
+		const matchingBaseline = previousRecord(
+			[
+				{ target: "linux-x86_64", ...bundled("alpha") },
+				{ target: "macos-arm64", ...downloaded("beta") },
+			],
+			["linux-x86_64", "macos-arm64"],
+		);
 		const result = await prepare([windows, x86, macos], {
 			componentsPaths: [await componentsFile(macos, [downloaded("beta")])],
+			previousRecord: matchingBaseline,
 		});
 		expect(result.component_targets).toEqual(["linux-x86_64", "macos-arm64"]);
 		expect(result.components?.map((row) => `${row.target}/${row.id}`)).toEqual([
@@ -1260,11 +1482,20 @@ describe("components files", () => {
 	test("refuses file-sourced components without a previous record, and accepts them with one", async () => {
 		const f = await fixture();
 		const path = await componentsFile(f, rows());
+		const matchingBaseline = previousRecord(
+			rows().map((row) => ({ target: "linux-x86_64", ...row })),
+			["linux-x86_64"],
+		);
 		await expect(
 			prepare([f], { componentsPaths: [path], previousRecord: undefined }),
 		).rejects.toMatchObject({ reason: "missing-previous-record" });
 		expect(
-			(await prepare([f], { componentsPaths: [path] })).component_baseline,
+			(
+				await prepare([f], {
+					componentsPaths: [path],
+					previousRecord: matchingBaseline,
+				})
+			).component_baseline,
 		).toBe("1.9.0");
 	});
 
@@ -1272,12 +1503,20 @@ describe("components files", () => {
 		const linux = await fixture();
 		const macos = await fixture("macos-arm64");
 		const path = await componentsFile(macos, rows());
+		const matchingBaseline = previousRecord(
+			rows().map((row) => ({ target: "macos-arm64", ...row })),
+			["macos-arm64"],
+		);
 		await expect(
 			prepare([linux], { componentsPaths: [path] }),
 		).rejects.toMatchObject({ reason: "components-target-mismatch" });
 		expect(
-			(await prepare([linux, macos], { componentsPaths: [path] }))
-				.component_targets,
+			(
+				await prepare([linux, macos], {
+					componentsPaths: [path],
+					previousRecord: matchingBaseline,
+				})
+			).component_targets,
 		).toEqual(["macos-arm64"]);
 	});
 
@@ -1285,6 +1524,10 @@ describe("components files", () => {
 		const f = await fixture();
 		const first = await componentsFile(f, rows());
 		const second = await componentsFile(f, rows(), {}, "second.json");
+		const matchingBaseline = previousRecord(
+			rows().map((row) => ({ target: "linux-x86_64", ...row })),
+			["linux-x86_64"],
+		);
 		await expect(
 			prepare([f], { componentsPaths: [first, second] }),
 		).rejects.toMatchObject({ reason: "duplicate-components-source" });
@@ -1292,22 +1535,34 @@ describe("components files", () => {
 			prepare([f], { componentsPaths: [first, first] }),
 		).rejects.toMatchObject({ reason: "duplicate-components-source" });
 		expect(
-			(await prepare([f], { componentsPaths: [first] })).components,
+			(
+				await prepare([f], {
+					componentsPaths: [first],
+					previousRecord: matchingBaseline,
+				})
+			).components,
 		).toHaveLength(2);
 	});
 
 	test("refuses a file for a target whose manifest has a components key, and accepts either source alone", async () => {
 		const f = await withComponents("linux-x86_64", rows());
 		const path = await componentsFile(f, rows());
+		const matchingBaseline = previousRecord(
+			rows().map((row) => ({ target: "linux-x86_64", ...row })),
+			["linux-x86_64"],
+		);
 		await expect(
 			prepare([f], { componentsPaths: [path] }),
 		).rejects.toMatchObject({ reason: "duplicate-components-source" });
-		expect((await prepare([f])).components).toHaveLength(2);
+		expect(
+			(await prepare([f], { previousRecord: matchingBaseline })).components,
+		).toHaveLength(2);
 		const plain = await fixture();
 		expect(
 			(
 				await prepare([plain], {
 					componentsPaths: [await componentsFile(plain, rows())],
+					previousRecord: matchingBaseline,
 				})
 			).components,
 		).toHaveLength(2);
@@ -1320,10 +1575,15 @@ describe("components files", () => {
 	for (const [name, overrides] of releaseMismatches) {
 		test(`refuses a file for ${name}, and accepts the matching twin`, async () => {
 			const f = await fixture();
+			const matchingBaseline = previousRecord(
+				rows().map((row) => ({ target: "linux-x86_64", ...row })),
+				["linux-x86_64"],
+			);
 			expect(
 				(
 					await prepare([f], {
 						componentsPaths: [await componentsFile(f, rows())],
+						previousRecord: matchingBaseline,
 					})
 				).components,
 			).toHaveLength(2);
@@ -1374,9 +1634,18 @@ describe("components files", () => {
 	for (const [name, change] of malformed) {
 		test(`refuses a components file with ${name} as invalid-components-file, and accepts the valid twin`, async () => {
 			const f = await fixture();
+			const matchingBaseline = previousRecord(
+				rows().map((row) => ({ target: "linux-x86_64", ...row })),
+				["linux-x86_64"],
+			);
 			const path = await componentsFile(f, rows());
 			expect(
-				(await prepare([f], { componentsPaths: [path] })).components,
+				(
+					await prepare([f], {
+						componentsPaths: [path],
+						previousRecord: matchingBaseline,
+					})
+				).components,
 			).toHaveLength(2);
 			await change(f, path);
 			await expect(
@@ -1387,10 +1656,15 @@ describe("components files", () => {
 
 	test("refuses invalid rows in a file as invalid-components, and accepts the valid twin", async () => {
 		const f = await fixture();
+		const matchingBaseline = previousRecord(
+			rows().map((row) => ({ target: "linux-x86_64", ...row })),
+			["linux-x86_64"],
+		);
 		expect(
 			(
 				await prepare([f], {
 					componentsPaths: [await componentsFile(f, rows())],
+					previousRecord: matchingBaseline,
 				})
 			).components,
 		).toHaveLength(2);
@@ -1414,7 +1688,11 @@ describe("components files", () => {
 		const claimsPath = join(linux.root, "claims.json");
 		const previousPath = join(linux.root, "previous.json");
 		await writeFile(claimsPath, JSON.stringify(claims));
-		await writeFile(previousPath, JSON.stringify(previousRecord()));
+		const prevRows = rows().map((r) => ({ target: "linux-x86_64", ...r }));
+		await writeFile(
+			previousPath,
+			JSON.stringify(previousRecord(prevRows, ["linux-x86_64", "macos-arm64"])),
+		);
 		const linuxFile = await componentsFile(linux, rows());
 		const macosFile = await componentsFile(macos, []);
 		const run = async (...extra: string[]) => {

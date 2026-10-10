@@ -55,6 +55,21 @@ export interface ComponentTransition {
 	to: ComponentState;
 }
 
+export interface ComponentSnapshot {
+	version: string;
+	delivery: ComponentDelivery;
+	source: string;
+	inputs: readonly ComponentInput[];
+	members: readonly ComponentMember[];
+}
+
+export interface ComponentChange {
+	target: string;
+	id: string;
+	from: ComponentSnapshot | null;
+	to: ComponentSnapshot | null;
+}
+
 export interface ReleaseRecordPredicate {
 	_comment: readonly string[];
 	schema: typeof RELEASE_RECORD_SCHEMA;
@@ -68,10 +83,24 @@ export interface ReleaseRecordPredicate {
 	component_targets?: readonly string[];
 	/** Absent when the record makes no statement about components. */
 	components?: readonly ReleaseComponent[];
-	/** The version of the previous record the transitions were compared against. Present if and only if `components` is. */
+	/**
+	 * The version of the previous record against which declared component
+	 * changes or transitions were compared. Present if and only if
+	 * `components` is.
+	 */
 	component_baseline?: string;
-	/** Present only alongside `components`. */
+	/**
+	 * Historical component delivery transitions. Mutually exclusive with
+	 * `component_changes`. Present only alongside `components`.
+	 */
 	component_transitions?: readonly ComponentTransition[];
+	/**
+	 * Declared component snapshot changes since `component_baseline`.
+	 * Mutually exclusive with `component_transitions`. Present only
+	 * alongside `components`. `from` is shape-validated only and not
+	 * checked against a baseline.
+	 */
+	component_changes?: readonly ComponentChange[];
 	does_prove: readonly string[];
 	does_not_prove: readonly string[];
 }
@@ -223,6 +252,76 @@ function parseNamedHashes<K extends "name" | "path">(
 	return { ok: true, value: rows };
 }
 
+function parseSnapshotFields(
+	record: Record<string, unknown>,
+	path: readonly string[],
+): TufResult<ComponentSnapshot> {
+	if (!nonEmptyString(record.version)) {
+		return malformed(
+			[...path, "version"],
+			"a non-empty string",
+			record.version,
+		);
+	}
+	if (
+		typeof record.delivery !== "string" ||
+		!DELIVERIES.includes(record.delivery)
+	) {
+		return malformed(
+			[...path, "delivery"],
+			"bundled or runtime-downloaded",
+			record.delivery,
+		);
+	}
+	if (!nonEmptyString(record.source)) {
+		return malformed([...path, "source"], "a non-empty string", record.source);
+	}
+	const inputs = parseNamedHashes(
+		record.inputs,
+		[...path, "inputs"],
+		"name",
+		nonEmptyString,
+		"inputs of exactly a non-empty name and a 64-character lowercase hex sha256",
+	);
+	if (!inputs.ok) return inputs;
+	if (inputs.value.length === 0) {
+		return malformed([...path, "inputs"], "at least one input", record.inputs);
+	}
+	const members = parseNamedHashes(
+		record.members,
+		[...path, "members"],
+		"path",
+		validMemberPath,
+		"members of exactly a relative path under bin/, lib/ or share/ and a 64-character lowercase hex sha256",
+	);
+	if (!members.ok) return members;
+	const delivery = record.delivery as ComponentDelivery;
+	if (delivery === "bundled" && members.value.length === 0) {
+		return malformed(
+			[...path, "members"],
+			"at least one member for a bundled component",
+			record.members,
+		);
+	}
+	if (delivery === "runtime-downloaded" && members.value.length !== 0) {
+		return malformed(
+			[...path, "members"],
+			"no members for a runtime-downloaded component",
+			record.members,
+		);
+	}
+	return {
+		ok: true,
+		value: {
+			version: record.version,
+			delivery,
+			source: record.source,
+			inputs: inputs.value,
+			members: members.value,
+		},
+	};
+}
+
 function parseComponent(
 	value: unknown,
 	path: readonly string[],
@@ -254,66 +353,14 @@ function parseComponent(
 			value.id,
 		);
 	}
-	if (!nonEmptyString(value.version)) {
-		return malformed([...path, "version"], "a non-empty string", value.version);
-	}
-	if (
-		typeof value.delivery !== "string" ||
-		!DELIVERIES.includes(value.delivery)
-	) {
-		return malformed(
-			[...path, "delivery"],
-			"bundled or runtime-downloaded",
-			value.delivery,
-		);
-	}
-	if (!nonEmptyString(value.source)) {
-		return malformed([...path, "source"], "a non-empty string", value.source);
-	}
-	const inputs = parseNamedHashes(
-		value.inputs,
-		[...path, "inputs"],
-		"name",
-		nonEmptyString,
-		"inputs of exactly a non-empty name and a 64-character lowercase hex sha256",
-	);
-	if (!inputs.ok) return inputs;
-	if (inputs.value.length === 0) {
-		return malformed([...path, "inputs"], "at least one input", value.inputs);
-	}
-	const members = parseNamedHashes(
-		value.members,
-		[...path, "members"],
-		"path",
-		validMemberPath,
-		"members of exactly a relative path under bin/, lib/ or share/ and a 64-character lowercase hex sha256",
-	);
-	if (!members.ok) return members;
-	const delivery = value.delivery as ComponentDelivery;
-	if (delivery === "bundled" && members.value.length === 0) {
-		return malformed(
-			[...path, "members"],
-			"at least one member for a bundled component",
-			value.members,
-		);
-	}
-	if (delivery === "runtime-downloaded" && members.value.length !== 0) {
-		return malformed(
-			[...path, "members"],
-			"no members for a runtime-downloaded component",
-			value.members,
-		);
-	}
+	const snapshot = parseSnapshotFields(value, path);
+	if (!snapshot.ok) return snapshot;
 	return {
 		ok: true,
 		value: {
 			target: rowTarget,
 			id: value.id,
-			version: value.version,
-			delivery,
-			source: value.source,
-			inputs: inputs.value,
-			members: members.value,
+			...snapshot.value,
 		},
 	};
 }
@@ -447,6 +494,172 @@ export function parseComponentTransitions(
 	return { ok: true, value: transitions };
 }
 
+function parseEndpoint(
+	value: unknown,
+	path: readonly string[],
+): TufResult<ComponentSnapshot | null> {
+	if (value === null) return { ok: true, value: null };
+	const fields = [
+		"version",
+		"delivery",
+		"source",
+		"inputs",
+		"members",
+	] as const;
+	if (!isRecord(value) || !exactKeys(value, fields)) {
+		return malformed(
+			path,
+			"null or a component snapshot of exactly version, delivery, source, inputs and members",
+			value,
+		);
+	}
+	return parseSnapshotFields(value, path);
+}
+
+export function componentSnapshotsEqual(
+	left: ComponentSnapshot | null,
+	right: ComponentSnapshot | null,
+): boolean {
+	if (left === null || right === null) return left === right;
+	if (
+		left.version !== right.version ||
+		left.delivery !== right.delivery ||
+		left.source !== right.source ||
+		left.inputs.length !== right.inputs.length ||
+		left.members.length !== right.members.length
+	) {
+		return false;
+	}
+	for (let i = 0; i < left.inputs.length; i++) {
+		const l = left.inputs[i];
+		const r = right.inputs[i];
+		if (l === undefined || r === undefined) return false;
+		if (l.name !== r.name || l.sha256 !== r.sha256) return false;
+	}
+	for (let i = 0; i < left.members.length; i++) {
+		const l = left.members[i];
+		const r = right.members[i];
+		if (l === undefined || r === undefined) return false;
+		if (l.path !== r.path || l.sha256 !== r.sha256) return false;
+	}
+	return true;
+}
+
+export function componentChangesEqual(
+	left: readonly ComponentChange[],
+	right: readonly ComponentChange[],
+): boolean {
+	if (left.length !== right.length) return false;
+	for (let i = 0; i < left.length; i++) {
+		const l = left[i];
+		const r = right[i];
+		if (l === undefined || r === undefined) return false;
+		if (l.target !== r.target || l.id !== r.id) return false;
+		if (!componentSnapshotsEqual(l.from, r.from)) return false;
+		if (!componentSnapshotsEqual(l.to, r.to)) return false;
+	}
+	return true;
+}
+
+/**
+ * Validates declared component changes against the record's components:
+ * every change names a target in `componentTargets`, a change with `to === null`
+ * names no listed component, and any other change names a listed component
+ * whose snapshot equals its `to` state.
+ */
+export function parseComponentChanges(
+	value: unknown,
+	components: readonly ReleaseComponent[],
+	componentTargets: readonly string[],
+): TufResult<ComponentChange[]> {
+	const path = ["component_changes"];
+	if (!Array.isArray(value)) {
+		return malformed(path, "an array of component changes", typeName(value));
+	}
+	const listed = new Map(
+		components.map((row) => [`${row.target}\u0000${row.id}`, row]),
+	);
+	const changes: ComponentChange[] = [];
+	for (const [index, row] of value.entries()) {
+		const at = [...path, String(index)];
+		if (
+			!isRecord(row) ||
+			!exactKeys(row, ["target", "id", "from", "to"]) ||
+			typeof row.target !== "string" ||
+			!COMPONENT_NAME.test(row.target) ||
+			typeof row.id !== "string" ||
+			!COMPONENT_NAME.test(row.id)
+		) {
+			return malformed(at, "a change of exactly target, id, from and to", row);
+		}
+		const changeKey = { target: row.target, id: row.id };
+		const previous = changes.at(-1);
+		if (previous !== undefined && compareKey(previous, changeKey) >= 0) {
+			return malformed(
+				at,
+				"changes sorted by target then id, without duplicates",
+				row,
+			);
+		}
+		if (!componentTargets.includes(row.target)) {
+			return malformed(
+				[...at, "target"],
+				"a target listed in component_targets",
+				row.target,
+			);
+		}
+		const from = parseEndpoint(row.from, [...at, "from"]);
+		if (!from.ok) return from;
+		const to = parseEndpoint(row.to, [...at, "to"]);
+		if (!to.ok) return to;
+		if (from.value === null && to.value === null) {
+			return malformed(at, "a change where from and to are not both null", row);
+		}
+		if (componentSnapshotsEqual(from.value, to.value)) {
+			return malformed(at, "a change where from and to differ", row);
+		}
+		const component = listed.get(`${row.target}\u0000${row.id}`);
+		if (to.value === null) {
+			if (component !== undefined) {
+				return malformed(
+					[...at, "to"],
+					"null to state for a component the record does not list",
+					row.to,
+				);
+			}
+		} else {
+			if (component === undefined) {
+				return malformed(
+					[...at, "to"],
+					"to state matching the listed component",
+					row.to,
+				);
+			}
+			const listedSnapshot: ComponentSnapshot = {
+				version: component.version,
+				delivery: component.delivery,
+				source: component.source,
+				inputs: component.inputs,
+				members: component.members,
+			};
+			if (!componentSnapshotsEqual(to.value, listedSnapshot)) {
+				return malformed(
+					[...at, "to"],
+					"to state matching the listed component",
+					row.to,
+				);
+			}
+		}
+		changes.push({
+			target: row.target,
+			id: row.id,
+			from: from.value,
+			to: to.value,
+		});
+	}
+	return { ok: true, value: changes };
+}
+
 /** Validates `component_targets`: targets sorted in UTF-16 code-unit order, unique. */
 export function parseComponentTargets(value: unknown): TufResult<string[]> {
 	const path = ["component_targets"];
@@ -477,10 +690,11 @@ interface ComponentStatement {
 	components: ReleaseComponent[];
 	component_baseline: string;
 	component_transitions?: ComponentTransition[];
+	component_changes?: ComponentChange[];
 }
 
 // component_targets, components and component_baseline appear together or not
-// at all; component_transitions appears only with them.
+// at all; component_transitions or component_changes appears only with them.
 function parseComponentStatement(
 	value: Record<string, unknown>,
 	version: string,
@@ -496,6 +710,13 @@ function parseComponentStatement(
 				typeName(value.component_transitions),
 			);
 		}
+		if (value.component_changes !== undefined) {
+			return malformed(
+				["component_changes"],
+				"component_changes only alongside components",
+				typeName(value.component_changes),
+			);
+		}
 		return { ok: true, value: undefined };
 	}
 	if (present.length !== 3) {
@@ -503,6 +724,16 @@ function parseComponentStatement(
 			[present[0] ?? "components"],
 			"component_targets, components and component_baseline together",
 			present,
+		);
+	}
+	if (
+		value.component_transitions !== undefined &&
+		value.component_changes !== undefined
+	) {
+		return malformed(
+			["component_changes"],
+			"either component_transitions or component_changes, not both",
+			value.component_changes,
 		);
 	}
 	const targets = parseComponentTargets(value.component_targets);
@@ -538,6 +769,16 @@ function parseComponentStatement(
 		if (!parsed.ok) return parsed;
 		transitions = parsed.value;
 	}
+	let changes: ComponentChange[] | undefined;
+	if (value.component_changes !== undefined) {
+		const parsed = parseComponentChanges(
+			value.component_changes,
+			components.value,
+			targets.value,
+		);
+		if (!parsed.ok) return parsed;
+		changes = parsed.value;
+	}
 	return {
 		ok: true,
 		value: {
@@ -547,6 +788,7 @@ function parseComponentStatement(
 			...(transitions === undefined
 				? {}
 				: { component_transitions: transitions }),
+			...(changes === undefined ? {} : { component_changes: changes }),
 		},
 	};
 }
@@ -651,4 +893,45 @@ export async function validateReleaseRecordPredicate(
 			does_not_prove: value.does_not_prove as string[],
 		},
 	};
+}
+
+/**
+ * Admits a release-record predicate for publication signing.
+ * Enforces that new publications carry `component_changes` (and never
+ * historical `component_transitions`) when carrying a component inventory.
+ */
+export function admitReleaseComponentDeclaration(
+	predicate: ReleaseRecordPredicate,
+): TufResult<void> {
+	const parsed = parseComponentStatement(
+		predicate as unknown as Record<string, unknown>,
+		predicate.version,
+	);
+	if (!parsed.ok) return parsed;
+	const statement = parsed.value;
+	if (statement === undefined) {
+		return { ok: true, value: undefined };
+	}
+	if (statement.component_targets.length === 0) {
+		return malformed(
+			["component_targets"],
+			"non-empty component coverage for a new release record",
+			statement.component_targets,
+		);
+	}
+	if (statement.component_transitions !== undefined) {
+		return malformed(
+			["component_transitions"],
+			"new release records must not carry component_transitions",
+			statement.component_transitions,
+		);
+	}
+	if (statement.component_changes === undefined) {
+		return malformed(
+			["component_changes"],
+			"component-bearing release records must carry component_changes",
+			undefined,
+		);
+	}
+	return { ok: true, value: undefined };
 }

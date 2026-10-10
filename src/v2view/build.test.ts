@@ -396,6 +396,63 @@ describe("state (b): a release record", () => {
 		expect(orphan.doesProve).toEqual([]);
 	});
 
+	test("a record carrying component_changes builds and verifies without component projection", async () => {
+		const components = [
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				version: "1.0.0",
+				delivery: "bundled",
+				source: "https://example.invalid/alpha-1.0.0.tar.gz",
+				inputs: [{ name: "alpha-1.0.0.tar.gz", sha256: "1".repeat(64) }],
+				members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+			},
+		];
+		const component_changes = [
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				from: null,
+				to: {
+					version: "1.0.0",
+					delivery: "bundled",
+					source: "https://example.invalid/alpha-1.0.0.tar.gz",
+					inputs: [{ name: "alpha-1.0.0.tar.gz", sha256: "1".repeat(64) }],
+					members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+				},
+			},
+		];
+		const fixture = await buildFixture({
+			buildAt: BUILD_AT,
+			releases: [
+				{
+					product: "solstone-journal",
+					version: "2.0.0",
+					predicateExtra: {
+						component_targets: ["linux-x86_64"],
+						components,
+						component_baseline: "1.9.0",
+						component_changes,
+					},
+				},
+			],
+		});
+		const model = await build(fixture);
+		if (model.state !== "verified") throw new Error("expected verified");
+		const byVersion = new Map(
+			model.software.map((record) => [record.version, record]),
+		);
+		const listed = byVersion.get("2.0.0");
+		if (listed?.kind !== "release") throw new Error("expected release");
+		expect(listed.verification.state).toBe("valid");
+		expect(listed.artifacts.length).toBe(2);
+		expect("component_targets" in listed).toBe(false);
+		expect("components" in listed).toBe(false);
+		expect("component_baseline" in listed).toBe(false);
+		expect("component_changes" in listed).toBe(false);
+		expect("component_transitions" in listed).toBe(false);
+	});
+
 	test("hash-prefixed target naming: the record link is the path the client actually fetched", async () => {
 		const fixture = await buildFixture({
 			buildAt: BUILD_AT,

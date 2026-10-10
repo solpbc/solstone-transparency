@@ -231,6 +231,29 @@ function withComponents() {
 		],
 	};
 }
+function snapshot(id: string, delivery: string) {
+	return {
+		version: "1.0.0",
+		delivery,
+		source: `https://example.invalid/${id}`,
+		inputs: [{ name: `${id}.tar.gz`, sha256: hex("1") }],
+		members:
+			delivery === "bundled" ? [{ path: `bin/${id}`, sha256: hex("2") }] : [],
+	};
+}
+function withChanges(changes: unknown[] = []) {
+	return {
+		...validPredicate(),
+		component_targets: ["linux-aarch64", "linux-x86_64"],
+		components: [
+			component("linux-aarch64", "beta", "runtime-downloaded"),
+			component("linux-x86_64", "alpha", "bundled"),
+			component("linux-x86_64", "beta", "runtime-downloaded"),
+		],
+		component_baseline: "1.0.22",
+		component_changes: changes,
+	};
+}
 /** Applies `change` to a record with components and returns the validation result, after checking the unchanged twin validates. */
 async function variant(
 	change: (predicate: Record<string, unknown>) => unknown,
@@ -518,4 +541,288 @@ describe("release-record component inventory", () => {
 			).toMatchObject({ ok: false, reason: "malformed" });
 		});
 	}
+
+	test("preserves complete changes and omits historical transitions", async () => {
+		const valid = withChanges([
+			{
+				target: "linux-aarch64",
+				id: "beta",
+				from: null,
+				to: snapshot("beta", "runtime-downloaded"),
+			},
+			{
+				target: "linux-x86_64",
+				id: "gamma",
+				from: snapshot("gamma", "bundled"),
+				to: null,
+			},
+		]);
+		const result = await validateReleaseRecordPredicate(valid as never);
+		expect(result.ok).toBe(true);
+		if (!result.ok) throw new Error("expected ok");
+		expect(result.value.component_transitions).toBeUndefined();
+		expect<unknown>(result.value.component_changes).toEqual(
+			valid.component_changes,
+		);
+
+		const emptyChanges = withChanges([]);
+		const emptyResult = await validateReleaseRecordPredicate(
+			emptyChanges as never,
+		);
+		expect(emptyResult.ok).toBe(true);
+		if (!emptyResult.ok) throw new Error("expected ok");
+		expect(emptyResult.value.component_changes).toEqual([]);
+		expect(emptyResult.value.component_transitions).toBeUndefined();
+	});
+
+	test("rejects a record carrying both component_transitions and component_changes", async () => {
+		const both = {
+			...withComponents(),
+			component_changes: [],
+		};
+		const result = await validateReleaseRecordPredicate(both as never);
+		expect(result).toMatchObject({
+			ok: false,
+			reason: "malformed",
+			detail: { path: ["component_changes"] },
+		});
+	});
+
+	test("rejects component_changes without the component triple", async () => {
+		const orphan = {
+			...validPredicate(),
+			component_changes: [],
+		};
+		const result = await validateReleaseRecordPredicate(orphan as never);
+		expect(result).toMatchObject({
+			ok: false,
+			reason: "malformed",
+			detail: { path: ["component_changes"] },
+		});
+	});
+
+	const invalidChangesCases: [string, () => unknown][] = [
+		[
+			"both from and to null",
+			() => [{ target: "linux-x86_64", id: "gamma", from: null, to: null }],
+		],
+		[
+			"equal snapshots",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: snapshot("alpha", "bundled"),
+					to: snapshot("alpha", "bundled"),
+				},
+			],
+		],
+		[
+			"to null while the row exists",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: snapshot("alpha", "runtime-downloaded"),
+					to: null,
+				},
+			],
+		],
+		[
+			"to snapshot that does not match the row",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: null,
+					to: snapshot("alpha", "runtime-downloaded"),
+				},
+			],
+		],
+		[
+			"to snapshot when the key is absent",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "gamma",
+					from: null,
+					to: snapshot("gamma", "bundled"),
+				},
+			],
+		],
+		[
+			"unsorted entries",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: null,
+					to: snapshot("alpha", "bundled"),
+				},
+				{
+					target: "linux-aarch64",
+					id: "beta",
+					from: null,
+					to: snapshot("beta", "runtime-downloaded"),
+				},
+			],
+		],
+		[
+			"a mode string in from",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: "bundled",
+					to: snapshot("alpha", "bundled"),
+				},
+			],
+		],
+		[
+			"a mode string in to",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: null,
+					to: "bundled",
+				},
+			],
+		],
+		[
+			"absent in from",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: "absent",
+					to: snapshot("alpha", "bundled"),
+				},
+			],
+		],
+		[
+			"absent in to",
+			() => [
+				{
+					target: "linux-x86_64",
+					id: "gamma",
+					from: snapshot("gamma", "bundled"),
+					to: "absent",
+				},
+			],
+		],
+	];
+
+	for (const [name, createChanges] of invalidChangesCases) {
+		test(`rejects component_changes with ${name}`, async () => {
+			const candidate = withChanges(createChanges() as unknown[]);
+			const result = await validateReleaseRecordPredicate(candidate as never);
+			expect(result).toMatchObject({
+				ok: false,
+				reason: "malformed",
+			});
+		});
+	}
+
+	const invalidEndpointCases: [
+		string,
+		(from: ReturnType<typeof snapshot>) => unknown,
+	][] = [
+		[
+			"a traversal path",
+			(from) => ({
+				...from,
+				members: [{ path: "bin/../gamma", sha256: hex("2") }],
+			}),
+		],
+		[
+			"an invalid member digest",
+			(from) => ({
+				...from,
+				members: [{ path: "bin/gamma", sha256: "invalid" }],
+			}),
+		],
+		[
+			"an invalid input digest",
+			(from) => ({
+				...from,
+				inputs: [{ name: "gamma.tar.gz", sha256: "invalid" }],
+			}),
+		],
+		[
+			"unsorted inputs",
+			(from) => ({
+				...from,
+				inputs: [
+					{ name: "z.tar.gz", sha256: hex("1") },
+					{ name: "a.tar.gz", sha256: hex("2") },
+				],
+			}),
+		],
+		[
+			"unsorted members",
+			(from) => ({
+				...from,
+				members: [
+					{ path: "lib/gamma", sha256: hex("1") },
+					{ path: "bin/gamma", sha256: hex("2") },
+				],
+			}),
+		],
+		["an extra endpoint key", (from) => ({ ...from, note: "extra" })],
+	];
+	for (const [name, mutate] of invalidEndpointCases) {
+		test(`rejects a removed component endpoint with ${name} after accepting its valid twin`, async () => {
+			const removal = {
+				target: "linux-x86_64",
+				id: "gamma",
+				from: snapshot("gamma", "bundled"),
+				to: null,
+			};
+			expect(
+				await validateReleaseRecordPredicate(withChanges([removal]) as never),
+			).toMatchObject({ ok: true });
+			expect(
+				await validateReleaseRecordPredicate(
+					withChanges([{ ...removal, from: mutate(removal.from) }]) as never,
+				),
+			).toMatchObject({ ok: false, reason: "malformed" });
+		});
+	}
+	for (const name of ["a duplicate entry", "an uncovered target"] as const) {
+		test(`rejects component_changes with ${name} after accepting its valid twin`, async () => {
+			const removal = {
+				target: "linux-x86_64",
+				id: "gamma",
+				from: snapshot("gamma", "bundled"),
+				to: null,
+			};
+			expect(
+				await validateReleaseRecordPredicate(withChanges([removal]) as never),
+			).toMatchObject({ ok: true });
+			const changes =
+				name === "a duplicate entry"
+					? [removal, removal]
+					: [{ ...removal, target: "windows-x86_64" }];
+			expect(
+				await validateReleaseRecordPredicate(withChanges(changes) as never),
+			).toMatchObject({ ok: false, reason: "malformed" });
+		});
+	}
+
+	test("from may be a different shape-valid snapshot than the listed row", async () => {
+		const valid = withChanges([
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				from: {
+					...snapshot("alpha", "bundled"),
+					version: "0.9.0",
+				},
+				to: snapshot("alpha", "bundled"),
+			},
+		]);
+		const result = await validateReleaseRecordPredicate(valid as never);
+		expect(result.ok).toBe(true);
+	});
 });

@@ -38,7 +38,7 @@ try {
 			lane: { type: "string" },
 			claims: { type: "string" },
 			components: { type: "string", multiple: true },
-			transitions: { type: "string" },
+			changes: { type: "string" },
 			"previous-record": { type: "string" },
 			out: { type: "string" },
 			help: { type: "boolean" },
@@ -47,7 +47,7 @@ try {
 		allowPositionals: false,
 	});
 	if (values.help) {
-		console.log(`Usage: bun bin/journal-artifacts.ts --manifest FILE [--manifest FILE ...] --version VERSION --lane release|staging|dev --claims FILE [--components FILE ...] [--transitions FILE] [--previous-record FILE] [--out FILE]
+		console.log(`Usage: bun bin/journal-artifacts.ts --manifest FILE [--manifest FILE ...] --version VERSION --lane release|staging|dev --claims FILE [--components FILE ...] [--changes FILE] [--previous-record FILE] [--out FILE]
 
 Prepare release-record input from local journal distribution manifests and their adjacent files.
 Pass the output file directly as --release-record to release prepare.
@@ -72,16 +72,20 @@ component_baseline (the previous record's version). A target with no components 
 of component_targets.
 Component rows are checked for shape and order and copied from their manifest or file; this command
 does not open the packages to compare the listed files with their contents.
---transitions FILE is a JSON array of {target, id, from, to} objects declaring each component whose
-delivery changed since the previous release; from and to are bundled, runtime-downloaded or absent.
-It is accepted only when components are listed; each target must be in
-component_targets, and each to state must match the listed component (absent means not listed).
---previous-record FILE is the previous release's record predicate, or an earlier output of this
-command (its releasePredicate member is used). It is required when components are listed, and
-must be for the same product and a different version. When that record lists
-components, the declared transitions must equal exactly the delivery changes between the two
-records over the targets in both records' component_targets; with no --transitions, there must be
-none. When it lists no components, as for the first release to list them, no comparison is made.
+--changes FILE is a JSON array of {target, id, from, to} objects. from and to
+are each null or {version, delivery, source, inputs, members}. null means that
+release lists no such component; it is not the string absent. Equal snapshots,
+or both null, are invalid. One entry is the whole change for that key.
+When components are listed, omitted --changes or [] is accepted only when nothing
+changed, and the output still has component_changes: []. This command does not
+fill in a diff the operator omitted.
+--previous-record FILE is the previous release's record predicate, or an earlier
+output of this command (its releasePredicate member is used). It is required when
+components are listed, and must be for the same product and a different version.
+The two component_targets lists must be equal and non-empty. A target missing from
+either list is not absence. This command checks that supplied local predicate. It
+does not authenticate it. Authentication of the public baseline belongs to independent
+verification.
 Output covers manifest members and the manifest itself; minisign signatures are not included or verified.
 This command checks local consistency; it does not authenticate the producer or verify remote delivery.
 JSON goes to stdout unless --out selects a new file. Existing output files are refused.`);
@@ -100,10 +104,10 @@ JSON goes to stdout unless --out selects a new file. Existing output files are r
 				await readFile(values.claims, "utf8"),
 			) as JournalClaims,
 			componentsPaths: values.components ?? [],
-			transitions: await readJsonInput(
-				values.transitions,
-				"invalid-transitions",
-				"--transitions",
+			changes: await readJsonInput(
+				values.changes,
+				"invalid-changes",
+				"--changes",
 			),
 			previousRecord: await readJsonInput(
 				values["previous-record"],

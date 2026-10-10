@@ -250,4 +250,142 @@ describe("publish-cli and end-to-end TUF round-trip", () => {
 		server.stop();
 		expect(verifyCode).toBe(0);
 	});
+
+	test("fails closed on historical component_transitions release predicate", async () => {
+		const outDir = join(testDir, "out-bad-transitions");
+		const badArtifactsPath = join(testDir, "artifacts-historical.json");
+		const badArtifacts = {
+			_comment: ["Release evidence fixture"],
+			schema: RELEASE_RECORD_SCHEMA,
+			product: "journal",
+			version: "1.0.23",
+			artifacts: [
+				{
+					url: "https://transparency.solstone.app/releases/solstone-journal/v/1.0.23/journal-1.0.23.tar.gz",
+					length: 1234,
+					sha256: "b".repeat(64),
+				},
+			],
+			component_targets: ["linux-x86_64"],
+			components: [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					version: "1.0.0",
+					delivery: "bundled",
+					source: "https://example.invalid/alpha",
+					inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+					members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+				},
+			],
+			component_baseline: "1.0.22",
+			component_transitions: [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					from: "runtime-downloaded",
+					to: "bundled",
+				},
+			],
+			does_prove: ["sol pbc built and published this artifact"],
+			does_not_prove: ["defect-free"],
+		};
+		await writeFile(badArtifactsPath, JSON.stringify(badArtifacts));
+		const code = await publishRepository({
+			artifactsPath: badArtifactsPath,
+			product: "journal",
+			keysPath,
+			policySha256: dummyPolicyHex,
+			outDir,
+		});
+		expect(code).toBe(1);
+		expect(await readdir(testDir)).not.toContain("out-bad-transitions");
+	});
+
+	test("publishes v2 with component declaration preserved in target evidence record", async () => {
+		const outDir = join(testDir, "out-repo-changes");
+		const changesArtifactsPath = join(testDir, "artifacts-changes.json");
+		const declaredChanges = [
+			{
+				target: "linux-x86_64",
+				id: "alpha",
+				from: {
+					version: "0.9.0",
+					delivery: "bundled",
+					source: "https://example.invalid/alpha-old",
+					inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+					members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+				},
+				to: {
+					version: "1.0.0",
+					delivery: "bundled",
+					source: "https://example.invalid/alpha",
+					inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+					members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+				},
+			},
+		];
+		const artifactsWithChanges = {
+			_comment: ["Release evidence fixture with component changes"],
+			schema: RELEASE_RECORD_SCHEMA,
+			product: "journal",
+			version: "1.0.23",
+			artifacts: [
+				{
+					url: "https://transparency.solstone.app/releases/solstone-journal/v/1.0.23/journal-1.0.23.tar.gz",
+					length: 1234,
+					sha256: "b".repeat(64),
+				},
+			],
+			component_targets: ["linux-x86_64"],
+			components: [
+				{
+					target: "linux-x86_64",
+					id: "alpha",
+					version: "1.0.0",
+					delivery: "bundled",
+					source: "https://example.invalid/alpha",
+					inputs: [{ name: "alpha.tar.gz", sha256: "1".repeat(64) }],
+					members: [{ path: "bin/alpha", sha256: "2".repeat(64) }],
+				},
+			],
+			component_baseline: "1.0.22",
+			component_changes: declaredChanges,
+			does_prove: ["sol pbc built and published this artifact"],
+			does_not_prove: ["defect-free"],
+		};
+		await writeFile(changesArtifactsPath, JSON.stringify(artifactsWithChanges));
+		const code = await publishRepository({
+			artifactsPath: changesArtifactsPath,
+			product: "journal",
+			keysPath,
+			policySha256: dummyPolicyHex,
+			outDir,
+		});
+		expect(code).toBe(0);
+
+		const softwareMetadata = JSON.parse(
+			await readFile(
+				join(outDir, "metadata", "1.targets-software.json"),
+				"utf-8",
+			),
+		) as {
+			signed: { targets: Record<string, { hashes: { sha256: string } }> };
+		};
+		const releaseTargetPath = "software/journal/1.0.23/release-record.json";
+		const releaseStoragePath = targetStoragePath(releaseTargetPath, {
+			sha256:
+				softwareMetadata.signed.targets[releaseTargetPath]?.hashes.sha256 ?? "",
+			consistentSnapshot: true,
+		});
+		if (!releaseStoragePath.ok) {
+			throw new Error("published target storage path derivation failed");
+		}
+		const releaseRecordPath = join(outDir, "targets", releaseStoragePath.value);
+		const releaseContent = await readFile(releaseRecordPath, "utf-8");
+		const evidenceRecord = JSON.parse(releaseContent);
+		const statement = JSON.parse(atob(evidenceRecord.envelope.payload));
+		expect(statement.predicate.component_changes).toEqual(declaredChanges);
+		expect(statement.predicate.component_transitions).toBeUndefined();
+	});
 });
