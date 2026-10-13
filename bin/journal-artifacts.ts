@@ -79,11 +79,14 @@ or both null, are invalid. One entry is the whole change for that key.
 When components are listed, omitted --changes or [] is accepted only when nothing
 changed, and the output still has component_changes: []. This command does not
 fill in a diff the operator omitted.
---previous-record FILE is the previous release's record predicate, or an earlier
+--previous-record FILE is the baseline release's record predicate, or an earlier
 output of this command (its releasePredicate member is used). It is required when
 components are listed, and must be for the same product and a different version.
-The two component_targets lists must be equal and non-empty. A target missing from
-either list is not absence. This command checks that supplied local predicate. It
+Both component_targets lists must be non-empty, and every target in this release's
+list must be in the baseline's. A baseline target this release omits is not compared.
+A target the baseline does not cover is refused, never read as absence, so a release
+covering a target again after one that omitted it names a baseline that covers all of
+its targets. This command checks that supplied local predicate. It
 does not authenticate it. Authentication of the public baseline belongs to independent
 verification.
 Output covers manifest members and the manifest itself; minisign signatures are not included or verified.

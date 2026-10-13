@@ -37,8 +37,8 @@ The declaration carries every difference between component rows: addition, remov
 Anyone can check the declaration with this record and the baseline record alone:
 
 1. Fetch the release record named by `component_baseline` for the same product and verify it as described under Publication and verification. If there is no verified record, the comparison cannot be checked.
-2. Require both records to have inventory statements with identical, non-empty `component_targets`. Missing inventory or a newly covered or dropped target prevents comparison. Unknown inventory is never component absence.
-3. For every `target` and `id` present in either inventory, compare the complete snapshots, using `null` only when a covered target has no row for that component.
+2. Require both records to have inventory statements with non-empty `component_targets`, and every target in this record's `component_targets` to appear in the baseline's. A baseline target that this record omits has no statement here and is not compared. Missing inventory or a newly covered target prevents comparison. Unknown inventory is never component absence.
+3. For every target in this record's `component_targets`, and every `id` present for that target in either inventory, compare the complete snapshots, using `null` only when a covered target has no row for that component.
 4. Require `component_changes` to equal exactly the changed pairs, with `from` taken from the baseline and `to` from the current record. Reject omissions, fabricated before-images, and declarations without a matching difference.
 
 The journal adapter performs this comparison before producing a record. It accepts the publisher's declaration through `--changes`; it does not generate the declaration. It refuses an uncomparable baseline or coverage, and refuses `--transitions`. Release preparation and repository publication also require the complete declaration before signing a new component-bearing predicate. Their admission check validates the current snapshot and declaration shape; it does not independently retrieve and compare the baseline.
