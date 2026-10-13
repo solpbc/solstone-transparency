@@ -1204,19 +1204,45 @@ describe("declared component changes", () => {
 		).rejects.toMatchObject({ reason: "invalid-changes" });
 	});
 
-	test("unequal target lists, including a target present on only one side, refuse uncomparable-component-coverage", async () => {
+	test("a candidate covering a subset of the baseline's targets is compared over its own targets only", async () => {
 		const f = await linux();
-		const prevCoveringMac = previousRecord(prevRows, [
-			"linux-x86_64",
-			"macos-arm64",
-		]);
-		await expect(
-			prepare([f], { changes: diff, previousRecord: prevCoveringMac }),
-		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
+		const macRows = [bundled("alpha"), bundled("omega")].map((row) => ({
+			target: "macos-arm64",
+			...row,
+		}));
+		const prevCoveringMac = previousRecord(
+			[...prevRows, ...macRows],
+			["linux-x86_64", "macos-arm64", "windows-x86_64"],
+		);
+		const result = await prepare([f], {
+			changes: diff,
+			previousRecord: prevCoveringMac,
+		});
+		expect(result.component_targets).toEqual(["linux-x86_64"]);
+		expect(result.component_changes).toEqual(diff);
 
+		const macRemoval: ComponentChange = {
+			target: "macos-arm64",
+			id: "omega",
+			from: snapshot(bundled("omega")),
+			to: null,
+		};
+		await expect(
+			prepare([f], {
+				changes: [...diff, macRemoval],
+				previousRecord: prevCoveringMac,
+			}),
+		).rejects.toMatchObject({ reason: "invalid-changes" });
+	});
+
+	test("a newly covered target, alone or beside covered ones, refuses uncomparable-component-coverage", async () => {
+		const f = await linux();
 		const mac = await withComponents("macos-arm64", []);
 		await expect(
 			prepare([f, mac], { changes: diff, previousRecord: previous() }),
+		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
+		await expect(
+			prepare([mac], { previousRecord: previous() }),
 		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
 	});
 

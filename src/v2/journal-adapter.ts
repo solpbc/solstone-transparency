@@ -506,7 +506,8 @@ export interface JournalRecordInput extends JournalSetInput {
  * components are listed, in a supplied manifest or a components file, the
  * record carries the inventory, the targets it covers, the previous record's
  * version as its baseline, and declared component changes, which must equal
- * the snapshot diff since the previous release.
+ * the snapshot diff since the previous release over this record's targets.
+ * Those targets must be a subset of the previous record's.
  */
 export async function prepareJournalReleaseRecord(
 	input: JournalRecordInput,
@@ -538,18 +539,20 @@ export async function prepareJournalReleaseRecord(
 		);
 	}
 	const previous = await previousPredicate(input.previousRecord, predicate);
+	// A candidate may omit a target the previous record covers, as when a
+	// platform skips a version: the omitted target carries no statement and is
+	// not compared. A target the previous record does not cover cannot be.
 	if (
 		previous.component_targets === undefined ||
 		previous.component_targets.length === 0 ||
 		set.componentTargets.length === 0 ||
-		previous.component_targets.length !== set.componentTargets.length ||
-		previous.component_targets.some(
-			(target, index) => target !== set.componentTargets?.[index],
+		set.componentTargets.some(
+			(target) => !previous.component_targets?.includes(target),
 		)
 	) {
 		refuse(
 			"uncomparable-component-coverage",
-			"Candidate and previous record component targets must be identical non-empty sequences.",
+			"Candidate component targets must be a non-empty subset of the previous record's non-empty component targets.",
 		);
 	}
 	let declared: ComponentChange[];
@@ -655,8 +658,11 @@ function componentSnapshotDiff(
 	previous: ReleaseRecordPredicate,
 	next: ReleaseRecordPredicate,
 ): ComponentChange[] {
+	// Only the candidate's targets are compared.
+	const targets = new Set(next.component_targets ?? []);
 	const prevRows = new Map<string, ReleaseComponent>();
 	for (const row of previous.components ?? []) {
+		if (!targets.has(row.target)) continue;
 		prevRows.set(`${row.target}\u0000${row.id}`, row);
 	}
 	const nextRows = new Map<string, ReleaseComponent>();
