@@ -50,6 +50,9 @@ export const PRODUCT_PLAIN_SUMMARY_A =
 export const PRODUCT_PLAIN_SUMMARY_B =
 	"this register holds a v2 release record of {product} {version}, signed {issued_at}. the v1 history of {product} stays below, unchanged and still verifiable with the v1 key.";
 
+export const PRODUCT_NO_V1_SUMMARY_B =
+	"this register holds a v2 release record of {product} {version}, signed {issued_at}.";
+
 export const PRODUCT_GAP_NOTE_V1_TO_V2 =
 	"the register moves from the v1 tip, {prev}, to the first v2 record, {next}. versions between the two have no record here; that is a fact about this register, not about what was released.";
 

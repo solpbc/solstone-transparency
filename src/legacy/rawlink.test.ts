@@ -168,3 +168,34 @@ describe("exact v1 layout binding", () => {
 		});
 	});
 });
+
+describe("origin app artifact link binding", () => {
+	test("each app is confined to its immutable product/version directory", () => {
+		const prefixes = [
+			["solstone-linux", "/solstone-linux/release/2.0.0/"],
+			["solstone-windows", "/solstone-windows/v/2.0.0/"],
+			["solstone-macos", "/solstone-macos/releases/v2.0.0/"],
+			["solstone-tmux", "/solstone-tmux/release/2.0.0/"],
+		];
+		for (const [product, prefix] of prefixes) {
+			if (!product || !prefix) throw new Error("missing fixture");
+			const url = `https://updates.solstone.app${prefix}app.bin`;
+			expect(validateReleaseArtifactLink(url, product, "2.0.0").status).toBe(
+				"linked",
+			);
+			for (const wrong of [
+				url.replace("2.0.0", "2.0.1"),
+				`${url}?x=1`,
+				url.replace("app.bin", "nested/app.bin"),
+				url.replace(prefix, `/${product}/`),
+			]) {
+				expect(
+					validateReleaseArtifactLink(wrong, product, "2.0.0").status,
+				).toBe("rejected");
+			}
+			expect(validateReleaseArtifactLink(url, "journal", "2.0.0").status).toBe(
+				"rejected",
+			);
+		}
+	});
+});

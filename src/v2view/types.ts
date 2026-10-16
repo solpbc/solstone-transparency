@@ -247,6 +247,8 @@ export function slugForProduct(product: string): ProductSlug | undefined {
 	if (product === "journal" || product === "solstone-journal") return "journal";
 	if (product === "linux" || product === "solstone-linux") return "linux";
 	if (product === "windows" || product === "solstone-windows") return "windows";
+	if (product === "solstone-macos") return "macos";
+	if (product === "solstone-tmux") return "tmux";
 	return undefined;
 }
 

@@ -29,6 +29,8 @@ export const PRODUCT_DISPLAY: Record<ProductSlug, string> = {
 	journal: "the journal",
 	linux: "solstone for linux",
 	windows: "solstone for windows",
+	macos: "solstone for macos",
+	tmux: "solstone for tmux",
 };
 
 /** One line above the coverage caveat on /software/: this portal is for all of solstone. */

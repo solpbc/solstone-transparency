@@ -612,3 +612,79 @@ describe("the verifier's own report", () => {
 		assertCeiling(renderAll(v1, model));
 	});
 });
+
+describe("origin app release records", () => {
+	test("all four apps have distinct pages, claims, file links and absent-version controls", async () => {
+		const apps = [
+			["solstone-linux", "linux", "/solstone-linux/release/2.0.0/app.tar.gz"],
+			["solstone-windows", "windows", "/solstone-windows/v/2.0.0/app.exe"],
+			["solstone-macos", "macos", "/solstone-macos/releases/v2.0.0/app.dmg"],
+			["solstone-tmux", "tmux", "/solstone-tmux/release/2.0.0/app.tar.gz"],
+		] as const;
+		const records = await v2For(
+			apps.map(([product, , path]) => ({
+				product,
+				version: "2.0.0",
+				artifacts: [
+					{
+						url: `https://updates.solstone.app${path}`,
+						length: 4,
+						sha256: "a".repeat(64),
+					},
+				],
+			})),
+		);
+		expect(records.state).toBe("verified");
+		for (const [, slug, file] of apps) {
+			const product = handle(`/software/${slug}/`, v1, records);
+			expect(product.status).toBe(200);
+			expect(product.body).toContain(`/software/${slug}/2.0.0/`);
+			const page = handle(`/software/${slug}/2.0.0/`, v1, records);
+			expect(page.status).toBe(200);
+			expect(page.body).toContain(`href="https://updates.solstone.app${file}"`);
+			expect(page.body).toContain("what this does not prove");
+			expect(handle(`/software/${slug}/99.99.99/`, v1, records).status).toBe(
+				404,
+			);
+			for (const link of collectInternalHrefs(
+				page.body,
+				`/software/${slug}/2.0.0/`,
+			)) {
+				expect(handle(link, v1, records).status).toBe(200);
+			}
+		}
+	});
+});
+
+test("an unchecked app register never becomes an absence assertion", () => {
+	for (const slug of ["windows", "macos", "tmux"]) {
+		const page = handle(`/software/${slug}/`, v1, tampered);
+		expect(page.body).not.toContain("with no records");
+		expect(page.body).not.toContain("no record yet");
+		expect(page.body).toContain("kind-verifier");
+	}
+	for (const path of ["/", "/software/"]) {
+		const page = handle(path, v1, tampered);
+		expect(page.body).not.toContain("no records in this register");
+	}
+});
+
+test("a present app record with a bad signer is shown as failed, never empty", async () => {
+	const model = await v2For([
+		{ product: "solstone-macos", version: "2.0.0", signer: "unknown" },
+		{ product: "solstone-tmux", version: "2.0.0", signer: "unknown" },
+		{ product: "solstone-windows", version: "2.0.0", signer: "unknown" },
+	]);
+	expect(model.state).toBe("verified");
+	for (const slug of ["windows", "macos", "tmux"]) {
+		const page = handle(`/software/${slug}/`, v1, model);
+		expect(page.body).toContain(`/software/${slug}/2.0.0/`);
+		expect(page.body).not.toContain("with no records");
+		expect(page.body).not.toContain("no record yet");
+		for (const index of ["/", "/software/"]) {
+			expect(handle(index, v1, model).body).not.toContain(
+				"no records in this register",
+			);
+		}
+	}
+});

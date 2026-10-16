@@ -493,11 +493,11 @@ describe("state (b): a release record", () => {
 	test("a product the portal has no page for is surfaced as unmapped, not dropped", async () => {
 		const fixture = await buildFixture({
 			buildAt: BUILD_AT,
-			releases: [{ product: "solstone-tmux", version: "2.0.0" }],
+			releases: [{ product: "unlisted-app", version: "2.0.0" }],
 		});
 		const model = await build(fixture);
 		if (model.state !== "verified") throw new Error("expected verified");
-		expect(model.unmappedProducts).toEqual(["solstone-tmux"]);
+		expect(model.unmappedProducts).toEqual(["unlisted-app"]);
 		expect(model.software[0]?.kind).toBe("release");
 		expect(model.software[0]?.slug).toBeUndefined();
 	});

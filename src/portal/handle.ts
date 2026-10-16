@@ -149,6 +149,8 @@ const STATIC_PATHS = [
 	"/software/journal/",
 	"/software/linux/",
 	"/software/windows/",
+	"/software/macos/",
+	"/software/tmux/",
 	"/verify/",
 	"/keys/",
 	"/about/",

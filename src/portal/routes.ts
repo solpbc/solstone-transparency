@@ -18,7 +18,13 @@ import {
 	type V2ReleaseRecord,
 } from "../v2view/types";
 
-const PRODUCT_SLUGS: readonly ProductSlug[] = ["journal", "linux", "windows"];
+const PRODUCT_SLUGS: readonly ProductSlug[] = [
+	"journal",
+	"linux",
+	"windows",
+	"macos",
+	"tmux",
+];
 
 export function isProductSlug(s: string): s is ProductSlug {
 	return (PRODUCT_SLUGS as readonly string[]).includes(s);
@@ -126,7 +132,7 @@ export type ParsedPath =
 	| { page: "product"; product: ProductSlug }
 	| {
 			page: "version";
-			product: "journal" | "linux" | "windows";
+			product: ProductSlug;
 			version: string;
 	  }
 	| { page: "verify" }

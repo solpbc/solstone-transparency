@@ -104,9 +104,8 @@ export function validateRawLink(candidate: string): RawLinkResult {
 
 /**
  * Release records may name final delivery bytes outside the evidence host.
- * Keep those links closed to the one live Journal lane: its exact version
- * directory, or the four version-named Windows objects under the Windows
- * origin prefix. Other product origins require their own reviewed extension.
+ * Keep delivery links within the named product's version directory. Mutable
+ * update feeds and package-manager mirrors are outside this binding.
  */
 export function validateReleaseArtifactLink(
 	candidate: string,
@@ -117,6 +116,27 @@ export function validateReleaseArtifactLink(
 	if (evidence.status === "linked") return evidence;
 	const checked = validateHttpsLinkOnHost(candidate, RELEASE_ARTIFACT_HOST);
 	if (checked.status === "rejected") return checked;
+	const appPrefixes: Readonly<Record<string, string>> = {
+		"solstone-linux": `/solstone-linux/release/${encodeURIComponent(version)}/`,
+		"solstone-tmux": `/solstone-tmux/release/${encodeURIComponent(version)}/`,
+		"solstone-windows": `/solstone-windows/v/${encodeURIComponent(version)}/`,
+		"solstone-macos": `/solstone-macos/releases/v${encodeURIComponent(version)}/`,
+	};
+	const appPrefix = Object.hasOwn(appPrefixes, product)
+		? appPrefixes[product]
+		: undefined;
+	if (appPrefix !== undefined) {
+		const pathname = new URL(checked.url).pathname;
+		const basename = pathname.startsWith(appPrefix)
+			? pathname.slice(appPrefix.length)
+			: "";
+		return basename !== "" && !basename.includes("/")
+			? checked
+			: {
+					status: "rejected",
+					reason: `path must name one file directly under ${appPrefix}`,
+				};
+	}
 	if (product !== "journal" && product !== "solstone-journal") {
 		return {
 			status: "rejected",

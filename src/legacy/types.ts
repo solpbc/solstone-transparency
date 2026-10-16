@@ -14,7 +14,7 @@
  */
 
 export type Iso8601 = string;
-export type ProductSlug = "journal" | "linux" | "windows";
+export type ProductSlug = "journal" | "linux" | "windows" | "macos" | "tmux";
 
 /**
  * Four provenance kinds, one attached to every displayed fact. A `signed`

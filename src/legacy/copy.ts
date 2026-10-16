@@ -18,6 +18,8 @@
 
 import type { ProductSlug } from "./types";
 
+type LegacyProductSlug = Exclude<ProductSlug, "macos" | "tmux">;
+
 export const HOME_HERO_EXPLAINER =
 	"trust.solstone.app is where sol pbc explains, in plain language, what we've published about our own software. the actual signed records live at transparency.solstone.app; this site walks through them and links straight back to the originals. if anything here ever disagrees with a record at transparency.solstone.app, that record is the one to believe.";
 
@@ -40,7 +42,7 @@ export const SOFTWARE_COVERAGE_CAVEAT =
 export const SOFTWARE_INDEX_LEAD =
 	"sol pbc has published signed records for some of its software, not necessarily all of it.";
 
-const PRODUCT_PLAIN_SUMMARY: Record<ProductSlug, string> = {
+const PRODUCT_PLAIN_SUMMARY: Record<LegacyProductSlug, string> = {
 	journal:
 		"this register holds {count} signed records for solstone's journal release, most recently version {version}, signed {date}.",
 	linux:
@@ -48,11 +50,11 @@ const PRODUCT_PLAIN_SUMMARY: Record<ProductSlug, string> = {
 	windows:
 		"this register holds no signed records for solstone's windows release.",
 };
-export function productPlainSummary(product: ProductSlug): string {
+export function productPlainSummary(product: LegacyProductSlug): string {
 	return PRODUCT_PLAIN_SUMMARY[product];
 }
 
-const PRODUCT_DOES_PROVE: Record<ProductSlug, string> = {
+const PRODUCT_DOES_PROVE: Record<LegacyProductSlug, string> = {
 	journal:
 		"that sol pbc signed a record naming these exact artifacts, their digests, and their release date, and that each entry is correctly linked to the one before it in the chain.",
 	linux:
@@ -60,18 +62,18 @@ const PRODUCT_DOES_PROVE: Record<ProductSlug, string> = {
 	windows:
 		"that our register currently has no signed record for a windows release.",
 };
-export function productDoesProve(product: ProductSlug): string {
+export function productDoesProve(product: LegacyProductSlug): string {
 	return PRODUCT_DOES_PROVE[product];
 }
 
-const PRODUCT_DOES_NOT_PROVE: Record<ProductSlug, string> = {
+const PRODUCT_DOES_NOT_PROVE: Record<LegacyProductSlug, string> = {
 	journal:
 		"that these are all the journal versions we've released, or that the recorded version is the one you're currently running.",
 	linux:
 		"that this is the only linux release we've made, or that it's what you're running now.",
 	windows: "that solstone has never been released for windows.",
 };
-export function productDoesNotProve(product: ProductSlug): string {
+export function productDoesNotProve(product: LegacyProductSlug): string {
 	return PRODUCT_DOES_NOT_PROVE[product];
 }
 

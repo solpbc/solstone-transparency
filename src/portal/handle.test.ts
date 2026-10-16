@@ -57,7 +57,7 @@ function reachableFromHome(result: PortalModelResult): Set<string> {
 }
 
 describe("AC-1 durable routes and JS-free graph walk", () => {
-	test("renderAll enumerates 9 static routes plus every modeled entry; walk from home reaches them", () => {
+	test("renderAll enumerates static routes plus every modeled entry; walk from home reaches them", () => {
 		expect(defaultResult.ok).toBe(true);
 		if (!defaultResult.ok) return;
 		const pages = renderAll(defaultResult);
@@ -67,6 +67,8 @@ describe("AC-1 durable routes and JS-free graph walk", () => {
 			"/software/journal/",
 			"/software/linux/",
 			"/software/windows/",
+			"/software/macos/",
+			"/software/tmux/",
 			"/verify/",
 			"/keys/",
 			"/about/",

@@ -78,6 +78,7 @@ import {
 	LEGACY_BINDING_PARTIAL,
 	PRODUCT_EXPECTED_GAP,
 	PRODUCT_GAP_NOTE_V1_TO_V2,
+	PRODUCT_NO_V1_SUMMARY_B,
 	PRODUCT_PLAIN_SUMMARY_A,
 	PRODUCT_PLAIN_SUMMARY_B,
 	PRODUCT_RECORD_FAILED,
@@ -261,6 +262,20 @@ function v2EntriesFor(v2: V2Model, slug: ProductSlug): V2SoftwareEntry[] {
 	return v2.software.filter((s) => s.slug === slug);
 }
 
+function appRecordState(v2: V2Model, slug: ProductSlug): string {
+	if (v2.state === "absent") return "not attempted";
+	if (v2.state === "unverified") return STATE_COULD_NOT_BE_CHECKED;
+	const entries = v2EntriesFor(v2, slug);
+	const record = entries.find((entry) => entry.kind === "release");
+	if (record?.kind === "release")
+		return record.verification.state === "invalid"
+			? STATE_DID_NOT_VERIFY
+			: STATE_COULD_NOT_BE_CHECKED;
+	return entries.length > 0
+		? "expected record missing"
+		: "no records in this register";
+}
+
 function latestV2(v2: V2Model, slug: ProductSlug): V2ReleaseRecord | undefined {
 	const valid = v2ValidReleases(v2, slug);
 	return valid[valid.length - 1];
@@ -405,7 +420,10 @@ function appRowsCoverage(v2: V2Model): string {
 }
 
 /** The same coverage at the top of an app's own page, with the way to the journal. */
-function appPageCoverage(v2: V2Model, product: "linux" | "windows"): string {
+function appPageCoverage(
+	v2: V2Model,
+	product: Exclude<ProductSlug, "journal">,
+): string {
 	const platforms = journalPlatformsLine(v2);
 	if (platforms === "") return "";
 	return `<p>${substituteCopy(APP_PAGE_SCOPE_LINE, { product: PRODUCT_DISPLAY[product] })}</p>\n${platforms}\n<p><a href="/software/journal/">${trustedText("the journal's records")}</a></p>`;
@@ -812,12 +830,20 @@ export function renderHome(
 				}),
 			};
 		}
+		if (slug === "windows" || slug === "macos" || slug === "tmux") {
+			if (slug === "windows" && v2.state === "absent")
+				return {
+					publication: `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`,
+					latest: trustedText(homeRegisterSummaryRow(false)),
+				};
+			return {
+				publication: `${kindTag("register")} ${stateSpan("neutral", trustedText(appRecordState(v2, slug)))}`,
+				latest: trustedText(appRecordState(v2, slug)),
+			};
+		}
 		if (v2.state === "absent") {
 			return {
-				publication:
-					slug === "windows"
-						? `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`
-						: publicationCell(slug),
+				publication: publicationCell(slug),
 				latest: tip
 					? substituteCopy(homeRegisterSummaryRow(true), {
 							version: tip.version,
@@ -826,7 +852,13 @@ export function renderHome(
 					: trustedText(homeRegisterSummaryRow(false)),
 			};
 		}
-		if (slug === "windows" || tip === undefined) {
+		if (v2.state === "unverified" && tip === undefined) {
+			return {
+				publication: publicationCell(slug),
+				latest: trustedText(STATE_COULD_NOT_BE_CHECKED),
+			};
+		}
+		if (tip === undefined) {
 			return {
 				publication: `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`,
 				latest: trustedText("no records in this register"),
@@ -845,6 +877,12 @@ export function renderHome(
 	const j = rowFor("journal", jTip);
 	const l = rowFor("linux", lTip);
 	const w = rowFor("windows", undefined);
+	const extraRows = (["macos", "tmux"] as const)
+		.map((slug) => {
+			const row = rowFor(slug, undefined);
+			return `<tr><td><a href="/software/${slug}/">${trustedText(PRODUCT_DISPLAY[slug])}</a></td><td>${row.publication}</td><td>${row.latest}</td></tr>`;
+		})
+		.join("");
 
 	const main = `
 <h1>${trustedText("trust.solstone.app")}</h1>
@@ -860,6 +898,7 @@ ${appRowsCoverage(v2)}
 <tr><td><a href="/software/journal/">${trustedText(PRODUCT_DISPLAY.journal)}</a></td><td>${j.publication}</td><td>${j.latest}</td></tr>
 <tr><td><a href="/software/linux/">${trustedText(PRODUCT_DISPLAY.linux)}</a></td><td>${l.publication}</td><td>${l.latest}</td></tr>
 <tr><td><a href="/software/windows/">${trustedText(PRODUCT_DISPLAY.windows)}</a></td><td>${w.publication}</td><td>${w.latest}</td></tr>
+${extraRows}
 </tbody>
 </table>
 <h2>${trustedText("go deeper")}</h2>
@@ -892,8 +931,9 @@ export function renderSoftwareIndex(
 		const latest = latestV2(v2, slug);
 		if (latest !== undefined)
 			return `${kindTag("signed")} <span class="mono">${untrustedText(latest.version)}</span> ${trustedText("latest recorded")}`;
-		if (slug === "windows")
-			return `${kindTag("register")} ${stateSpan("neutral", trustedText("no records in this register"))}`;
+
+		if (slug === "windows" || slug === "macos" || slug === "tmux")
+			return `${kindTag("register")} ${stateSpan("neutral", trustedText(appRecordState(v2, slug)))}`;
 		return tip
 			? `${kindTag("signed")} <span class="mono">${untrustedText(tip.version)}</span> ${trustedText("latest recorded")}`
 			: kindTag("register");
@@ -933,6 +973,7 @@ ${appRowsCoverage(v2)}
 <div class="card"><a class="card-link" href="/software/journal/"><h3>${trustedText(PRODUCT_DISPLAY.journal)}</h3><p>${card("journal", jTip)}</p></a></div>
 <div class="card"><a class="card-link" href="/software/linux/"><h3>${trustedText(PRODUCT_DISPLAY.linux)}</h3><p>${card("linux", lTip)}</p></a></div>
 <div class="card"><a class="card-link" href="/software/windows/"><h3>${trustedText(PRODUCT_DISPLAY.windows)}</h3><p>${card("windows", undefined)}</p></a></div>
+${(["macos", "tmux"] as const).map((slug) => `<div class="card"><a class="card-link" href="/software/${slug}/"><h3>${trustedText(PRODUCT_DISPLAY[slug])}</h3><p>${card(slug, undefined)}</p></a></div>`).join("")}
 </div>`;
 	return shell({
 		title: "software — trust.solstone.app",
@@ -985,13 +1026,13 @@ export function renderProduct(
 		{ href: "/software/", label: "software" },
 		{ label: PRODUCT_DISPLAY[product] },
 	];
-	if (product === "windows") {
-		const latest = latestV2(v2, "windows");
+	if (product === "windows" || product === "macos" || product === "tmux") {
+		const latest = latestV2(v2, product);
 		if (latest !== undefined && v2.state === "verified") {
 			const main = `
-<h1>${trustedText(PRODUCT_DISPLAY.windows)}</h1>
-${appPageCoverage(v2, "windows")}
-<p>${substituteCopy(PRODUCT_PLAIN_SUMMARY_B, { product: PRODUCT_DISPLAY.windows, version: latest.version, issued_at: latest.issuedAt })}</p>
+<h1>${trustedText(PRODUCT_DISPLAY[product])}</h1>
+${appPageCoverage(v2, product)}
+<p>${substituteCopy(PRODUCT_NO_V1_SUMMARY_B, { product: PRODUCT_DISPLAY[product], version: latest.version, issued_at: latest.issuedAt })}</p>
 ${v2AxisBlock({
 	publication: {
 		kind: "declaration",
@@ -1006,27 +1047,35 @@ ${v2AxisBlock({
 	verification: latest.verification,
 	links: { verifyHref: "/verify/#v2" },
 })}
-${v2RecordsSection(v2, "windows", undefined)}
+${v2RecordsSection(v2, product, undefined)}
 <p><a href="/software/">${trustedText("back to the software register")}</a></p>`;
 			return shell({
-				title: `${PRODUCT_DISPLAY.windows} — trust.solstone.app`,
+				title: `${PRODUCT_DISPLAY[product]} — trust.solstone.app`,
 				current: "software",
 				path,
 				breadcrumbs: crumbs,
 				main,
 			});
 		}
-		const explainer = v2Known(v2)
-			? WINDOWS_ABSENCE_EXPLAINER_STATE_A
-			: WINDOWS_ABSENCE_EXPLAINER;
+		if (v2.state === "unverified") {
+			return shell({
+				title: `${PRODUCT_DISPLAY[product]} — trust.solstone.app`,
+				current: "software",
+				path,
+				breadcrumbs: crumbs,
+				main: `<h1>${trustedText(PRODUCT_DISPLAY[product])}</h1>${unverifiedCallout(v2)}`,
+			});
+		}
+		const entries = v2EntriesFor(v2, product);
 		const main = `
-<h1>${trustedText(PRODUCT_DISPLAY.windows)}</h1>
-${appPageCoverage(v2, "windows")}
-${declaration({ kind: "register", text: explainer, tone: "neutral" })}
-<p>${trustedText(WINDOWS_ONE_FACT)}</p>${v2RecordsSection(v2, "windows", undefined)}
+<h1>${trustedText(PRODUCT_DISPLAY[product])}</h1>
+${appPageCoverage(v2, product)}
+${entries.length === 0 ? declaration({ kind: "register", text: product === "windows" ? (v2.state === "absent" ? WINDOWS_ABSENCE_EXPLAINER : WINDOWS_ABSENCE_EXPLAINER_STATE_A) : appRecordState(v2, product), tone: "neutral" }) : ""}
+${entries.length === 0 && (product === "windows" || v2.state === "verified") ? `<p>${trustedText(WINDOWS_ONE_FACT)}</p>` : ""}
+${v2RecordsSection(v2, product, undefined)}
 <p><a href="/software/">${trustedText("back to the software register")}</a></p>`;
 		return shell({
-			title: `${PRODUCT_DISPLAY.windows} — trust.solstone.app`,
+			title: `${PRODUCT_DISPLAY[product]} — trust.solstone.app`,
 			current: "software",
 			path,
 			breadcrumbs: crumbs,
