@@ -50,8 +50,9 @@ async function fixture(target = "linux-x86_64", includeInstaller = false) {
 		members[`${base}.${ext}`] = `synthetic ${target} ${ext} bytes\n`;
 	if (windows) {
 		members[`${base}-setup.exe`] = "synthetic windows setup bytes\n";
-		members[`SolstoneJournal-${version}-full.nupkg`] =
-			"synthetic windows full package bytes\n";
+		members[
+			`SolstoneJournal-${version}${target === "windows-aarch64" ? "-win-arm64" : ""}-full.nupkg`
+		] = "synthetic windows full package bytes\n";
 	}
 	if (includeInstaller)
 		members[`solstone-journal-${version}-install.sh`] =
@@ -314,6 +315,67 @@ describe("journal distribution evidence adapter", () => {
 		expect(result.artifacts).toHaveLength(4);
 	});
 
+	test("measures ARM Windows separately and combines all five targets without shared Windows objects", async () => {
+		const arm = await fixture("windows-aarch64");
+		const x64 = await fixture("windows-x86_64");
+		const measured = await adaptJournalRelease(arm.input);
+		expect(measured.artifacts).toEqual(
+			Object.entries({
+				...arm.members,
+				[`${arm.base}.manifest.json`]: await readFile(
+					arm.input.manifestPath,
+					"utf8",
+				),
+			})
+				.map(([name, bytes]) => ({
+					url: `https://updates.solstone.app/solstone-journal/release/windows/${name}`,
+					length: Buffer.byteLength(bytes),
+					sha256: digest(bytes),
+				}))
+				.sort((left, right) => (left.url < right.url ? -1 : 1)),
+		);
+		const natives = await Promise.all(
+			["linux-x86_64", "linux-aarch64", "macos-arm64"].map((target) =>
+				fixture(target),
+			),
+		);
+		const combined = await prepareJournalReleaseRecord({
+			...arm.input,
+			manifestPaths: [...natives, x64, arm].map(
+				(item) => item.input.manifestPath,
+			),
+		});
+		const windows = combined.artifacts.filter((row) =>
+			row.url.includes("/release/windows/"),
+		);
+		expect(windows).toHaveLength(8);
+		expect(new Set(windows.map((row) => row.url)).size).toBe(8);
+		for (const lane of ["staging", "dev"] as const)
+			await expect(
+				adaptJournalRelease({ ...arm.input, lane }),
+			).rejects.toMatchObject({
+				reason: "unsupported-lane",
+			});
+	});
+
+	test("refuses the other Windows architecture's package name in either direction", async () => {
+		for (const target of ["windows-x86_64", "windows-aarch64"]) {
+			const f = await fixture(target);
+			const suffix = target === "windows-aarch64" ? "-win-arm64" : "";
+			const otherSuffix = suffix === "" ? "-win-arm64" : "";
+			const name = `SolstoneJournal-${f.input.version}${suffix}-full.nupkg`;
+			const other = `SolstoneJournal-${f.input.version}${otherSuffix}-full.nupkg`;
+			const hash = f.manifest.files[name];
+			if (hash === undefined) throw new Error("synthetic package is missing");
+			f.manifest.files[other] = hash;
+			delete f.manifest.files[name];
+			await f.save();
+			await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
+				reason: "artifact-set-mismatch",
+			});
+		}
+	});
+
 	test("combines native and Windows sets, and a native-only set carries no Windows descriptor", async () => {
 		const natives = [
 			await fixture("linux-x86_64", true),
@@ -407,11 +469,13 @@ describe("journal distribution evidence adapter", () => {
 		});
 	});
 
-	test("refuses Windows targets other than x86_64", async () => {
-		const f = await fixture("windows-aarch64");
-		await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
-			reason: "unsupported-target",
-		});
+	test("refuses unsupported Windows target spellings and ARM64EC", async () => {
+		for (const target of ["windows-arm64", "windows-arm64ec"]) {
+			const f = await fixture(target);
+			await expect(adaptJournalRelease(f.input)).rejects.toMatchObject({
+				reason: "unsupported-target",
+			});
+		}
 	});
 
 	test("CLI emits release-prepare input with measured descriptors and refuses output collisions", async () => {

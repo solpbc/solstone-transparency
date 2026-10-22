@@ -53,7 +53,7 @@ Prepare release-record input from local journal distribution manifests and their
 Pass the output file directly as --release-record to release prepare.
 Repeat --manifest for every target in the release. Only explicitly supplied targets are included.
 Lengths and SHA256 values are measured from the artifact bytes. The manifest, release declaration,
-and checksum sidecar must agree. A windows-x86_64 manifest has no release declaration: it lists the
+and checksum sidecar must agree. A Windows x86_64 or ARM64 manifest has no release declaration: it lists the
 Setup, the full package and the checksum file naming those two, all under the Windows origin
 prefix, and is accepted only for the release lane.
 Claims JSON supplies _comment, does_prove, and does_not_prove.

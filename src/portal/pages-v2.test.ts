@@ -406,6 +406,10 @@ describe("state (b): a release record", () => {
 			"SolstoneJournal-2.0.0-full.nupkg",
 			"solstone-journal-2.0.0-windows-x86_64.sha256",
 			"solstone-journal-2.0.0-windows-x86_64.manifest.json",
+			"solstone-journal-2.0.0-windows-aarch64-setup.exe",
+			"SolstoneJournal-2.0.0-win-arm64-full.nupkg",
+			"solstone-journal-2.0.0-windows-aarch64.sha256",
+			"solstone-journal-2.0.0-windows-aarch64.manifest.json",
 		].map(
 			(name) =>
 				`https://updates.solstone.app/solstone-journal/release/windows/${name}`,

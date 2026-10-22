@@ -144,14 +144,17 @@ export function validateReleaseArtifactLink(
 		};
 	}
 	const url = new URL(checked.url);
-	const windowsBase = `solstone-journal-${version}-windows-x86_64`;
-	if (
-		[
+	const windowsNames = ["x86_64", "aarch64"].flatMap((architecture) => {
+		const windowsBase = `solstone-journal-${version}-windows-${architecture}`;
+		return [
 			`${windowsBase}-setup.exe`,
-			`SolstoneJournal-${version}-full.nupkg`,
+			`SolstoneJournal-${version}${architecture === "aarch64" ? "-win-arm64" : ""}-full.nupkg`,
 			`${windowsBase}.sha256`,
 			`${windowsBase}.manifest.json`,
-		].some(
+		];
+	});
+	if (
+		windowsNames.some(
 			(name) =>
 				url.pathname ===
 				`/solstone-journal/release/windows/${encodeURIComponent(name)}`,

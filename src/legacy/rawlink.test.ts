@@ -80,9 +80,13 @@ describe("Windows journal artifact link binding", () => {
 		"SolstoneJournal-2.0.0-full.nupkg",
 		"solstone-journal-2.0.0-windows-x86_64.sha256",
 		"solstone-journal-2.0.0-windows-x86_64.manifest.json",
+		"solstone-journal-2.0.0-windows-aarch64-setup.exe",
+		"SolstoneJournal-2.0.0-win-arm64-full.nupkg",
+		"solstone-journal-2.0.0-windows-aarch64.sha256",
+		"solstone-journal-2.0.0-windows-aarch64.manifest.json",
 	];
 
-	test("the four version-named Windows objects are clickable", () => {
+	test("both complete version-named Windows sets are clickable", () => {
 		for (const name of names)
 			expect(
 				validateReleaseArtifactLink(`${prefix}${name}`, "journal", "2.0.0"),
@@ -92,8 +96,10 @@ describe("Windows journal artifact link binding", () => {
 	test("mutable feeds, other versions and other Windows names remain unlinked", () => {
 		for (const candidate of [
 			`${prefix}releases.win.json`,
+			`${prefix}releases.win-arm64.json`,
 			`${prefix}RELEASES`,
 			`${prefix}SolstoneJournal-2.0.0-delta.nupkg`,
+			`${prefix}SolstoneJournal-2.0.0-win-arm64-delta.nupkg`,
 			`${prefix}solstone-journal-2.0.0-windows-arm64-setup.exe`,
 			`${prefix}nested/SolstoneJournal-2.0.0-full.nupkg`,
 		]) {

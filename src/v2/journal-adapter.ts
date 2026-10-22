@@ -321,7 +321,8 @@ async function adapt(input: JournalAdapterInput): Promise<AdaptedTarget> {
 		);
 	}
 	const base = `solstone-journal-${input.version}-${body.target}`;
-	const windows = body.target === "windows-x86_64";
+	const windowsArm = body.target === "windows-aarch64";
+	const windows = body.target === "windows-x86_64" || windowsArm;
 	// Windows keeps its existing origin prefix, where its versioned containers
 	// already sit beside its update feed. It has no release declaration; its
 	// checksum file names exactly the Setup and the full package.
@@ -337,7 +338,7 @@ async function adapt(input: JournalAdapterInput): Promise<AdaptedTarget> {
 				: windows
 					? [
 							`${base}-setup.exe`,
-							`SolstoneJournal-${input.version}-full.nupkg`,
+							`SolstoneJournal-${input.version}${windowsArm ? "-win-arm64" : ""}-full.nupkg`,
 							`${base}.sha256`,
 						]
 					: undefined
@@ -345,7 +346,7 @@ async function adapt(input: JournalAdapterInput): Promise<AdaptedTarget> {
 	if (expectedNames === undefined) {
 		refuse(
 			"unsupported-target",
-			"Supply a Linux, macOS, or Windows x86_64 journal producer manifest.",
+			"Supply a Linux, macOS, Windows x86_64, or Windows ARM64 journal producer manifest.",
 		);
 	}
 	if (windows && input.lane !== "release") {
