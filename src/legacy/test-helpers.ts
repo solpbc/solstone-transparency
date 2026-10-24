@@ -9,7 +9,7 @@
  * files.
  */
 
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Fetcher } from "./adapter";
@@ -172,53 +172,65 @@ export interface ThrowawayKeypair {
 /** Generates a fresh, unencrypted, throwaway minisign keypair for this test only. */
 export async function generateThrowawayKeypair(): Promise<ThrowawayKeypair> {
 	const dir = await mkdtemp(join(tmpdir(), "solstone-transparency-testkey-"));
-	const secPath = join(dir, "test.key");
-	const pubPath = join(dir, "test.pub");
-	const gen = Bun.spawn(
-		["minisign", "-G", "-f", "-W", "-s", secPath, "-p", pubPath],
-		{ stdout: "pipe", stderr: "pipe" },
-	);
-	await gen.exited;
-	if (gen.exitCode !== 0) {
-		throw new Error(
-			`minisign -G failed: ${await new Response(gen.stderr).text()}`,
+	let pubKeyText: string;
+	let secretKeyText: string;
+	try {
+		const secPath = join(dir, "test.key");
+		const pubPath = join(dir, "test.pub");
+		const gen = Bun.spawn(
+			["minisign", "-G", "-f", "-W", "-s", secPath, "-p", pubPath],
+			{ stdout: "pipe", stderr: "pipe" },
 		);
+		await gen.exited;
+		if (gen.exitCode !== 0) {
+			throw new Error(
+				`minisign -G failed: ${await new Response(gen.stderr).text()}`,
+			);
+		}
+		pubKeyText = await readFile(pubPath, "utf8");
+		secretKeyText = await readFile(secPath, "utf8");
+	} finally {
+		await rm(dir, { recursive: true, force: true });
 	}
-	const pubKeyText = await readFile(pubPath, "utf8");
 
 	return {
 		pubKeyText,
 		async sign(dataBytes: Uint8Array, trustedComment: string): Promise<string> {
-			const dataPath = join(dir, `data-${crypto.randomUUID()}`);
-			const sigPath = `${dataPath}.minisig`;
-			await writeFile(dataPath, dataBytes);
-			const proc = Bun.spawn(
-				[
-					"minisign",
-					"-S",
-					"-s",
-					secPath,
-					"-x",
-					sigPath,
-					"-t",
-					trustedComment,
-					"-m",
-					dataPath,
-				],
-				{
-					stdin: "pipe",
-					stdout: "pipe",
-					stderr: "pipe",
-				},
+			const signingDir = await mkdtemp(
+				join(tmpdir(), "solstone-transparency-testkey-"),
 			);
-			proc.stdin.end();
-			await proc.exited;
-			if (proc.exitCode !== 0) {
-				throw new Error(
-					`minisign -S failed: ${await new Response(proc.stderr).text()}`,
+			try {
+				const secPath = join(signingDir, "test.key");
+				const dataPath = join(signingDir, "data");
+				const sigPath = join(signingDir, "data.minisig");
+				await writeFile(secPath, secretKeyText, { mode: 0o600 });
+				await writeFile(dataPath, dataBytes);
+				const proc = Bun.spawn(
+					[
+						"minisign",
+						"-S",
+						"-s",
+						secPath,
+						"-x",
+						sigPath,
+						"-t",
+						trustedComment,
+						"-m",
+						dataPath,
+					],
+					{ stdin: "pipe", stdout: "pipe", stderr: "pipe" },
 				);
+				proc.stdin.end();
+				await proc.exited;
+				if (proc.exitCode !== 0) {
+					throw new Error(
+						`minisign -S failed: ${await new Response(proc.stderr).text()}`,
+					);
+				}
+				return await readFile(sigPath, "utf8");
+			} finally {
+				await rm(signingDir, { recursive: true, force: true });
 			}
-			return readFile(sigPath, "utf8");
 		},
 	};
 }
