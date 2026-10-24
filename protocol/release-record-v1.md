@@ -6,7 +6,7 @@ The predicate contains schema `solstone-transparency/release-record/v1`, `produc
 
 ## Components (optional)
 
-A predicate may also carry `component_targets`, `components`, and `component_baseline`. These three members are present together or not at all. A component-bearing predicate may carry `component_changes` or the historical `component_transitions`, never both. A predicate without the three inventory members makes no statement about the third-party components of the release.
+A predicate may also carry `component_targets`, `components`, and `component_baseline`. These three members are present together or not at all. A component-bearing predicate may carry `component_changes` or the historical `component_transitions`, never both, and with `component_changes` it may carry `component_initialized_targets` (see Initialized targets). A predicate without the three inventory members makes no statement about the third-party components of the release.
 
 These members are data inside the signed assertion. They are not claims; the `_comment`, `does_prove` and `does_not_prove` arrays keep their meaning, and only those arrays state what a record proves.
 
@@ -37,11 +37,17 @@ The declaration carries every difference between component rows: addition, remov
 Anyone can check the declaration with this record and the baseline record alone:
 
 1. Fetch the release record named by `component_baseline` for the same product and verify it as described under Publication and verification. If there is no verified record, the comparison cannot be checked.
-2. Require both records to have inventory statements with non-empty `component_targets`, and every target in this record's `component_targets` to appear in the baseline's. A baseline target that this record omits has no statement here and is not compared. Missing inventory or a newly covered target prevents comparison. Unknown inventory is never component absence.
-3. For every target in this record's `component_targets`, and every `id` present for that target in either inventory, compare the complete snapshots, using `null` only when a covered target has no row for that component.
+2. Require both records to have inventory statements with non-empty `component_targets`, every target in this record's `component_targets` that is not in `component_initialized_targets` to appear in the baseline's, and no target in `component_initialized_targets` to appear in the baseline's. A baseline target that this record omits has no statement here and is not compared. Missing inventory or a newly covered target that is not initialized prevents comparison. Unknown inventory is never component absence.
+3. For every compared target (in this record's `component_targets` and not in `component_initialized_targets`), and every `id` present for that target in either inventory, compare the complete snapshots, using `null` only when a covered target has no row for that component.
 4. Require `component_changes` to equal exactly the changed pairs, with `from` taken from the baseline and `to` from the current record. Reject omissions, fabricated before-images, and declarations without a matching difference.
 
 The journal adapter performs this comparison before producing a record. It accepts the publisher's declaration through `--changes`; it does not generate the declaration. It refuses an uncomparable baseline or coverage, and refuses `--transitions`. Release preparation and repository publication also require the complete declaration before signing a new component-bearing predicate. Their admission check validates the current snapshot and declaration shape; it does not independently retrieve and compare the baseline.
+
+### Initialized targets
+
+A record may carry `component_initialized_targets`: a non-empty array of targets, sorted in UTF-16 code-unit order without duplicates, each listed in `component_targets`, present only alongside `component_changes`, and not covering every target in `component_targets`. Each initialized target's rows state its inventory without comparison. The baseline does not cover it, it is not compared, and `component_changes` names none of its rows. The record makes no statement about any earlier inventory for that target, and its rows are not additions relative to the baseline. A later record that covers the target compares it as usual.
+
+The journal adapter initializes a target only when the publisher names it with `--initialize-target`, only for `windows-aarch64`, and only when the supplied baseline does not cover it. Release preparation and repository publication admit no other initialized target. sol pbc made this exception on 2026-10-22, for that target's first public release. The adapter does not check that the supplied baseline is the newest record; checking that belongs to independent verification. This check does not confirm that the target has no earlier inventory statement; that needs the product's earlier records. Any other newly covered target is still refused.
 
 ### Historical delivery transitions
 

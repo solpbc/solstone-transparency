@@ -1310,6 +1310,141 @@ describe("declared component changes", () => {
 		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
 	});
 
+	test("windows-aarch64 initializes its inventory beside compared targets", async () => {
+		const f = await linux();
+		const armRows = [bundled("alpha"), downloaded("beta")];
+		const arm = await withComponents("windows-aarch64", armRows);
+		const result = await prepare([f, arm], {
+			changes: diff,
+			previousRecord: previous(),
+			lane: "release",
+			initializeTargets: ["windows-aarch64"],
+		});
+		expect(result.component_targets).toEqual([
+			"linux-x86_64",
+			"windows-aarch64",
+		]);
+		expect(result.component_initialized_targets).toEqual(["windows-aarch64"]);
+		expect(result.component_changes).toEqual(diff);
+		expect(
+			result.components?.filter((row) => row.target === "windows-aarch64"),
+		).toHaveLength(2);
+		const revalidated = await validateReleaseRecordPredicate(
+			JSON.parse(JSON.stringify(result)),
+		);
+		expect(revalidated.ok).toBe(true);
+		if (revalidated.ok) {
+			expect(revalidated.value.component_initialized_targets).toEqual([
+				"windows-aarch64",
+			]);
+		}
+	});
+
+	test("initialization is refused for other targets, covered targets, alone, unlisted, or named in changes", async () => {
+		const f = await linux();
+		const arm = await withComponents("windows-aarch64", [bundled("alpha")]);
+		const mac = await withComponents("macos-arm64", []);
+		// Without initialization the ARM target is newly covered and refused.
+		await expect(
+			prepare([f, arm], {
+				changes: diff,
+				previousRecord: previous(),
+				lane: "release",
+			}),
+		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
+		// Only windows-aarch64 may be initialized.
+		await expect(
+			prepare([f, mac], {
+				changes: diff,
+				previousRecord: previous(),
+				lane: "release",
+				initializeTargets: ["macos-arm64"],
+			}),
+		).rejects.toMatchObject({ reason: "uninitializable-component-target" });
+		// A baseline that already covers the target is compared, not initialized.
+		const prevArm = previousRecord(
+			[...prevRows, { target: "windows-aarch64", ...bundled("alpha") }],
+			["linux-x86_64", "windows-aarch64"],
+		);
+		await expect(
+			prepare([f, arm], {
+				changes: diff,
+				previousRecord: prevArm,
+				lane: "release",
+				initializeTargets: ["windows-aarch64"],
+			}),
+		).rejects.toMatchObject({ reason: "uninitializable-component-target" });
+		// At least one other target must still be compared.
+		await expect(
+			prepare([arm], {
+				previousRecord: previous(),
+				lane: "release",
+				initializeTargets: ["windows-aarch64"],
+			}),
+		).rejects.toMatchObject({ reason: "uncomparable-component-coverage" });
+		// The initialized target must have a components list in this candidate.
+		await expect(
+			prepare([f], {
+				changes: diff,
+				previousRecord: previous(),
+				lane: "release",
+				initializeTargets: ["windows-aarch64"],
+			}),
+		).rejects.toMatchObject({ reason: "uninitializable-component-target" });
+		// Duplicates and malformed lists are refused.
+		await expect(
+			prepare([f, arm], {
+				changes: diff,
+				previousRecord: previous(),
+				lane: "release",
+				initializeTargets: ["windows-aarch64", "windows-aarch64"],
+			}),
+		).rejects.toMatchObject({ reason: "uninitializable-component-target" });
+		await expect(
+			prepare([f, arm], {
+				changes: diff,
+				previousRecord: previous(),
+				lane: "release",
+				initializeTargets: [],
+			}),
+		).rejects.toMatchObject({ reason: "uninitializable-component-target" });
+		// A change naming the initialized target is refused.
+		const armAddition: ComponentChange = {
+			target: "windows-aarch64",
+			id: "alpha",
+			from: null,
+			to: snapshot(bundled("alpha")),
+		};
+		await expect(
+			prepare([f, arm], {
+				changes: [...diff, armAddition],
+				previousRecord: previous(),
+				lane: "release",
+				initializeTargets: ["windows-aarch64"],
+			}),
+		).rejects.toMatchObject({
+			reason: "invalid-changes",
+			message: expect.stringContaining("initialized target"),
+		});
+		// A non-string entry is refused.
+		await expect(
+			prepare([f, arm], {
+				changes: diff,
+				previousRecord: previous(),
+				lane: "release",
+				initializeTargets: [7],
+			}),
+		).rejects.toMatchObject({ reason: "uninitializable-component-target" });
+		// Initialization without any components listed is refused.
+		const plainArm = await fixture("windows-aarch64");
+		await expect(
+			prepare([plainArm], {
+				previousRecord: previous(),
+				initializeTargets: ["windows-aarch64"],
+			}),
+		).rejects.toMatchObject({ reason: "uninitializable-component-target" });
+	});
+
 	test("empty components with equal non-empty targets is comparable", async () => {
 		const f = await linux([]);
 		const baselineEmpty = previousRecord([], ["linux-x86_64"]);

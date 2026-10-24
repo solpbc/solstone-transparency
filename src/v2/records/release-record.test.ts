@@ -5,6 +5,7 @@ import { describe, expect, test } from "bun:test";
 import {
 	RELEASE_RECORD_SCHEMA,
 	type ReleaseRecordPredicate,
+	admitReleaseComponentDeclaration,
 	validateReleaseRecordPredicate,
 } from "./release-record";
 
@@ -573,6 +574,104 @@ describe("release-record component inventory", () => {
 		if (!emptyResult.ok) throw new Error("expected ok");
 		expect(emptyResult.value.component_changes).toEqual([]);
 		expect(emptyResult.value.component_transitions).toBeUndefined();
+	});
+
+	test("carries component_initialized_targets and refuses malformed ones", async () => {
+		const initialized = {
+			...withChanges([]),
+			component_initialized_targets: ["linux-aarch64"],
+		};
+		const ok = await validateReleaseRecordPredicate(initialized as never);
+		expect(ok.ok).toBe(true);
+		if (!ok.ok) throw new Error("expected ok");
+		expect(ok.value.component_initialized_targets).toEqual(["linux-aarch64"]);
+		// The wire field is generic; signing admits only windows-aarch64.
+		expect(admitReleaseComponentDeclaration(ok.value)).toMatchObject({
+			ok: false,
+			reason: "malformed",
+			detail: { path: ["component_initialized_targets", "0"] },
+		});
+		const arm = {
+			...withChanges([]),
+			component_targets: ["linux-x86_64", "windows-aarch64"],
+			components: [
+				component("linux-x86_64", "alpha", "bundled"),
+				component("windows-aarch64", "alpha", "bundled"),
+			],
+			component_initialized_targets: ["windows-aarch64"],
+		};
+		const armOk = await validateReleaseRecordPredicate(arm as never);
+		expect(armOk.ok).toBe(true);
+		if (!armOk.ok) throw new Error("expected ok");
+		expect(admitReleaseComponentDeclaration(armOk.value).ok).toBe(true);
+
+		const plain = await validateReleaseRecordPredicate(
+			withChanges([]) as never,
+		);
+		expect(plain.ok).toBe(true);
+		if (!plain.ok) throw new Error("expected ok");
+		expect("component_initialized_targets" in plain.value).toBe(false);
+
+		const refusals: [unknown, string[]][] = [
+			[
+				{ ...withChanges([]), component_initialized_targets: [] },
+				["component_initialized_targets"],
+			],
+			[
+				{
+					...withChanges([]),
+					component_initialized_targets: ["windows-aarch64"],
+				},
+				["component_initialized_targets", "0"],
+			],
+			[
+				{
+					...withChanges([]),
+					component_initialized_targets: ["linux-aarch64", "linux-x86_64"],
+				},
+				["component_initialized_targets"],
+			],
+			[
+				{
+					...withChanges([]),
+					component_initialized_targets: ["linux-x86_64", "linux-aarch64"],
+				},
+				["component_initialized_targets"],
+			],
+			[
+				{
+					...withChanges([
+						{
+							target: "linux-aarch64",
+							id: "beta",
+							from: null,
+							to: snapshot("beta", "runtime-downloaded"),
+						},
+					]),
+					component_initialized_targets: ["linux-aarch64"],
+				},
+				["component_changes", "0", "target"],
+			],
+			[
+				{
+					...withComponents(),
+					component_initialized_targets: ["linux-aarch64"],
+				},
+				["component_initialized_targets"],
+			],
+			[
+				{
+					...validPredicate(),
+					component_initialized_targets: ["linux-aarch64"],
+				},
+				["component_initialized_targets"],
+			],
+		];
+		for (const [candidate, path] of refusals) {
+			expect(
+				await validateReleaseRecordPredicate(candidate as never),
+			).toMatchObject({ ok: false, reason: "malformed", detail: { path } });
+		}
 	});
 
 	test("rejects a record carrying both component_transitions and component_changes", async () => {

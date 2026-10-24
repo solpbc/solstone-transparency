@@ -8,6 +8,7 @@ import { basename, dirname, join } from "node:path";
 import {
 	type ComponentChange,
 	type ComponentSnapshot,
+	INITIALIZABLE_COMPONENT_TARGETS,
 	RELEASE_RECORD_SCHEMA,
 	type ReleaseArtifact,
 	type ReleaseComponent,
@@ -500,6 +501,13 @@ export interface JournalRecordInput extends JournalSetInput {
 	 * components file.
 	 */
 	previousRecord?: unknown;
+	/**
+	 * Targets whose component inventory this record initializes rather than
+	 * compares: each must be listed by this candidate, absent from the
+	 * previous record's component targets, and one of
+	 * `INITIALIZABLE_COMPONENT_TARGETS`.
+	 */
+	initializeTargets?: unknown;
 }
 
 /**
@@ -515,7 +523,14 @@ export async function prepareJournalReleaseRecord(
 ): Promise<ReleaseRecordPredicate> {
 	const set = await adaptSet(input);
 	const { predicate } = set;
+	const initialized = parseInitializeTargets(input.initializeTargets);
 	if (set.componentTargets === undefined || set.components === undefined) {
+		if (initialized.length > 0) {
+			refuse(
+				"uninitializable-component-target",
+				"Component targets can be initialized only when components are listed.",
+			);
+		}
 		if (input.changes !== undefined) {
 			refuse(
 				"changes-without-components",
@@ -540,20 +555,36 @@ export async function prepareJournalReleaseRecord(
 		);
 	}
 	const previous = await previousPredicate(input.previousRecord, predicate);
+	for (const target of initialized) {
+		if (!set.componentTargets.includes(target)) {
+			refuse(
+				"uninitializable-component-target",
+				`The initialized target ${target} must have a components list in this candidate.`,
+			);
+		}
+		if (previous.component_targets?.includes(target)) {
+			refuse(
+				"uninitializable-component-target",
+				`The previous record already covers ${target}; compare it instead of initializing it.`,
+			);
+		}
+	}
+	const compared = set.componentTargets.filter(
+		(target) => !initialized.includes(target),
+	);
 	// A candidate may omit a target the previous record covers, as when a
 	// platform skips a version: the omitted target carries no statement and is
-	// not compared. A target the previous record does not cover cannot be.
+	// not compared. A target the previous record does not cover cannot be,
+	// unless it is explicitly initialized.
 	if (
 		previous.component_targets === undefined ||
 		previous.component_targets.length === 0 ||
-		set.componentTargets.length === 0 ||
-		set.componentTargets.some(
-			(target) => !previous.component_targets?.includes(target),
-		)
+		compared.length === 0 ||
+		compared.some((target) => !previous.component_targets?.includes(target))
 	) {
 		refuse(
 			"uncomparable-component-coverage",
-			"Candidate component targets must be a non-empty subset of the previous record's non-empty component targets.",
+			"Candidate component targets, less any initialized target, must be a non-empty subset of the previous record's non-empty component targets.",
 		);
 	}
 	let declared: ComponentChange[];
@@ -573,12 +604,21 @@ export async function prepareJournalReleaseRecord(
 		}
 		declared = parsed.value;
 	}
+	if (declared.some((change) => initialized.includes(change.target))) {
+		refuse(
+			"invalid-changes",
+			"Declared component changes must not name an initialized target; its inventory is stated without comparison.",
+		);
+	}
 	const candidate: ReleaseRecordPredicate = {
 		...predicate,
 		component_targets: set.componentTargets,
 		components: set.components,
 		component_baseline: previous.version,
 		component_changes: declared,
+		...(initialized.length === 0
+			? {}
+			: { component_initialized_targets: initialized }),
 	};
 	const derived = componentSnapshotDiff(previous, candidate);
 	if (!componentChangesEqual(declared, derived)) {
@@ -642,6 +682,38 @@ async function previousPredicate(
 	return validated.value;
 }
 
+function parseInitializeTargets(value: unknown): string[] {
+	if (value === undefined) return [];
+	if (
+		!Array.isArray(value) ||
+		value.length === 0 ||
+		value.some((target) => typeof target !== "string")
+	) {
+		refuse(
+			"uninitializable-component-target",
+			"Supply initialized component targets as a non-empty list of target names.",
+		);
+	}
+	const targets = [...new Set(value as string[])].sort((left, right) =>
+		left < right ? -1 : left > right ? 1 : 0,
+	);
+	if (targets.length !== value.length) {
+		refuse(
+			"uninitializable-component-target",
+			"Name each initialized component target once.",
+		);
+	}
+	for (const target of targets) {
+		if (!INITIALIZABLE_COMPONENT_TARGETS.includes(target)) {
+			refuse(
+				"uninitializable-component-target",
+				`Only ${INITIALIZABLE_COMPONENT_TARGETS.join(", ")} may initialize its component inventory; ${target} must be compared with the previous record.`,
+			);
+		}
+	}
+	return targets;
+}
+
 function rowSnapshot(
 	row: ReleaseComponent | undefined,
 ): ComponentSnapshot | null {
@@ -659,8 +731,11 @@ function componentSnapshotDiff(
 	previous: ReleaseRecordPredicate,
 	next: ReleaseRecordPredicate,
 ): ComponentChange[] {
-	// Only the candidate's targets are compared.
-	const targets = new Set(next.component_targets ?? []);
+	// Only the candidate's targets are compared, less any it initializes.
+	const initialized = new Set(next.component_initialized_targets ?? []);
+	const targets = new Set(
+		(next.component_targets ?? []).filter((target) => !initialized.has(target)),
+	);
 	const prevRows = new Map<string, ReleaseComponent>();
 	for (const row of previous.components ?? []) {
 		if (!targets.has(row.target)) continue;
@@ -668,6 +743,7 @@ function componentSnapshotDiff(
 	}
 	const nextRows = new Map<string, ReleaseComponent>();
 	for (const row of next.components ?? []) {
+		if (!targets.has(row.target)) continue;
 		nextRows.set(`${row.target}\u0000${row.id}`, row);
 	}
 	const allKeys = new Set<string>([...prevRows.keys(), ...nextRows.keys()]);

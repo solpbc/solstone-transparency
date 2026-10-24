@@ -101,6 +101,14 @@ export interface ReleaseRecordPredicate {
 	 * checked against a baseline.
 	 */
 	component_changes?: readonly ComponentChange[];
+	/**
+	 * Targets in `component_targets` whose inventory this record states for
+	 * the first time, without comparison to `component_baseline`, which does
+	 * not cover them. It says nothing about earlier inventory for those
+	 * targets, and `component_changes` names none of them. Present only
+	 * alongside `component_changes`.
+	 */
+	component_initialized_targets?: readonly string[];
 	does_prove: readonly string[];
 	does_not_prove: readonly string[];
 }
@@ -691,6 +699,7 @@ interface ComponentStatement {
 	component_baseline: string;
 	component_transitions?: ComponentTransition[];
 	component_changes?: ComponentChange[];
+	component_initialized_targets?: string[];
 }
 
 // component_targets, components and component_baseline appear together or not
@@ -715,6 +724,13 @@ function parseComponentStatement(
 				["component_changes"],
 				"component_changes only alongside components",
 				typeName(value.component_changes),
+			);
+		}
+		if (value.component_initialized_targets !== undefined) {
+			return malformed(
+				["component_initialized_targets"],
+				"component_initialized_targets only alongside components",
+				typeName(value.component_initialized_targets),
 			);
 		}
 		return { ok: true, value: undefined };
@@ -779,6 +795,54 @@ function parseComponentStatement(
 		if (!parsed.ok) return parsed;
 		changes = parsed.value;
 	}
+	let initialized: string[] | undefined;
+	if (value.component_initialized_targets !== undefined) {
+		const path = ["component_initialized_targets"];
+		if (changes === undefined) {
+			return malformed(
+				path,
+				"component_initialized_targets only alongside component_changes",
+				typeName(value.component_initialized_targets),
+			);
+		}
+		const parsed = parseComponentTargets(value.component_initialized_targets);
+		if (!parsed.ok) {
+			return malformed(
+				path,
+				"targets matching ^[a-z0-9][a-z0-9._-]*$, sorted, without duplicates",
+				value.component_initialized_targets,
+			);
+		}
+		if (parsed.value.length === 0) {
+			return malformed(path, "a non-empty array of targets", parsed.value);
+		}
+		for (const [index, target] of parsed.value.entries()) {
+			if (!targets.value.includes(target)) {
+				return malformed(
+					[...path, String(index)],
+					"a target listed in component_targets",
+					target,
+				);
+			}
+		}
+		if (parsed.value.length === targets.value.length) {
+			return malformed(
+				path,
+				"at least one component target compared with the baseline",
+				parsed.value,
+			);
+		}
+		for (const [index, change] of changes.entries()) {
+			if (parsed.value.includes(change.target)) {
+				return malformed(
+					["component_changes", String(index), "target"],
+					"a target that is not in component_initialized_targets",
+					change.target,
+				);
+			}
+		}
+		initialized = parsed.value;
+	}
 	return {
 		ok: true,
 		value: {
@@ -789,6 +853,9 @@ function parseComponentStatement(
 				? {}
 				: { component_transitions: transitions }),
 			...(changes === undefined ? {} : { component_changes: changes }),
+			...(initialized === undefined
+				? {}
+				: { component_initialized_targets: initialized }),
 		},
 	};
 }
@@ -896,6 +963,16 @@ export async function validateReleaseRecordPredicate(
 }
 
 /**
+ * Targets that may establish an initial component inventory, at their first
+ * public release, instead of being compared with the baseline. Windows ARM64
+ * only, by sol pbc's decision of 2026-10-22. The wire field is generic; this
+ * list is enforced by the journal adapter and at signing admission.
+ */
+export const INITIALIZABLE_COMPONENT_TARGETS: readonly string[] = [
+	"windows-aarch64",
+];
+
+/**
  * Admits a release-record predicate for publication signing.
  * Enforces that new publications carry `component_changes` (and never
  * historical `component_transitions`) when carrying a component inventory.
@@ -932,6 +1009,17 @@ export function admitReleaseComponentDeclaration(
 			"component-bearing release records must carry component_changes",
 			undefined,
 		);
+	}
+	for (const [index, target] of (
+		statement.component_initialized_targets ?? []
+	).entries()) {
+		if (!INITIALIZABLE_COMPONENT_TARGETS.includes(target)) {
+			return malformed(
+				["component_initialized_targets", String(index)],
+				`an initializable target (${INITIALIZABLE_COMPONENT_TARGETS.join(", ")})`,
+				target,
+			);
+		}
 	}
 	return { ok: true, value: undefined };
 }

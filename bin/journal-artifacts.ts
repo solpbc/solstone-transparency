@@ -40,6 +40,7 @@ try {
 			components: { type: "string", multiple: true },
 			changes: { type: "string" },
 			"previous-record": { type: "string" },
+			"initialize-target": { type: "string", multiple: true },
 			out: { type: "string" },
 			help: { type: "boolean" },
 		},
@@ -47,7 +48,7 @@ try {
 		allowPositionals: false,
 	});
 	if (values.help) {
-		console.log(`Usage: bun bin/journal-artifacts.ts --manifest FILE [--manifest FILE ...] --version VERSION --lane release|staging|dev --claims FILE [--components FILE ...] [--changes FILE] [--previous-record FILE] [--out FILE]
+		console.log(`Usage: bun bin/journal-artifacts.ts --manifest FILE [--manifest FILE ...] --version VERSION --lane release|staging|dev --claims FILE [--components FILE ...] [--changes FILE] [--previous-record FILE] [--initialize-target TARGET ...] [--out FILE]
 
 Prepare release-record input from local journal distribution manifests and their adjacent files.
 Pass the output file directly as --release-record to release prepare.
@@ -84,11 +85,17 @@ output of this command (its releasePredicate member is used). It is required whe
 components are listed, and must be for the same product and a different version.
 Both component_targets lists must be non-empty, and every target in this release's
 list must be in the baseline's. A baseline target this release omits is not compared.
-A target the baseline does not cover is refused, never read as absence, so a release
-covering a target again after one that omitted it names a baseline that covers all of
-its targets. This command checks that supplied local predicate. It
+A target the baseline does not cover is refused unless --initialize-target names it, and is
+never read as absence, so a release covering a target again after one that omitted it names a
+baseline that covers all of its targets. This command checks that supplied local predicate. It
 does not authenticate it. Authentication of the public baseline belongs to independent
 verification.
+--initialize-target TARGET states that target's component inventory without comparing it to the
+baseline. Only windows-aarch64 may be initialized, and only against a baseline that does not cover
+it; this command does not check that it is the target's first public release. The target must
+have a components list here. At least one other target is still compared, and --changes must not
+name the initialized target. The output lists it in component_initialized_targets and makes no
+statement about earlier inventory for it. A later release compares it as usual.
 Output covers manifest members and the manifest itself; minisign signatures are not included or verified.
 This command checks local consistency; it does not authenticate the producer or verify remote delivery.
 JSON goes to stdout unless --out selects a new file. Existing output files are refused.`);
@@ -117,6 +124,9 @@ JSON goes to stdout unless --out selects a new file. Existing output files are r
 				"invalid-previous-record",
 				"--previous-record",
 			),
+			...(values["initialize-target"] === undefined
+				? {}
+				: { initializeTargets: values["initialize-target"] }),
 		});
 		const output = `${JSON.stringify(
 			{
