@@ -210,7 +210,11 @@ export function collectInternalHrefs(html: string, fromPath: string): string[] {
 	const out: string[] = [];
 	for (const href of collectHrefs(html)) {
 		const resolved = resolveHref(href, fromPath);
-		if (resolved !== null) out.push(resolved);
+		if (resolved === null) continue;
+		// The worker serves /static/ files from ASSETS, so they are not routes.
+		if (resolved !== STYLESHEET_PATH && resolved.startsWith("/static/"))
+			continue;
+		out.push(resolved);
 	}
 	return out;
 }

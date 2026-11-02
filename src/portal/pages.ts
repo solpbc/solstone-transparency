@@ -206,6 +206,7 @@ function shell(args: {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${trustedText(args.title)}</title>
+<link rel="icon" href="/static/mark.svg" type="image/svg+xml">
 <link rel="stylesheet" href="${STYLESHEET_PATH}">
 <link rel="canonical" href="https://trust.solstone.app${escapeHtml(args.path)}">
 </head>
@@ -891,7 +892,7 @@ ${declarationBlock}
 <h2>${trustedText("the register, at a glance")}</h2>
 <p>${trustedText(HOME_REGISTER_SUMMARY_LEAD)}</p>
 ${appRowsCoverage(v2)}
-<table class="register-table">
+<div class="table-scroll"><table class="register-table">
 <caption class="sr-only">${trustedText("software publication register summary")}</caption>
 <thead><tr><th scope="col">${trustedText("product")}</th><th scope="col">${trustedText("publication")}</th><th scope="col">${trustedText("latest recorded release")}</th></tr></thead>
 <tbody>
@@ -900,7 +901,7 @@ ${appRowsCoverage(v2)}
 <tr><td><a href="/software/windows/">${trustedText(PRODUCT_DISPLAY.windows)}</a></td><td>${w.publication}</td><td>${w.latest}</td></tr>
 ${extraRows}
 </tbody>
-</table>
+</table></div>
 <h2>${trustedText("go deeper")}</h2>
 <ul>
 <li><a href="/software/">${trustedText("software register")}</a></li>
@@ -1322,7 +1323,7 @@ ${heading}
 <tr><td>${trustedText("subject")}</td><td class="mono">${untrustedText(`software/${record.product}/${record.version}`)}</td></tr>
 <tr><td>${trustedText("target path")}</td><td class="mono">${untrustedText(record.targetPath)}</td></tr>
 <tr><td>${trustedText("target sha256")}</td><td class="mono">${untrustedText(record.targetSha256)}</td></tr>
-<tr><td>${trustedText("issued at")}</td><td>${untrustedText(record.issuedAt)}</td></tr>
+<tr><td>${trustedText("issued at")}</td><td class="mono">${untrustedText(record.issuedAt)}</td></tr>
 <tr><td>${trustedText("signer key ids")}</td><td class="mono">${record.signerKeyids.map((k) => untrustedText(k)).join("<br>")}</td></tr>
 ${v2.policy.state === "loaded" ? `<tr><td>${trustedText("policy sha256")}</td><td class="mono">${untrustedText(v2.policy.sha256)}</td></tr>` : ""}
 </tbody></table></div></div></details>`;
@@ -1378,14 +1379,14 @@ export function renderVerify(
 ): string {
 	const filename = model.keys[0]?.filename ?? "solpbc-transparency-1.pub";
 	const cmd = verifyCommand(filename);
-	const v1Table = `<table class="evidence-table">
+	const v1Table = `<div class="table-scroll"><table class="evidence-table">
 <thead><tr><th>${trustedText("outcome")}</th><th>${trustedText("what it means")}</th></tr></thead>
 <tbody>
 <tr><td>${trustedText("signature verifies")}</td><td>${trustedText(VERIFY_OUTCOME_PASS)}</td></tr>
 <tr><td>${trustedText("signature fails to verify")}</td><td>${trustedText(VERIFY_OUTCOME_FAIL)}</td></tr>
 <tr><td>${trustedText("curl or fetch fails")}</td><td>${trustedText(VERIFY_OUTCOME_UNREACHABLE)}</td></tr>
 </tbody>
-</table>`;
+</table></div>`;
 	if (!v2Known(v2)) {
 		const main = `
 <h1>${trustedText("verify a record yourself")}</h1>
@@ -1420,27 +1421,27 @@ ${v1Table}
 <p>${trustedText(VERIFY_V2_LEAD_IN)}</p>
 <pre class="mono">${untrustedText(v2cmd)}</pre>
 <h3>${trustedText("reading the result")}</h3>
-<table class="evidence-table">
+<div class="table-scroll"><table class="evidence-table">
 <thead><tr><th>${trustedText("outcome")}</th><th>${trustedText("what it means")}</th></tr></thead>
 <tbody>
 <tr><td>${trustedText("ACCEPTED, exit 0")}</td><td>${trustedText(VERIFY_OUTCOME_V2_ACCEPTED)}</td></tr>
 <tr><td>${trustedText("REJECTED, exit 1")}</td><td>${trustedText(VERIFY_OUTCOME_V2_REJECTED)}</td></tr>
 <tr><td>${trustedText("could not run, exit 2")}</td><td>${trustedText(VERIFY_OUTCOME_V2_COULD_NOT_RUN)}</td></tr>
 </tbody>
-</table>
+</table></div>
 <h2 id="v3">${trustedText(HEADING_V3_METHOD)}</h2>
 <p>${trustedText(VERIFY_METHOD_INTRO_V3)}</p>
 <p>${trustedText(VERIFY_V3_LEAD_IN)}</p>
 <pre class="mono">${untrustedText(v3cmd)}</pre>
 <h3>${trustedText("reading the result")}</h3>
-<table class="evidence-table">
+<div class="table-scroll"><table class="evidence-table">
 <thead><tr><th>${trustedText("outcome")}</th><th>${trustedText("what it means")}</th></tr></thead>
 <tbody>
 <tr><td>${trustedText("accepted release record, exit 0")}</td><td>${trustedText(VERIFY_OUTCOME_V3_ACCEPTED)}</td></tr>
 <tr><td>${trustedText("rejected:, exit 1")}</td><td>${trustedText(VERIFY_OUTCOME_V3_REJECTED)}</td></tr>
 <tr><td>${trustedText("could not run, exit 2")}</td><td>${trustedText(VERIFY_OUTCOME_V3_COULD_NOT_RUN)}</td></tr>
 </tbody>
-</table>
+</table></div>
 <p><a href="/keys/">${trustedText("the signing keys")}</a></p>`;
 	return shell({
 		title: "verify — trust.solstone.app",

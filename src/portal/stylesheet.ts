@@ -157,6 +157,12 @@ a {
   color: var(--orange-text-aa);
 }
 
+.primary-nav a[aria-current] {
+  color: var(--ink);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+
 a:focus-visible,
 button:focus-visible,
 .skip-link:focus-visible,
@@ -168,6 +174,7 @@ button:focus-visible,
 .breadcrumbs ol {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
   list-style: none;
   padding: var(--space-3) var(--space-5);
@@ -183,13 +190,13 @@ main {
 
 .shell-footer {
   border-top: 1px solid var(--hairline);
-  padding: var(--space-5);
   color: var(--ink-soft);
 }
 
 .shell-footer .inner {
   max-width: 72rem;
   margin: 0 auto;
+  padding: var(--space-5);
 }
 
 .shell-footer ul {
@@ -247,6 +254,25 @@ table.evidence-table {
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--hairline);
   vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+.register-table td:last-child,
+.evidence-table td:last-child {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .register-table th,
+  .register-table td,
+  .evidence-table th,
+  .evidence-table td {
+    padding: var(--space-2);
+  }
+
+  table.evidence-table:has(thead) {
+    min-width: 36rem;
+  }
 }
 
 .table-scroll {
@@ -330,6 +356,11 @@ table.evidence-table {
 
 .is-gap {
   background: var(--cream-bright);
+}
+
+.timeline li.is-gap {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
 }
 
 .mono,
