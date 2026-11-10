@@ -86,8 +86,11 @@ describe("AC-1 durable routes and JS-free graph walk", () => {
 			expect(pages.get(p)?.status).toBe(200);
 		}
 		const reached = reachableFromHome(defaultResult);
+		// solstone for tmux is retired: its page serves its records by direct
+		// link, and no listing links it.
+		const unlisted = new Set<string>(["/software/tmux/"]);
 		for (const p of expected) {
-			expect(reached.has(p)).toBe(true);
+			expect(reached.has(p)).toBe(!unlisted.has(p));
 		}
 		expect(reached.has("/services/")).toBe(false);
 		expect(reached.has("/commitments/")).toBe(false);

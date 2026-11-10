@@ -878,7 +878,7 @@ export function renderHome(
 	const j = rowFor("journal", jTip);
 	const l = rowFor("linux", lTip);
 	const w = rowFor("windows", undefined);
-	const extraRows = (["macos", "tmux"] as const)
+	const extraRows = (["macos"] as const)
 		.map((slug) => {
 			const row = rowFor(slug, undefined);
 			return `<tr><td><a href="/software/${slug}/">${trustedText(PRODUCT_DISPLAY[slug])}</a></td><td>${row.publication}</td><td>${row.latest}</td></tr>`;
@@ -975,7 +975,7 @@ ${appRowsCoverage(v2)}
 <div class="card"><a class="card-link" href="/software/journal/"><h3>${trustedText(PRODUCT_DISPLAY.journal)}</h3><p>${card("journal", jTip)}</p></a></div>
 <div class="card"><a class="card-link" href="/software/linux/"><h3>${trustedText(PRODUCT_DISPLAY.linux)}</h3><p>${card("linux", lTip)}</p></a></div>
 <div class="card"><a class="card-link" href="/software/windows/"><h3>${trustedText(PRODUCT_DISPLAY.windows)}</h3><p>${card("windows", undefined)}</p></a></div>
-${(["macos", "tmux"] as const).map((slug) => `<div class="card"><a class="card-link" href="/software/${slug}/"><h3>${trustedText(PRODUCT_DISPLAY[slug])}</h3><p>${card(slug, undefined)}</p></a></div>`).join("")}
+${(["macos"] as const).map((slug) => `<div class="card"><a class="card-link" href="/software/${slug}/"><h3>${trustedText(PRODUCT_DISPLAY[slug])}</h3><p>${card(slug, undefined)}</p></a></div>`).join("")}
 </div>`;
 	return shell({
 		title: "software — trust.solstone.app",

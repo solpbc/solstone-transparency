@@ -692,3 +692,12 @@ test("a present app record with a bad signer is shown as failed, never empty", a
 		}
 	}
 });
+
+test("solstone for tmux is retired from the listings and its records stay reachable", async () => {
+	const model = await v2For([{ product: "solstone-tmux", version: "2.0.0" }]);
+	for (const index of ["/", "/software/"]) {
+		expect(handle(index, v1, model).body).not.toContain("/software/tmux/");
+	}
+	expect(handle("/software/tmux/", v1, model).status).toBe(200);
+	expect(handle("/software/tmux/2.0.0/", v1, model).status).toBe(200);
+});
