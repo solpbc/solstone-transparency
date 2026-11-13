@@ -3,6 +3,8 @@
 
 import { describe, expect, test } from "bun:test";
 import { buildPortalModel } from "./adapter";
+import { canonicalize } from "./canonical";
+import { syntheticGenesisEntry } from "./fixtures";
 import { CATALOG, JOURNAL_GAP } from "./inventory";
 import {
 	FakeFetcher,
@@ -10,6 +12,43 @@ import {
 	generateThrowawayKeypair,
 	seedProductChain,
 } from "./test-helpers";
+
+test.each([
+	["seq", "seq must be a positive integer, got undefined"],
+	[
+		"published_utc",
+		"published_utc must be exactly YYYY-MM-DDTHH:MM:SSZ, got undefined",
+	],
+] as const)(
+	"missing %s does not abort the model build",
+	async (field, reason) => {
+		const fetcher = new FakeFetcher();
+		fetcher.setText(
+			`releases/keys/${TEST_KEY_FILENAME}`,
+			"untrusted comment: minisign public key 0000000000000000\nsynthetic unused key",
+		);
+		const entry = syntheticGenesisEntry({ product: "solstone-linux" });
+		delete entry[field];
+		const entryPath = "releases/solstone-linux/v/0.0.1/ledger-entry.json";
+		fetcher.setBytes(entryPath, canonicalize(entry));
+		fetcher.setText(`${entryPath}.minisig`, "unused");
+		const result = await buildPortalModel(
+			fetcher,
+			new Date("2026-01-01T00:00:00Z"),
+			{ journal: [], linux: ["0.0.1", "0.0.2"] },
+		);
+		expect(result.ok).toBe(true);
+		if (!result.ok)
+			throw new Error("expected a model containing the malformed entry");
+		const linux = result.model.subjects.find((s) => s.product === "linux");
+		if (!linux || !("timeline" in linux))
+			throw new Error("expected linux timeline");
+		expect(linux.timeline).toMatchObject([
+			{ kind: "malformed", version: "0.0.1", reason },
+			{ kind: "missing-object", version: "0.0.2" },
+		]);
+	},
+);
 
 describe("buildPortalModel — full pipeline over a fake, in-memory evidence host", () => {
 	test("builds a valid model with journal's gap, linux's single entry, and windows absence", async () => {

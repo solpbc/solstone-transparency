@@ -95,7 +95,7 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 			ok: false,
 			problem: "malformed",
 			detail: t("trust.diag.seqmustbeapositiveintegergotvalue", {
-				value: JSON.stringify(raw.seq),
+				value: String(JSON.stringify(raw.seq)),
 			}),
 		};
 	}
@@ -124,7 +124,7 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 			ok: false,
 			problem: "malformed",
 			detail: t("trust.diag.publishedutcmustbeexactlyyyyymmddthhmmsszg", {
-				value: JSON.stringify(raw.published_utc),
+				value: String(JSON.stringify(raw.published_utc)),
 			}),
 		};
 	}

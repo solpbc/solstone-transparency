@@ -32,6 +32,37 @@ function trustedEntryComment(fields: {
 	return `solpbc-transparency-v1 entry product=${fields.product ?? "example-product"} seq=${fields.seq} version=${fields.version} sha256=${fields.sha256} prev=${fields.prev}`;
 }
 
+describe.each([
+	["seq", "seq must be a positive integer, got undefined"],
+	[
+		"published_utc",
+		"published_utc must be exactly YYYY-MM-DDTHH:MM:SSZ, got undefined",
+	],
+] as const)("missing %s", (field, detail) => {
+	test("checkEntryFields returns the malformed diagnostic", () => {
+		const entry = syntheticGenesisEntry();
+		delete entry[field];
+		expect(checkEntryFields(entry)).toEqual({
+			ok: false,
+			problem: "malformed",
+			detail,
+		});
+	});
+
+	test("verifyEntry returns malformed before signature verification", async () => {
+		const entry = syntheticGenesisEntry();
+		delete entry[field];
+		const outcome = await verifyEntry({
+			entryBytes: canonicalize(entry),
+			entrySigText: "unused",
+			pubKeyText: "unused",
+			expectedPrevSha256: GENESIS_SHA256,
+			checkedAt: "2026-01-01T00:00:00Z",
+		});
+		expect(outcome).toEqual({ state: "malformed", reason: detail });
+	});
+});
+
 describe("checkEntryFields", () => {
 	test("a genesis entry passes", () => {
 		const result = checkEntryFields(syntheticGenesisEntry());
