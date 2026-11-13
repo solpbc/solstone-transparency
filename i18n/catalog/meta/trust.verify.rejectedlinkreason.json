@@ -1,0 +1,32 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.rejected-link-reason).",
+  "context": "found in the command stdout the verify page tells the reader to run. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "link",
+      "type": "string"
+    },
+    {
+      "name": "reason",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 13,
+  "source_revision": "b4c29213aeea637d887da6556a781253a9142dc5db6c3e890c3a614ec3fba0a3",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "rejected:"
+    }
+  ]
+}

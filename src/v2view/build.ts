@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
+import { t } from "../../i18n/lookup";
+
 /**
  * Builds the v2 portal model (`src/v2view/types.ts`) from a pinned root and a
  * repository base, offline, at `make build-model` time.
@@ -115,11 +117,11 @@ export interface BuildV2ModelOptions {
  */
 export const DEFAULT_WITNESSES: readonly V2Witness[] = [
 	{
-		label: "the pinned root in the public verifier repository",
+		label: t("trust.keys.thepinnedrootinthepublicverifierrepository"),
 		url: "https://github.com/solpbc/solstone-transparency/blob/main/protocol/tuf-root.json",
 	},
 	{
-		label: "the witness log on solpbc.org",
+		label: t("trust.keys.thewitnesslogonsolpbcorg"),
 		url: "https://solpbc.org/transparency/tuf-root.txt",
 	},
 ];
@@ -1000,6 +1002,6 @@ export function parseExpectation(text: string): V2Expectation | undefined {
 	return {
 		product: match[1] ?? "",
 		version: match[2] ?? "",
-		basis: match[3] ?? "named as expected at build time",
+		basis: match[3] ?? t("trust.keys.namedasexpectedatbuildtime"),
 	};
 }

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.the-v2-signing-root).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 19,
+  "source_revision": "e97dc8e00a2768fa90e984469b8031b7ba12d70275a857839d1b8724479f6d0e",
+  "risk": "routine",
+  "auto_merge": true
+}

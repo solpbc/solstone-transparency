@@ -1,0 +1,25 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.sol-pbc-publishes-release-records-under-its-v2-signi).",
+  "context": "profile gap: agreement. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 136,
+  "source_revision": "f975eabe67f25fdd5d3563328184d12d9e267d36c3cd553daa0889ed8ac4d312",
+  "risk": "routine",
+  "auto_merge": true
+}

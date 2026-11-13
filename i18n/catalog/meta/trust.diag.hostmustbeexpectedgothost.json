@@ -1,0 +1,25 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.host-must-be-expected-got-host).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "expected",
+      "type": "string"
+    },
+    {
+      "name": "host",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 21,
+  "source_revision": "81a043cc7c9d682d4426b72e6c0cd8e1a210424c8b9c59aba27a3ea48a333e68",
+  "risk": "routine",
+  "auto_merge": true
+}

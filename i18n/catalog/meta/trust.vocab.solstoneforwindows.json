@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.solstone-for-windows).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 20,
+  "source_revision": "2baaf9b33deb85668d7e318763e0262f9f5cf3a0fd31748ec147373125d9ae29",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.immutable-entry).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 15,
+  "source_revision": "3595d2b27a1f4f814bb97123cd77461553fb0a25f22f31e5628ca6b0eac76d13",
+  "risk": "routine",
+  "auto_merge": true
+}

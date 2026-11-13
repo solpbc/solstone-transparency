@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.this-file-describes-the-v1-chain-in-the-v1-chains-ow).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 97,
+  "source_revision": "29d997e3ad55fb32a757e9900c73709718bd76a10603f4d0cde320033ca5bd8a",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.that-sol-pbcs-signing-key-attested-these-exact-artif).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 193,
+  "source_revision": "9664d53cc3cc184eb936d2be8bca0c0fbfb9daf4ca459ccce8532c37f81d282a",
+  "risk": "routine",
+  "auto_merge": true
+}

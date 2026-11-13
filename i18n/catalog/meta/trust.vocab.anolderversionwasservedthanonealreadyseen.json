@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.an-older-version-was-served-than-one-already-seen).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class. readerReason maps a reason code; the code is not the label.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 49,
+  "source_revision": "73eb3072e81f420d91ae4a58cbef3ec78d79b2b7c8dc55781780ef1bf835c22d",
+  "risk": "routine",
+  "auto_merge": true
+}

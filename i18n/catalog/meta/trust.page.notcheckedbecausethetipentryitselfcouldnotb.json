@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.not-checked-because-the-tip-entry-itself-could-not-b).",
+  "context": "found in the portal renderer. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 65,
+  "source_revision": "e4e85293ed829d40a6279671aff20f5eb5d4bdd135d7646e485eefeb71876e2f",
+  "risk": "routine",
+  "auto_merge": true
+}

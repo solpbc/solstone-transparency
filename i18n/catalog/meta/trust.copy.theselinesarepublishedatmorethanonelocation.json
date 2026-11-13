@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.these-lines-are-published-at-more-than-one-location-).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 329,
+  "source_revision": "b6b7efef7245e2a228dac9f4e468c326bd02fd65fdedd691e3aca555c58f4272",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.publication-to-this-register-is-paused-right-now-by-).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 367,
+  "source_revision": "118b3d4cde09deb0628b8c5f4ea67885f377e7a26a1f8bbde3c82f9f2ac8e34d",
+  "risk": "routine",
+  "auto_merge": true
+}

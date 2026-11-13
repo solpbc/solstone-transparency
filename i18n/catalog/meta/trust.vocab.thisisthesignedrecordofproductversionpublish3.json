@@ -1,0 +1,33 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.this-is-the-signed-record-of-product-version-publish-3).",
+  "context": "profile gap: agreement. kept as today's English. catalog uses today's English. found in vocab.ts.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "name": "published_utc",
+      "type": "string"
+    },
+    {
+      "name": "reason",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 300,
+  "source_revision": "b72e56823d0fc1d5aa54bff6647872b8724ba42cb3d9d5f1af5805d53200ecc2",
+  "risk": "routine",
+  "auto_merge": true
+}

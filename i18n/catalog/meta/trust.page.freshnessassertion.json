@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.freshness-assertion).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 19,
+  "source_revision": "85c3534f2c716234bc0c65af55a3b065043a16d40d9f2a6702b0f8c11c565d97",
+  "risk": "routine",
+  "auto_merge": true
+}

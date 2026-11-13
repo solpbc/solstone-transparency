@@ -1,0 +1,53 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-command-printed-rejected-with-a-reason-and-exite-1).",
+  "context": "profile gap: split. kept as today's English. found in the approved copy module. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 642,
+  "source_revision": "07ed4d6a121e0a9093674a2d06dd7c7e377342caa70be9cd9723d40fbab41d87",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "REJECTED"
+    },
+    {
+      "name": "tok2",
+      "kind": "accepted-input",
+      "value": "expired"
+    },
+    {
+      "name": "tok3",
+      "kind": "accepted-input",
+      "value": "unavailable"
+    },
+    {
+      "name": "tok4",
+      "kind": "accepted-input",
+      "value": "retrieval-failed"
+    },
+    {
+      "name": "tok5",
+      "kind": "accepted-input",
+      "value": "trust-store-corrupt"
+    },
+    {
+      "name": "tok6",
+      "kind": "accepted-input",
+      "value": "malformed"
+    },
+    {
+      "name": "tok7",
+      "kind": "accepted-input",
+      "value": "transparency.solstone.app"
+    }
+  ]
+}

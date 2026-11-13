@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.pointer-body-is-not-valid-json).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 30,
+  "source_revision": "55e22c1b410098289c39c3ad579cd4160898629807501a4f31482954a10019dc",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.theres-no-record-here-for-that-version-that-isnt-evi).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 131,
+  "source_revision": "f9373d6e0c71a257b5a9feb21f9cebee2f10b37e479ae908063ad81f9a63c7a2",
+  "risk": "routine",
+  "auto_merge": true
+}

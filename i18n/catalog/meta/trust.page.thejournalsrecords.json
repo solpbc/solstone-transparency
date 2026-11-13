@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.the-journals-records).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 21,
+  "source_revision": "b1b7d5e403c8a20dc594674d94ece8c2a142ed7837c9beb9dee0ca8c69570f32",
+  "risk": "routine",
+  "auto_merge": true
+}

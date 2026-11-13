@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.seq-1-must-be-genesis-prev-sha256-all-zero-and-prev-).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 66,
+  "source_revision": "a10c10457fb25c79420eb3014e3f03a59e6febe204b815a0d1364deac1c0ad89",
+  "risk": "routine",
+  "auto_merge": true
+}

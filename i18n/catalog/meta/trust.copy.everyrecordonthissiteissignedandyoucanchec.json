@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.every-record-on-this-site-is-signed-and-you-can-chec).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 299,
+  "source_revision": "be1ae30fff3bb002b4dce42f115505f3f7bfeec816337a26ce09c609e0d8132b",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.confidential-processing-appliance-record-9968c21-pub).",
+  "context": "found in the portal renderer. no defect class. the short id is baked into the label. it is not a live placeholder.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 60,
+  "source_revision": "f9685d32cf325adee7b8e680845bf26db376c72b58e1c5cc1a473101915c7171",
+  "risk": "routine",
+  "auto_merge": true
+}

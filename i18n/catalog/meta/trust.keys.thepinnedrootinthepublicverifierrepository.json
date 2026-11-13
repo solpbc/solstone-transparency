@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.keys.the-pinned-root-in-the-public-verifier-repository).",
+  "context": "found as a source string. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 49,
+  "source_revision": "c090489cfd727a616ace7b8f117c158d2ddb34067476649730cf36514ef1cb26",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.path-contains-an-encoded-separator-or-dot-segment-am).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 59,
+  "source_revision": "e173aafaf35c90fcccbf7e3ab7c11b5f5000dc3b1834a9599a8bdc1fd09b5782",
+  "risk": "routine",
+  "auto_merge": true
+}

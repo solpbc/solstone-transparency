@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
+import { t } from "../../i18n/lookup";
+
 /**
  * Read-side verification of a single v1 ledger entry or latest pointer:
  * schema shape, ASCII/canonicalization conformance, trusted-comment binding,
@@ -74,14 +76,14 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 		return {
 			ok: false,
 			problem: "missing-subject",
-			detail: "entry has no version field",
+			detail: t("trust.diag.entryhasnoversionfield"),
 		};
 	}
 	if (raw.product === undefined || raw.product === "") {
 		return {
 			ok: false,
 			problem: "malformed",
-			detail: "entry has no product field",
+			detail: t("trust.diag.entryhasnoproductfield"),
 		};
 	}
 	if (
@@ -92,7 +94,9 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 		return {
 			ok: false,
 			problem: "malformed",
-			detail: `seq must be a positive integer, got ${JSON.stringify(raw.seq)}`,
+			detail: t("trust.diag.seqmustbeapositiveintegergotvalue", {
+				value: JSON.stringify(raw.seq),
+			}),
 		};
 	}
 	if (
@@ -102,14 +106,14 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 		return {
 			ok: false,
 			problem: "malformed",
-			detail: "prev_sha256 must be exactly 64 lowercase hex characters",
+			detail: t("trust.diag.prevsha256mustbeexactly64lowercasehexcharact"),
 		};
 	}
 	if (raw.prev_version === undefined) {
 		return {
 			ok: false,
 			problem: "malformed",
-			detail: "prev_version field missing (use empty string at genesis)",
+			detail: t("trust.diag.prevversionfieldmissinguseemptystringatgenes"),
 		};
 	}
 	if (
@@ -119,7 +123,9 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 		return {
 			ok: false,
 			problem: "malformed",
-			detail: `published_utc must be exactly YYYY-MM-DDTHH:MM:SSZ, got ${JSON.stringify(raw.published_utc)}`,
+			detail: t("trust.diag.publishedutcmustbeexactlyyyyymmddthhmmsszg", {
+				value: JSON.stringify(raw.published_utc),
+			}),
 		};
 	}
 	if (
@@ -130,7 +136,7 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 		return {
 			ok: false,
 			problem: "malformed",
-			detail: "artifacts/manifests/proofs must each be arrays",
+			detail: t("trust.diag.artifactsmanifestsproofsmusteachbearrays"),
 		};
 	}
 	const nonAscii = findNonAsciiStrings(raw);
@@ -138,7 +144,9 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 		return {
 			ok: false,
 			problem: "malformed",
-			detail: `non-ASCII value at ${nonAscii.join(", ")}`,
+			detail: t("trust.diag.nonasciivalueatpath", {
+				path: nonAscii.join(", "),
+			}),
 		};
 	}
 	if (raw.seq === 1) {
@@ -146,8 +154,7 @@ export function checkEntryFields(raw: LedgerEntryV1Raw): EntryFieldCheck {
 			return {
 				ok: false,
 				problem: "malformed",
-				detail:
-					"seq=1 must be genesis: prev_sha256 all-zero and prev_version empty",
+				detail: t("trust.diag.seq1mustbegenesisprevsha256allzeroandprev"),
 			};
 		}
 	}
@@ -189,7 +196,10 @@ export async function verifyEntry(
 	try {
 		raw = JSON.parse(new TextDecoder().decode(input.entryBytes));
 	} catch {
-		return { state: "malformed", reason: "entry body is not valid JSON" };
+		return {
+			state: "malformed",
+			reason: t("trust.diag.entrybodyisnotvalidjson"),
+		};
 	}
 	const fieldCheck = checkEntryFields(raw);
 	if (!fieldCheck.ok) {
@@ -207,7 +217,10 @@ export async function verifyEntry(
 	) {
 		return {
 			state: "invalid",
-			reason: `broken chain link: entry declares prev_sha256=${fields.prevSha256} but the actual previous entry hashes to ${input.expectedPrevSha256}`,
+			reason: t("trust.diag.brokenchainlinkentrydeclaresprevsha256declare", {
+				declared: fields.prevSha256,
+				actual: input.expectedPrevSha256,
+			}),
 		};
 	}
 
@@ -220,25 +233,31 @@ export async function verifyEntry(
 		if (sigResult.toolUnavailable) {
 			return {
 				state: "unavailable",
-				reason: `could not run the verifier: ${sigResult.stderr ?? "unknown error"}`,
+				reason: t("trust.diag.couldnotruntheverifiererror", {
+					error: sigResult.stderr ?? "unknown error",
+				}),
 			};
 		}
 		return {
 			state: "invalid",
-			reason: `minisign verification failed: ${sigResult.stderr ?? "unknown error"}`,
+			reason: t("trust.diag.minisignverificationfailederror", {
+				error: sigResult.stderr ?? "unknown error",
+			}),
 		};
 	}
 	if (sigResult.trustedComment === undefined) {
 		return {
 			state: "invalid",
-			reason: "signature verified but no trusted comment was returned",
+			reason: t("trust.diag.signatureverifiedbutnotrustedcommentwasreturn"),
 		};
 	}
 	const parsed = parseTrustedComment(sigResult.trustedComment);
 	if (parsed === null || parsed.recordKind !== "entry") {
 		return {
 			state: "invalid",
-			reason: `trusted comment is not a v1 entry comment: ${sigResult.trustedComment}`,
+			reason: t("trust.diag.trustedcommentisnotav1entrycommentcomment", {
+				comment: sigResult.trustedComment,
+			}),
 		};
 	}
 	const binding = trustedCommentMatchesEntry(parsed.fields, {
@@ -251,7 +270,9 @@ export async function verifyEntry(
 	if (!binding.ok) {
 		return {
 			state: "invalid",
-			reason: `trusted-comment binding failed: ${binding.reason}`,
+			reason: t("trust.diag.trustedcommentbindingfaileddetail", {
+				detail: binding.reason,
+			}),
 		};
 	}
 
@@ -283,7 +304,10 @@ export async function verifyPointer(
 	try {
 		raw = JSON.parse(new TextDecoder().decode(input.pointerBytes));
 	} catch {
-		return { state: "malformed", reason: "pointer body is not valid JSON" };
+		return {
+			state: "malformed",
+			reason: t("trust.diag.pointerbodyisnotvalidjson"),
+		};
 	}
 	if (
 		raw.tip_sha256 === undefined ||
@@ -293,7 +317,7 @@ export async function verifyPointer(
 	) {
 		return {
 			state: "malformed",
-			reason: "pointer is missing a required field",
+			reason: t("trust.diag.pointerismissingarequiredfield"),
 		};
 	}
 	if (
@@ -302,7 +326,7 @@ export async function verifyPointer(
 	) {
 		return {
 			state: "malformed",
-			reason: "signed_at/valid_until must be exactly YYYY-MM-DDTHH:MM:SSZ",
+			reason: t("trust.diag.signedatvaliduntilmustbeexactlyyyyymmddthh"),
 		};
 	}
 	const sigResult = await verifyMinisig(
@@ -314,12 +338,16 @@ export async function verifyPointer(
 		if (sigResult.toolUnavailable) {
 			return {
 				state: "invalid",
-				reason: `could not run the verifier: ${sigResult.stderr ?? "unknown error"}`,
+				reason: t("trust.diag.couldnotruntheverifiererror", {
+					error: sigResult.stderr ?? "unknown error",
+				}),
 			};
 		}
 		return {
 			state: "invalid",
-			reason: `minisign verification failed: ${sigResult.stderr ?? "unknown error"}`,
+			reason: t("trust.diag.minisignverificationfailederror", {
+				error: sigResult.stderr ?? "unknown error",
+			}),
 		};
 	}
 	return {

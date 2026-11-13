@@ -15,7 +15,7 @@ typecheck:
 	bun run tsc --noEmit
 
 lint:
-	bun run biome check src/ bin/
+	bun run biome check src/ bin/ i18n/lookup.ts i18n/catalog-table.ts
 
 format:
 	bun run biome format --write src/ bin/

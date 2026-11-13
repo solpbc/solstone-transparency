@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.the-witness-log-lines-for-this-root).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 35,
+  "source_revision": "8aa25cb148ed9c1ade36728e678c671ba9b182d6f1008210fe84e68e8a2d0f0a",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.non-ascii-value-at-path).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "path",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 20,
+  "source_revision": "0765eddd403433c90654d1c4b9227e0a163dcaa10eba7f270c0da2fde575f23e",
+  "risk": "routine",
+  "auto_merge": true
+}

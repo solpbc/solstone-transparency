@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.that-these-are-all-the-journal-versions-weve-release).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 121,
+  "source_revision": "6bff6d694ab943f01cac36124308665fa6b24aed142043f4a127db8fd0005b08",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.no-canonical-artifact-route-for-product-product).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 41,
+  "source_revision": "88a353b99d215db4144aec53f150fc5214c95aa0954ac484e31a34291aae2634",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-signature-checks-out-this-exact-record-matches-w).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 91,
+  "source_revision": "80b86d4c7449375ebbd618fa69e6998c9e43469fff431439687f57f2d59e1c33",
+  "risk": "routine",
+  "auto_merge": true
+}

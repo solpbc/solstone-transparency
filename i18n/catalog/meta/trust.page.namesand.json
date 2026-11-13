@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.names-and).",
+  "context": "profile gap: split. kept as today's English. found in the portal renderer. andList joins with ', ' and ' and ' (no Oxford comma); one item is the item; empty is empty. the profile has no list conjunction. this message is the already-joined list.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "items",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 1,
+  "source_revision": "ea2044d4e710ebd1224ea8557f3e871173cf1d0a1173d60581778a511f2f0948",
+  "risk": "routine",
+  "auto_merge": true
+}

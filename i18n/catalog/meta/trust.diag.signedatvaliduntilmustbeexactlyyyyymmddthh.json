@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.signed-at-valid-until-must-be-exactly-yyyy-mm-ddthh-).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 58,
+  "source_revision": "09e73d24b570ad740bbf918ad1982c25fa374b39ac4b8273513775f8b2d0d1db",
+  "risk": "routine",
+  "auto_merge": true
+}

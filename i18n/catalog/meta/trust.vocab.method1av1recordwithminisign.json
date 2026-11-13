@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.method-1-a-v1-record-with-minisign).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 36,
+  "source_revision": "c5660da5883dbd2f337f97ae64a1deb3241fd929f1d3df49b343488df11c2a61",
+  "risk": "routine",
+  "auto_merge": true
+}

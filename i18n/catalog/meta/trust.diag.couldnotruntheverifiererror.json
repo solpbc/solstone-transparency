@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.could-not-run-the-verifier-error).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "error",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 29,
+  "source_revision": "170980245ffdc1f1ffc0701bb1f1fae76f7f328ff43f6a78925026a51b8ca265",
+  "risk": "routine",
+  "auto_merge": true
+}

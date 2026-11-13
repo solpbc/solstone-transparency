@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.the-check-reported-reason).",
+  "context": "catalog uses today's English. found in vocab.ts. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "reason",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 22,
+  "source_revision": "0b4ec479031bd487ed2804a76688ed80a9c1f2e38ef3a39a669a694a4a731412",
+  "risk": "routine",
+  "auto_merge": true
+}

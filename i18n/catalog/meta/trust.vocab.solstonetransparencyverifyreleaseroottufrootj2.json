@@ -1,0 +1,55 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.solstone-transparency-verify-release-root-tuf-root-j-2).",
+  "context": "found in vocab.ts. the request named verifyCommand. this sibling command is the same stay-verbatim shape. stays verbatim. command template. fixed bytes are protected slots.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "metadata",
+      "type": "string"
+    },
+    {
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "name": "targets",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 116,
+  "source_revision": "c613c5efe81cacc1d5e95fea0cb17f02ef6172066d2ada78c5cd74bfff34a04a",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "cmd",
+      "kind": "command",
+      "value": "solstone-transparency verify-release --root tuf-root.json --product "
+    },
+    {
+      "name": "cmd2",
+      "kind": "command",
+      "value": " --version "
+    },
+    {
+      "name": "cmd3",
+      "kind": "command",
+      "value": " --metadata-base "
+    },
+    {
+      "name": "cmd4",
+      "kind": "command",
+      "value": " --targets-base "
+    }
+  ]
+}

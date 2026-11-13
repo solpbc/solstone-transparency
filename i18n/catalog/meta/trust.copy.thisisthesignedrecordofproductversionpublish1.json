@@ -1,0 +1,33 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.this-is-the-signed-record-of-product-version-publish-1).",
+  "context": "profile gap: two-dates. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "name": "published_utc",
+      "type": "string"
+    },
+    {
+      "name": "valid_until",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 284,
+  "source_revision": "9cba44060469126a1bf70480b456de2e5a4ba49e52d10e46caa9b59953df41db",
+  "risk": "routine",
+  "auto_merge": true
+}

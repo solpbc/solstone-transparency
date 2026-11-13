@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.entry-body-is-not-valid-json).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 28,
+  "source_revision": "584d6cef38f5fe9009f00bcf3e2774137db38e2b79acaeee62ab7c81703889ec",
+  "risk": "routine",
+  "auto_merge": true
+}

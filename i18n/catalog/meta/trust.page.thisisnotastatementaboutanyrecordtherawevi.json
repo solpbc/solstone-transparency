@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.this-is-not-a-statement-about-any-record-the-raw-evi).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 96,
+  "source_revision": "26035fa7546efd86d4cbc6cab3b24ace8b8a44ed839c9897735ec9031f2a24ad",
+  "risk": "routine",
+  "auto_merge": true
+}

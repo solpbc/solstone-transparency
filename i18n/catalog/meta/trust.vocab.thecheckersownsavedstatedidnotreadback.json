@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.the-checkers-own-saved-state-did-not-read-back).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class. readerReason maps a reason code; the code is not the label.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 47,
+  "source_revision": "74cb63891e4b9af173cff979b4adb6c1cc6c078998d377dd574a45bfb8d6a98b",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.active).",
+  "context": "found in the portal renderer. no defect class. key.status is shown as stored. extraction keeps the stored token stable.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 6,
+  "source_revision": "32993a08ea462ee39b3bd18b19c0df11b6577cc3fda0bd7a5419dfca0c7d8d0f",
+  "risk": "routine",
+  "auto_merge": true
+}

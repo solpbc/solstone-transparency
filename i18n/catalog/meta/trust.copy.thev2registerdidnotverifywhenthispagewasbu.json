@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-v2-register-did-not-verify-when-this-page-was-bu).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "reason",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 154,
+  "source_revision": "40971e57fafd085486b7cb22beaa59a52d46b203a8f82d1026ac807b8560061f",
+  "risk": "routine",
+  "auto_merge": true
+}

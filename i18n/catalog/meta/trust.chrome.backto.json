@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.chrome.back-to).",
+  "context": "profile gap: agreement. kept as today's English. found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 9,
+  "source_revision": "92b5fa379ad00c9401fbdbadd6426a7ccf95003559e9d30516b7f474f8e4754f",
+  "risk": "routine",
+  "auto_merge": true
+}

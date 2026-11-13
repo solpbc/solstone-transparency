@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.trusted-comment-is-not-a-v1-entry-comment-comment).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "comment",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 44,
+  "source_revision": "33894f1ee3df2b234f92252b883efbd115a7e3c2a72d564567aabb56d9d50d6f",
+  "risk": "routine",
+  "auto_merge": true
+}

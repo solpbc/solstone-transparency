@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.seq-must-be-a-positive-integer-got-value).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "value",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 37,
+  "source_revision": "7fd45a323ad4c2ac10c12a679a658e260c4daa260b716d05b4fe0f110def5ec9",
+  "risk": "routine",
+  "auto_merge": true
+}

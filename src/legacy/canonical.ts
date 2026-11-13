@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
+import { t } from "../../i18n/lookup";
+
 /**
  * Canonicalization and trusted-comment helpers for the v1 ledger-entry /
  * latest-pointer wire format. This module is read-side only: it checks that
@@ -94,27 +96,42 @@ export function trustedCommentMatchesEntry(
 	if (fields.product !== body.product)
 		return {
 			ok: false,
-			reason: `product mismatch: comment=${fields.product} body=${body.product}`,
+			reason: t("trust.diag.productmismatchcommentcommentbodybody", {
+				comment: String(fields.product),
+				body: body.product,
+			}),
 		};
 	if (fields.seq !== String(body.seq))
 		return {
 			ok: false,
-			reason: `seq mismatch: comment=${fields.seq} body=${body.seq}`,
+			reason: t("trust.diag.seqmismatchcommentcommentbodybody", {
+				comment: String(fields.seq),
+				body: String(body.seq),
+			}),
 		};
 	if (fields.version !== body.version)
 		return {
 			ok: false,
-			reason: `version mismatch: comment=${fields.version} body=${body.version}`,
+			reason: t("trust.diag.versionmismatchcommentcommentbodybody", {
+				comment: String(fields.version),
+				body: body.version,
+			}),
 		};
 	if (fields.sha256 !== body.sha256)
 		return {
 			ok: false,
-			reason: `sha256 mismatch: comment=${fields.sha256} body=${body.sha256}`,
+			reason: t("trust.diag.sha256mismatchcommentcommentbodybody", {
+				comment: String(fields.sha256),
+				body: body.sha256,
+			}),
 		};
 	if (fields.prev !== body.prevSha256)
 		return {
 			ok: false,
-			reason: `prev mismatch: comment=${fields.prev} body=${body.prevSha256}`,
+			reason: t("trust.diag.prevmismatchcommentcommentbodybody", {
+				comment: String(fields.prev),
+				body: body.prevSha256,
+			}),
 		};
 	return { ok: true };
 }

@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.view-product).",
+  "context": "profile gap: agreement. kept as today's English. found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 6,
+  "source_revision": "c03a12989f7f106f03668186941c04e2e8cfbc72cd55db5bcd80cdff4f474a57",
+  "risk": "routine",
+  "auto_merge": true
+}

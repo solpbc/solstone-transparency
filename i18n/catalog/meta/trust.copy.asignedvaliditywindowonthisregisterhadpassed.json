@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.a-signed-validity-window-on-this-register-had-passed).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "date",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 199,
+  "source_revision": "f879b6157e5d09183d18037c2f616d11839fd11e57531b076e45514c00463677",
+  "risk": "routine",
+  "auto_merge": true
+}

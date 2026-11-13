@@ -1,0 +1,39 @@
+{
+  "description": "Copy on trust.solstone.app (trust.keys.root-intro).",
+  "context": "profile gap: two-cardinals. kept as today's English. found in the approved copy module. profile gap: two-cardinals. one select on key_count. the one-key sentence is the code's other arm. threshold is shown and not a second select.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "key_count",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "name": "root_version",
+      "type": "string"
+    },
+    {
+      "name": "threshold",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    }
+  ],
+  "format_intent": "cardinal",
+  "max_length": 161,
+  "source_revision": "40669c5b71b4d41b128fa17036c754c10ddcfe10696d9c88dc484a410c69388b",
+  "risk": "routine",
+  "auto_merge": true,
+  "selector": {
+    "name": "key_count",
+    "type": "cardinal"
+  }
+}

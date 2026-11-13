@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.sol-pbc-has-created-its-v2-signing-root-and-bound-th-2).",
+  "context": "profile gap: agreement. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "products",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 285,
+  "source_revision": "df414dec6763f18e06d2349ee3e2bfadf7bd393b9d413bbbbdd181fd0d79656b",
+  "risk": "routine",
+  "auto_merge": true
+}

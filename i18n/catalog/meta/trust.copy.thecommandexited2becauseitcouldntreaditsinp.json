@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-command-exited-2-because-it-couldnt-read-its-inp).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 191,
+  "source_revision": "97d736a9b49dc5baceab1cd4e78da469a539928bcb07f2a85e957a6f0b050fda",
+  "risk": "routine",
+  "auto_merge": true
+}

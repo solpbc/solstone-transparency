@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.signing-threshold).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 17,
+  "source_revision": "2e061458e01a440b01b82a1013c0a20cc701f7ede6590138ef1d80001ba93275",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,32 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.accepted-release-record-product-version).",
+  "context": "found in the command stdout the verify page tells the reader to run. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 28,
+  "source_revision": "73cae7b8e10f99509f638e31c6430f263e8e79d03b0df0e953fa7e60e6629f0d",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "accepted release record:"
+    }
+  ]
+}

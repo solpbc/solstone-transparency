@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.artifacts-manifests-proofs-must-each-be-arrays).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 46,
+  "source_revision": "0ceedcda74ad1954c00791586c0c4bf5114f19f0961353baaa622c4d41e87382",
+  "risk": "routine",
+  "auto_merge": true
+}

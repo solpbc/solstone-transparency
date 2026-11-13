@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.no-record-was-constructed-for-this-product).",
+  "context": "found in the portal renderer. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 42,
+  "source_revision": "b81e5a164fdba4f6bc72ec44e8386232e9809cafdfa73f3255b9708f4eb932a0",
+  "risk": "routine",
+  "auto_merge": true
+}

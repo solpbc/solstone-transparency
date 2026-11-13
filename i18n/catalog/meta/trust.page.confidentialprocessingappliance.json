@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.confidential-processing-appliance).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 33,
+  "source_revision": "52833f43ed4ef26605d7aba5eeb6a0650dc5c66f8cdef7dad39874b304ee85de",
+  "risk": "routine",
+  "auto_merge": true
+}

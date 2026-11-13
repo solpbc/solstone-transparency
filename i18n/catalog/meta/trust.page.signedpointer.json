@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.signed-pointer).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 14,
+  "source_revision": "6e3e81c3a97da2ff46f026913343b9e7baef403c909313bf93d1386f1b4f8f69",
+  "risk": "routine",
+  "auto_merge": true
+}

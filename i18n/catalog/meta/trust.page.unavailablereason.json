@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.unavailable-reason).",
+  "context": "profile gap: split. kept as today's English. found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "reason",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 13,
+  "source_revision": "6a2ec70fd4ef768a999fc05a733082bbad8201fdb2f8d2aba8121c5fa7dc6cfd",
+  "risk": "routine",
+  "auto_merge": true
+}

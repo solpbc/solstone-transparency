@@ -1,0 +1,35 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.seq-seq-previous-version).",
+  "context": "found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "seq",
+      "type": "integer",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 9007199254740990
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 16,
+  "source_revision": "ab590fbb4ef986f30933d5823f350f34019a7393dc45721056115e383ce56f1a",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "seq"
+    }
+  ]
+}

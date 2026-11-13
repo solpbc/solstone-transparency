@@ -1,0 +1,32 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.role-state).",
+  "context": "census missed this verify-v2 stdout line. catalog follows the template at HEAD.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "role",
+      "type": "string"
+    },
+    {
+      "name": "state",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 7,
+  "source_revision": "f664183cbde6e8bb855a9c543d6cce05e679e5e685df01a44c004b41875e0494",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "sp4",
+      "kind": "whitespace",
+      "value": "    "
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.could-not-fetch-the-pinned-public-key).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 37,
+  "source_revision": "5b3ed5b1aea795e75f07d216d6c37eb267208b0bfe6769497c5b3041bc68b8f7",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,30 @@
+{
+  "description": "Copy on trust.solstone.app (trust.home.verify-lead).",
+  "context": "found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "lead",
+      "type": "string"
+    }
+  ],
+  "format_intent": "enum",
+  "max_length": 35,
+  "source_revision": "ab4b99d969e8d4796aa23e6d11b5dcd9b6197a5c6060f52796752fe6933d4d31",
+  "risk": "routine",
+  "auto_merge": true,
+  "selector": {
+    "name": "lead",
+    "type": "string",
+    "enum_values": [
+      "v1",
+      "v2"
+    ],
+    "enum_default": "v1"
+  }
+}

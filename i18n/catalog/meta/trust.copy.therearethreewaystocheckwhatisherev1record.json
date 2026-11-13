@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.there-are-three-ways-to-check-what-is-here-v1-record).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 345,
+  "source_revision": "36d102e2769cb3cc8080cc9312e1327e67e5b07a0b137f6c60f8370be2e61d9d",
+  "risk": "routine",
+  "auto_merge": true
+}

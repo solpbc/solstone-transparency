@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.state).",
+  "context": "found in the portal renderer. english-as-logic. rewrite select was not applied because its branches change today's English.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "state",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 1,
+  "source_revision": "64d2338d49a0051dbfa435e63bf5f412b53ba932dc038f4247d7342c2ba56094",
+  "risk": "routine",
+  "auto_merge": true
+}

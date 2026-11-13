@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.a-manifest-binding-the-v1-release-records-into-the-v).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "reason",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 211,
+  "source_revision": "a441ccad561bbc142e29555dbfa1706b1cfbf91b0e849234cd8120b6165dc288",
+  "risk": "routine",
+  "auto_merge": true
+}

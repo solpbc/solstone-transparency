@@ -1,0 +1,28 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-command-printed-accepted-release-record-and-exit).",
+  "context": "found in the approved copy module. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 232,
+  "source_revision": "049c854a6a35a70eb39f94c78239719f915fe370253dc2e6cd8e21b6dc02940f",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "accepted release record"
+    },
+    {
+      "name": "tok2",
+      "kind": "accepted-input",
+      "value": "sha256"
+    }
+  ]
+}

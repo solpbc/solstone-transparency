@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.the-signed-freshness-pointer-could-not-be-fetched).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 49,
+  "source_revision": "a99fc72d2df4c9080bc003e848f49d0f930bfa2f0852f4d904b245a28ddc820d",
+  "risk": "routine",
+  "auto_merge": true
+}

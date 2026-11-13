@@ -1,0 +1,36 @@
+{
+  "description": "Copy on trust.solstone.app (trust.product.summary-journal-count).",
+  "context": "found in the approved copy module. cardinal select. both branches render the sentence the code renders for every count. a rewrite that changed the noun for [one] was not applied.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "count",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "name": "date",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "cardinal",
+  "max_length": 103,
+  "source_revision": "6567f4e0cad3b3d28869eeb6d6df82ec43389cc265e8ad21ceffb67df8c1d4a2",
+  "risk": "routine",
+  "auto_merge": true,
+  "selector": {
+    "name": "count",
+    "type": "cardinal"
+  }
+}

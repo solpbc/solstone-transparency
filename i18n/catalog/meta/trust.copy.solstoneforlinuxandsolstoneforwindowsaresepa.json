@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.solstone-for-linux-and-solstone-for-windows-are-sepa).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 135,
+  "source_revision": "32ef4f0a779fee24aaab40b87de93e07c8ce225c9bc24dcbba33a3e1398eacac",
+  "risk": "routine",
+  "auto_merge": true
+}

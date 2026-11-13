@@ -1,0 +1,25 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.seq-mismatch-comment-comment-body-body).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "body",
+      "type": "string"
+    },
+    {
+      "name": "comment",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 30,
+  "source_revision": "4156cd7df050c465591a0c6e741f00ace3a5fc514ba88c3409198a6acd0e6642",
+  "risk": "routine",
+  "auto_merge": true
+}

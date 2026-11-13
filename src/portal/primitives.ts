@@ -6,8 +6,10 @@
  * block, declaration/absence callout, and raw-evidence table.
  */
 
+import { t } from "../../i18n/lookup";
 import { VERSION_ARTIFACT_NOTE } from "../legacy/copy";
 import type { AxisBlock, Provenance, UnhostedArtifact } from "../legacy/types";
+import { htmlCatalog } from "./copyfill";
 import { escapeHtml, trustedText, untrustedText } from "./escape";
 import {
 	AXIS_FRESHNESS,
@@ -18,10 +20,8 @@ import {
 	KIND_REGISTER,
 	KIND_SIGNED,
 	KIND_VERIFIER,
-	STATE_ASSERTED_UNTIL,
 	STATE_COULD_NOT_BE_CHECKED,
 	STATE_DID_NOT_VERIFY,
-	STATE_EXPIRED,
 	STATE_NOT_ATTEMPTED,
 	STATE_NOT_TIME_BOUND,
 	STATE_PAUSED,
@@ -100,15 +100,21 @@ export function axisBlock(
 	if (axes.freshness.state === "expired") {
 		freshnessState = stateSpan(
 			"neutral",
-			`${trustedText("expired")} ${untrustedText(axes.freshness.validUntil)}`,
+			htmlCatalog("trust.axis.stamp", { when: axes.freshness.validUntil }, [
+				"when",
+			]),
 		);
-		freshnessExtra = `<span class="as-of">${trustedText("signed")} ${untrustedText(axes.freshness.signedAt)}</span>`;
+		freshnessExtra = `<span class="as-of">${htmlCatalog("trust.axis.signedwhen", { when: axes.freshness.signedAt }, ["when"])}</span>`;
 	} else if (axes.freshness.state === "fresh") {
 		freshnessState = stateSpan(
 			"success",
-			`${trustedText("fresh until")} ${untrustedText(axes.freshness.validUntil)}`,
+			htmlCatalog(
+				"trust.axis.freshuntilwhen",
+				{ when: axes.freshness.validUntil },
+				["when"],
+			),
 		);
-		freshnessExtra = `<span class="as-of">${trustedText("signed")} ${untrustedText(axes.freshness.signedAt)}</span>`;
+		freshnessExtra = `<span class="as-of">${htmlCatalog("trust.axis.signedwhen", { when: axes.freshness.signedAt }, ["when"])}</span>`;
 	} else if (axes.freshness.state === "not-time-bound") {
 		freshnessState = stateSpan("neutral", trustedText(STATE_NOT_TIME_BOUND));
 	} else {
@@ -131,7 +137,11 @@ export function axisBlock(
 	if (axes.verification.state === "valid") {
 		verifyState = stateSpan(
 			"success",
-			`${trustedText("verified")} ${untrustedText(axes.verification.checkedAt)}`,
+			htmlCatalog(
+				"trust.axis.verifiedwhen",
+				{ when: axes.verification.checkedAt },
+				["when"],
+			),
 		);
 	} else if (axes.verification.state === "invalid") {
 		// "did not verify", never "signature did not verify": v1 invalid outcomes
@@ -143,10 +153,10 @@ export function axisBlock(
 		verifyExtra = `<span class="basis">${untrustedText(axes.verification.reason)}</span>`;
 	}
 	if (links?.verifyHref) {
-		verifyExtra += ` <a href="${escapeHtml(links.verifyHref)}">${trustedText("how this was checked")}</a>`;
+		verifyExtra += ` <a href="${escapeHtml(links.verifyHref)}">${trustedText(t("trust.axis.howthiswaschecked"))}</a>`;
 	}
 	if (links?.keysHref) {
-		verifyExtra += ` <a href="${escapeHtml(links.keysHref)}">${trustedText("key")}</a>`;
+		verifyExtra += ` <a href="${escapeHtml(links.keysHref)}">${trustedText(t("trust.axis.key"))}</a>`;
 	}
 	const verification = axisRow(
 		AXIS_VERIFICATION,
@@ -192,7 +202,11 @@ export function v2AxisBlock(args: {
 			"signed",
 			stateSpan(
 				"success",
-				`${trustedText(STATE_ASSERTED_UNTIL)} ${untrustedText(args.freshness.assertedUntil)}`,
+				htmlCatalog(
+					"trust.axis.asserteduntilwhen",
+					{ when: args.freshness.assertedUntil },
+					["when"],
+				),
 			),
 			` <a class="raw-link" href="${escapeHtml(args.freshness.sourceUrl)}">${untrustedText(args.freshness.sourceUrl)}</a>`,
 		);
@@ -202,7 +216,9 @@ export function v2AxisBlock(args: {
 			"verifier",
 			stateSpan(
 				"neutral",
-				`${trustedText(STATE_EXPIRED)} ${untrustedText(args.freshness.expiredAt)}`,
+				htmlCatalog("trust.axis.stamp", { when: args.freshness.expiredAt }, [
+					"when",
+				]),
 			),
 			"",
 		);
@@ -212,7 +228,11 @@ export function v2AxisBlock(args: {
 	if (args.verification.state === "valid") {
 		verifyState = stateSpan(
 			"success",
-			`${trustedText("verified")} ${untrustedText(args.verification.checkedAt)}`,
+			htmlCatalog(
+				"trust.axis.verifiedwhen",
+				{ when: args.verification.checkedAt },
+				["when"],
+			),
 		);
 	} else if (args.verification.state === "invalid") {
 		verifyState = stateSpan("danger", trustedText(STATE_DID_NOT_VERIFY));
@@ -222,9 +242,9 @@ export function v2AxisBlock(args: {
 		verifyExtra = `<span class="basis">${untrustedText(args.verification.reason)}</span>`;
 	}
 	if (args.links?.verifyHref)
-		verifyExtra += ` <a href="${escapeHtml(args.links.verifyHref)}">${trustedText("how this was checked")}</a>`;
+		verifyExtra += ` <a href="${escapeHtml(args.links.verifyHref)}">${trustedText(t("trust.axis.howthiswaschecked"))}</a>`;
 	if (args.links?.keysHref)
-		verifyExtra += ` <a href="${escapeHtml(args.links.keysHref)}">${trustedText("key")}</a>`;
+		verifyExtra += ` <a href="${escapeHtml(args.links.keysHref)}">${trustedText(t("trust.axis.key"))}</a>`;
 	const verification = axisRow(
 		AXIS_VERIFICATION,
 		"verifier",
@@ -271,16 +291,16 @@ export function evidenceTable(rows: EvidenceRow[]): string {
 				return `<tr><td>${trustedText(row.item)}</td><td>${trustedText(row.detail)}</td><td>${linkedCell(row.url)}</td></tr>`;
 			}
 			if (row.type === "unhosted") {
-				return `<tr><td>${untrustedText(row.artifact.name)}</td><td>${trustedText(VERSION_ARTIFACT_NOTE)} ${trustedText("sha256")} ${untrustedText(row.artifact.sha256)} ${trustedText("bytes")} ${trustedText(String(row.artifact.bytes))}</td><td>${trustedText("not a raw link")}</td></tr>`;
+				return `<tr><td>${untrustedText(row.artifact.name)}</td><td>${htmlCatalog("trust.axis.notesha256digestbyteslength", { note: VERSION_ARTIFACT_NOTE, digest: row.artifact.sha256, length: row.artifact.bytes }, ["digest"])}</td><td>${trustedText(t("trust.page.notarawlink"))}</td></tr>`;
 			}
 			if (row.type === "rejected") {
-				return `<tr><td>${untrustedText(row.item)}</td><td>${trustedText("unavailable")} ${untrustedText(row.reason)}</td><td>${trustedText("not a raw link")}</td></tr>`;
+				return `<tr><td>${untrustedText(row.item)}</td><td>${htmlCatalog("trust.page.unavailablereason", { reason: row.reason }, ["reason"])}</td><td>${trustedText(t("trust.page.notarawlink"))}</td></tr>`;
 			}
 			const items = row.members
 				.map((m) => `<li>${untrustedText(m.name)} ${linkedCell(m.url)}</li>`)
 				.join("");
-			return `<tr><td>${trustedText(row.item)}</td><td>${trustedText(row.detail)}</td><td>${trustedText(`${row.members.length} exact links below`)}</td></tr><tr><td colspan="3"><details class="tech" open><summary>${trustedText(row.item)}</summary><div class="body"><ul>${items}</ul></div></details></td></tr>`;
+			return `<tr><td>${trustedText(row.item)}</td><td>${trustedText(row.detail)}</td><td>${trustedText(t("trust.evidence.linkcount", { count: row.members.length }))}</td></tr><tr><td colspan="3"><details class="tech" open><summary>${trustedText(row.item)}</summary><div class="body"><ul>${items}</ul></div></details></td></tr>`;
 		})
 		.join("");
-	return `<div class="table-scroll"><table class="evidence-table"><thead><tr><th scope="col">${trustedText("item")}</th><th scope="col">${trustedText("detail")}</th><th scope="col">${trustedText("raw")}</th></tr></thead><tbody>${body}</tbody></table></div>`;
+	return `<div class="table-scroll"><table class="evidence-table"><thead><tr><th scope="col">${trustedText(t("trust.axis.item"))}</th><th scope="col">${trustedText(t("trust.axis.detail"))}</th><th scope="col">${trustedText(t("trust.axis.raw"))}</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }

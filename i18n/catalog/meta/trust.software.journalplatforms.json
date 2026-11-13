@@ -1,0 +1,25 @@
+{
+  "description": "Copy on trust.solstone.app (trust.software.journal-platforms).",
+  "context": "profile gap: agreement. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "platforms",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 50,
+  "source_revision": "01502a27ed61614ecfa7a298adec094edcc5484c88ed10e751e1c8a97446f052",
+  "risk": "routine",
+  "auto_merge": true
+}

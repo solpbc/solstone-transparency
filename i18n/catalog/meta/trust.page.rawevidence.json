@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.raw-evidence).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 12,
+  "source_revision": "2dbe4799180d9abfce80a18365eb638f305d223036012c26b3b5b046b33e19e0",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.published-utc-must-be-exactly-yyyy-mm-ddthh-mm-ssz-g).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "value",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 57,
+  "source_revision": "5f0474e7d03126c624a16181d94ac3109360650c55ad730e3094c4540712c550",
+  "risk": "routine",
+  "auto_merge": true
+}

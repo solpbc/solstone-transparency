@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.save-the-raw-root-file-linked-on-keys-as-tuf-root-js).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 503,
+  "source_revision": "ceb85fe463ffabe4d6ac17de60eff0426f8fb18fa11984005a86cf9a65a0f564",
+  "risk": "routine",
+  "auto_merge": true
+}

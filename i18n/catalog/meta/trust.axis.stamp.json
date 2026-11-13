@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.axis.stamp).",
+  "context": "catalog uses today's English. found in an axis or evidence primitive.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "when",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 9,
+  "source_revision": "d7a9e1001dd367ae707360785120f6f4339812114abab75918b6d8babed03be7",
+  "risk": "routine",
+  "auto_merge": true
+}

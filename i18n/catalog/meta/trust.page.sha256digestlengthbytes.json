@@ -1,0 +1,39 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.sha256-digest-length-bytes).",
+  "context": "found in the portal renderer. cardinal select. both branches render the sentence the code renders for every count. a rewrite that changed the noun for [one] was not applied.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "length",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "name": "digest",
+      "type": "string"
+    }
+  ],
+  "format_intent": "cardinal",
+  "max_length": 18,
+  "source_revision": "941147c546a26d9cac825d761bfc6f18b70d576378d5e8d84c010308b2c33515",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "sha256"
+    }
+  ],
+  "selector": {
+    "name": "length",
+    "type": "cardinal"
+  }
+}

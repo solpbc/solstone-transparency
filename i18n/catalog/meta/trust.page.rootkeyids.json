@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.root-key-ids).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 12,
+  "source_revision": "6c3abb629af03ebbbaef1bb7bc1425dabc5934c5c96ab0bc0a07381957bae9fa",
+  "risk": "routine",
+  "auto_merge": true
+}

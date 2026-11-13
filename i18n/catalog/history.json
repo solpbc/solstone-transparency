@@ -1,0 +1,5762 @@
+{
+  "history_version": 1,
+  "records": [
+    {
+      "id": "trust.about.body",
+      "resource": "m74727573742e61626f75742e626f6479",
+      "namespace": "trust.about",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "url",
+          "kind": "url",
+          "value": "https://transparency.solstone.app/releases/"
+        },
+        {
+          "name": "nl",
+          "kind": "whitespace",
+          "value": "\n"
+        },
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "<product>"
+        },
+        {
+          "name": "url2",
+          "kind": "url",
+          "value": "https://pypi.org/project/solstone-journal/"
+        },
+        {
+          "name": "url3",
+          "kind": "url",
+          "value": "https://solstone.app/download/windows"
+        },
+        {
+          "name": "url4",
+          "kind": "url",
+          "value": "https://github.com/solpbc/solstone-linux/releases"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.asserteduntilwhen",
+      "resource": "m74727573742e617869732e6173736572746564756e74696c7768656e",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "when",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.detail",
+      "resource": "m74727573742e617869732e64657461696c",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.freshuntilwhen",
+      "resource": "m74727573742e617869732e6672657368756e74696c7768656e",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "when",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.howthiswaschecked",
+      "resource": "m74727573742e617869732e686f7774686973776173636865636b6564",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.item",
+      "resource": "m74727573742e617869732e6974656d",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.key",
+      "resource": "m74727573742e617869732e6b6579",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.notesha256digestbyteslength",
+      "resource": "m74727573742e617869732e6e6f746573686132353664696765737462797465736c656e677468",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "length",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "digest",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "sha256"
+        }
+      ],
+      "selector": {
+        "name": "length",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.axis.raw",
+      "resource": "m74727573742e617869732e726177",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.signed",
+      "resource": "m74727573742e617869732e7369676e6564",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.signedwhen",
+      "resource": "m74727573742e617869732e7369676e65647768656e",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "when",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.stamp",
+      "resource": "m74727573742e617869732e7374616d70",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "when",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.verified",
+      "resource": "m74727573742e617869732e7665726966696564",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.axis.verifiedwhen",
+      "resource": "m74727573742e617869732e76657269666965647768656e",
+      "namespace": "trust.axis",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "when",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.chrome.backto",
+      "resource": "m74727573742e6368726f6d652e6261636b746f",
+      "namespace": "trust.chrome",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.claims.doesnotprove",
+      "resource": "m74727573742e636c61696d732e646f65736e6f7470726f7665",
+      "namespace": "trust.claims",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "claim",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.claims.doesprove",
+      "resource": "m74727573742e636c61696d732e646f657370726f7665",
+      "namespace": "trust.claims",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "claim",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.amanifestbindingthev1releaserecordsintothev",
+      "resource": "m74727573742e636f70792e616d616e696665737462696e64696e67746865763172656c656173657265636f726473696e746f74686576",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.arecordofproductversionwasexpectedbasisandi",
+      "resource": "m74727573742e636f70792e617265636f72646f6670726f6475637476657273696f6e77617365787065637465646261736973616e6469",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "basis",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.asignedvaliditywindowonthisregisterhadpassed",
+      "resource": "m74727573742e636f70792e617369676e656476616c696469747977696e646f776f6e746869737265676973746572686164706173736564",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "date",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.eachproductbelowshowswhetherithasasignedrec",
+      "resource": "m74727573742e636f70792e6561636870726f6475637462656c6f7773686f7773776865746865726974686173617369676e6564726563",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.everyrecordonthissiteissignedandyoucanchec",
+      "resource": "m74727573742e636f70792e65766572797265636f72646f6e746869737369746569737369676e6564616e64796f7563616e63686563",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.newestrecordedreleaseversionsigneddate",
+      "resource": "m74727573742e636f70792e6e65776573747265636f7264656472656c6561736576657273696f6e7369676e656464617465",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "date",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.nonepublishedyet",
+      "resource": "m74727573742e636f70792e6e6f6e657075626c6973686564796574",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.publicationtothisregisterispausedrightnowby",
+      "resource": "m74727573742e636f70792e7075626c69636174696f6e746f746869737265676973746572697370617573656472696768746e6f776279",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.publishingrecords",
+      "resource": "m74727573742e636f70792e7075626c697368696e677265636f726473",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solpbchascreateditsv2signingrootandboundth1",
+      "resource": "m74727573742e636f70792e736f6c7062636861736372656174656469747376327369676e696e67726f6f74616e64626f756e64746831",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solpbchascreateditsv2signingrootandboundth2",
+      "resource": "m74727573742e636f70792e736f6c7062636861736372656174656469747376327369676e696e67726f6f74616e64626f756e64746832",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "products",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solpbchascreateditsv2signingrooteveryv1rec",
+      "resource": "m74727573742e636f70792e736f6c7062636861736372656174656469747376327369676e696e67726f6f7465766572797631726563",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solpbchascreateditsv2signingrootnoreleaser",
+      "resource": "m74727573742e636f70792e736f6c7062636861736372656174656469747376327369676e696e67726f6f746e6f72656c6561736572",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solpbchaspublishedsignedrecordsforsomeofits",
+      "resource": "m74727573742e636f70792e736f6c7062636861737075626c69736865647369676e65647265636f726473666f72736f6d656f66697473",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solpbcpublishesreleaserecordsunderitsv2signi",
+      "resource": "m74727573742e636f70792e736f6c7062637075626c697368657372656c656173657265636f726473756e64657269747376327369676e69",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solstoneforlinuxandsolstoneforwindowsaresepa",
+      "resource": "m74727573742e636f70792e736f6c73746f6e65666f726c696e7578616e64736f6c73746f6e65666f7277696e646f777361726573657061",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.solstoneisatrademarkofsolpbc",
+      "resource": "m74727573742e636f70792e736f6c73746f6e6569736174726164656d61726b6f66736f6c706263",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thatourregistercurrentlyhasnosignedrecordfor",
+      "resource": "m74727573742e636f70792e746861746f7572726567697374657263757272656e746c796861736e6f7369676e65647265636f7264666f72",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thatsolpbcsignedarecordnamingtheseexactarti",
+      "resource": "m74727573742e636f70792e74686174736f6c7062637369676e6564617265636f72646e616d696e677468657365657861637461727469",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thatsolpbcsignedarecordnamingthisreleasesex",
+      "resource": "m74727573742e636f70792e74686174736f6c7062637369676e6564617265636f72646e616d696e677468697372656c65617365736578",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thatsolpbcssigningkeyattestedtheseexactartif",
+      "resource": "m74727573742e636f70792e74686174736f6c706263737369676e696e676b65796174746573746564746865736565786163746172746966",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thatsolstonehasneverbeenreleasedforwindows",
+      "resource": "m74727573742e636f70792e74686174736f6c73746f6e656861736e657665726265656e72656c6561736564666f7277696e646f7773",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thattheseareallthejournalversionsweverelease",
+      "resource": "m74727573742e636f70792e746861747468657365617265616c6c7468656a6f75726e616c76657273696f6e737765766572656c65617365",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thatthesourcecodewepointtoproducedtheseexac",
+      "resource": "m74727573742e636f70792e74686174746865736f75726365636f64657765706f696e74746f70726f6475636564746865736565786163",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thatthisistheonlylinuxreleasewevemadeortha",
+      "resource": "m74727573742e636f70792e746861747468697369737468656f6e6c796c696e757872656c65617365776576656d6164656f72746861",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thecommandexited2becauseitcouldntreaditsinp",
+      "resource": "m74727573742e636f70792e746865636f6d6d616e6465786974656432626563617573656974636f756c646e7472656164697473696e70",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thecommandexited2becausethepinnedrootcouldnt",
+      "resource": "m74727573742e636f70792e746865636f6d6d616e64657869746564326265636175736574686570696e6e6564726f6f74636f756c646e74",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thecommandprintedacceptedandexited0theregist",
+      "resource": "m74727573742e636f70792e746865636f6d6d616e647072696e7465646163636570746564616e6465786974656430746865726567697374",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "ACCEPTED"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thecommandprintedacceptedreleaserecordandexit",
+      "resource": "m74727573742e636f70792e746865636f6d6d616e647072696e746564616363657074656472656c656173657265636f7264616e6465786974",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "accepted release record"
+        },
+        {
+          "name": "tok2",
+          "kind": "accepted-input",
+          "value": "sha256"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thecommandprintedrejectedwithareasonandexite1",
+      "resource": "m74727573742e636f70792e746865636f6d6d616e647072696e74656472656a65637465647769746861726561736f6e616e64657869746531",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "REJECTED"
+        },
+        {
+          "name": "tok2",
+          "kind": "accepted-input",
+          "value": "expired"
+        },
+        {
+          "name": "tok3",
+          "kind": "accepted-input",
+          "value": "unavailable"
+        },
+        {
+          "name": "tok4",
+          "kind": "accepted-input",
+          "value": "retrieval-failed"
+        },
+        {
+          "name": "tok5",
+          "kind": "accepted-input",
+          "value": "trust-store-corrupt"
+        },
+        {
+          "name": "tok6",
+          "kind": "accepted-input",
+          "value": "malformed"
+        },
+        {
+          "name": "tok7",
+          "kind": "accepted-input",
+          "value": "transparency.solstone.app"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thecommandprintedrejectedwithareasonandexite2",
+      "resource": "m74727573742e636f70792e746865636f6d6d616e647072696e74656472656a65637465647769746861726561736f6e616e64657869746532",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "rejected:"
+        },
+        {
+          "name": "tok2",
+          "kind": "accepted-input",
+          "value": "invalid-coordinate"
+        },
+        {
+          "name": "tok3",
+          "kind": "accepted-input",
+          "value": "record-missing"
+        },
+        {
+          "name": "tok4",
+          "kind": "accepted-input",
+          "value": "expired"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thedistributedfilesthemselvesarenthostedonthi",
+      "resource": "m74727573742e636f70792e746865646973747269627574656466696c65737468656d73656c7665736172656e74686f737465646f6e746869",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.theproductsbelowaretheoneswevepublishedatle",
+      "resource": "m74727573742e636f70792e74686570726f647563747362656c6f776172657468656f6e6573776576657075626c697368656461746c65",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.therearethreewaystocheckwhatisherev1record",
+      "resource": "m74727573742e636f70792e7468657265617265746872656577617973746f636865636b7768617469736865726576317265636f7264",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.therecordforversiondidnotverifyreasonsonoth",
+      "resource": "m74727573742e636f70792e7468657265636f7264666f7276657273696f6e6469646e6f74766572696679726561736f6e736f6e6f7468",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.therecordstateswhatitdoesanddoesnotprovebo",
+      "resource": "m74727573742e636f70792e7468657265636f7264737461746573776861746974646f6573616e64646f65736e6f7470726f7665626f",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.theregistermovesfromthev1tipprevtothefirst",
+      "resource": "m74727573742e636f70792e74686572656769737465726d6f76657366726f6d746865763174697070726576746f7468656669727374",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "next",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "prev",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.theresnorecordhereforthatversionthatisntevi",
+      "resource": "m74727573742e636f70792e7468657265736e6f7265636f726468657265666f727468617476657273696f6e7468617469736e74657669",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.theresnorecordhereforversionthechainrunsfro",
+      "resource": "m74727573742e636f70792e7468657265736e6f7265636f726468657265666f7276657273696f6e746865636861696e72756e7366726f",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "next",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "prev",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.theresnothingatthisaddressheadbacktothetrus",
+      "resource": "m74727573742e636f70792e7468657265736e6f7468696e6761747468697361646472657373686561646261636b746f74686574727573",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.theselinesarepublishedatmorethanonelocation",
+      "resource": "m74727573742e636f70792e74686573656c696e65736172657075626c697368656461746d6f72657468616e6f6e656c6f636174696f6e",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thesignaturechecksoutthisexactrecordmatchesw",
+      "resource": "m74727573742e636f70792e7468657369676e6174757265636865636b736f75747468697365786163747265636f72646d61746368657377",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thesignaturedoesntcheckoutdonttrustthiscopy",
+      "resource": "m74727573742e636f70792e7468657369676e6174757265646f65736e74636865636b6f7574646f6e74747275737474686973636f7079",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thev1chainofproductclosedatversionitishist",
+      "resource": "m74727573742e636f70792e7468657631636861696e6f6670726f64756374636c6f736564617476657273696f6e6974697368697374",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thev1chainrecordednoreleaseofsolstoneforwin",
+      "resource": "m74727573742e636f70792e7468657631636861696e7265636f726465646e6f72656c656173656f66736f6c73746f6e65666f7277696e",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thev1releaserecordscountobjectsareboundinto",
+      "resource": "m74727573742e636f70792e746865763172656c656173657265636f726473636f756e746f626a65637473617265626f756e64696e746f",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.copy.thev1releaserecordsofproductscountobjectsare",
+      "resource": "m74727573742e636f70792e746865763172656c656173657265636f7264736f6670726f6475637473636f756e746f626a65637473617265",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "products",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.copy.thev2registerdidnotverifywhenthispagewasbu",
+      "resource": "m74727573742e636f70792e746865763272656769737465726469646e6f747665726966797768656e74686973706167657761736275",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisfiledescribesthev1chaininthev1chainsow",
+      "resource": "m74727573742e636f70792e7468697366696c656465736372696265737468657631636861696e696e7468657631636861696e736f77",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisisthesignedrecordofproductversionpublish1",
+      "resource": "m74727573742e636f70792e7468697369737468657369676e65647265636f72646f6670726f6475637476657273696f6e7075626c69736831",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "published_utc",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "valid_until",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisisthesignedrecordofproductversionpublish2",
+      "resource": "m74727573742e636f70792e7468697369737468657369676e65647265636f72646f6670726f6475637476657273696f6e7075626c69736832",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "published_utc",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "valid_until",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisisthev2releaserecordofproductversionsig",
+      "resource": "m74727573742e636f70792e746869736973746865763272656c656173657265636f72646f6670726f6475637476657273696f6e736967",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "asserted_until",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "issued_at",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "sha256"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thiskeyverifieseverysignedrecordpublishedint",
+      "resource": "m74727573742e636f70792e746869736b6579766572696669657365766572797369676e65647265636f72647075626c6973686564696e74",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thiskeyverifiesthev1chainonlyitsignsnothing",
+      "resource": "m74727573742e636f70792e746869736b657976657269666965737468657631636861696e6f6e6c7969747369676e736e6f7468696e67",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thispageisaboutproductthesolstoneappthejour",
+      "resource": "m74727573742e636f70792e7468697370616765697361626f757470726f64756374746865736f6c73746f6e656170707468656a6f7572",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisregisteralsoholdsrecordsforproductsthisp",
+      "resource": "m74727573742e636f70792e746869737265676973746572616c736f686f6c64737265636f726473666f7270726f64756374737468697370",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "products",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisregisterhasnosignedrecordsforawindowsre",
+      "resource": "m74727573742e636f70792e7468697372656769737465726861736e6f7369676e65647265636f726473666f726177696e646f77737265",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisregisterholdsav2releaserecordofproductv1",
+      "resource": "m74727573742e636f70792e746869737265676973746572686f6c647361763272656c656173657265636f72646f6670726f647563747631",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "issued_at",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisregisterholdsav2releaserecordofproductv2",
+      "resource": "m74727573742e636f70792e746869737265676973746572686f6c647361763272656c656173657265636f72646f6670726f647563747632",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "issued_at",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.thisregisterholdscountsignedrecordforsolstone",
+      "resource": "m74727573742e636f70792e746869737265676973746572686f6c6473636f756e747369676e65647265636f7264666f72736f6c73746f6e65",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.copy.thisregisterholdsnosignedrecordsforsolstones",
+      "resource": "m74727573742e636f70792e746869737265676973746572686f6c64736e6f7369676e65647265636f726473666f72736f6c73746f6e6573",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.trustsolstoneappiswheresolpbcexplainsinplai",
+      "resource": "m74727573742e636f70792e7472757374736f6c73746f6e6561707069737768657265736f6c7062636578706c61696e73696e706c6169",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.v1chainclosedatversionnov2recordinthisregi",
+      "resource": "m74727573742e636f70792e7631636861696e636c6f736564617476657273696f6e6e6f76327265636f7264696e7468697372656769",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.v1chainclosedatversionv2registernotchecked",
+      "resource": "m74727573742e636f70792e7631636861696e636c6f736564617476657273696f6e763272656769737465726e6f74636865636b6564",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.v1onlynonewsignatures",
+      "resource": "m74727573742e636f70792e76316f6e6c796e6f6e65777369676e617475726573",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.v2recordsarecoveredbyverifyv2whichchecksthe",
+      "resource": "m74727573742e636f70792e76327265636f726473617265636f7665726564627976657269667976327768696368636865636b73746865",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.verifyreleasechecksonev2recorditwalksfromyo",
+      "resource": "m74727573742e636f70792e76657269667972656c65617365636865636b736f6e6576327265636f7264697477616c6b7366726f6d796f",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.copy.wecouldntcompletethecheckusuallyanetworkora",
+      "resource": "m74727573742e636f70792e7765636f756c646e74636f6d706c657465746865636865636b757375616c6c79616e6574776f726b6f7261",
+      "namespace": "trust.copy",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.artifactsmanifestsproofsmusteachbearrays",
+      "resource": "m74727573742e646961672e6172746966616374736d616e69666573747370726f6f66736d757374656163686265617272617973",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.brokenchainlinkentrydeclaresprevsha256declare",
+      "resource": "m74727573742e646961672e62726f6b656e636861696e6c696e6b656e7472796465636c61726573707265767368613235366465636c617265",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "actual",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "declared",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.candidatewasnotalreadyinnormalizedformrefusin",
+      "resource": "m74727573742e646961672e63616e6469646174657761736e6f74616c7265616479696e6e6f726d616c697a6564666f726d7265667573696e",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.couldnotfetchthepinnedpublickey",
+      "resource": "m74727573742e646961672e636f756c646e6f74666574636874686570696e6e65647075626c69636b6579",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.couldnotparseminisignkeyidfromthepublickey",
+      "resource": "m74727573742e646961672e636f756c646e6f7470617273656d696e697369676e6b6579696466726f6d7468657075626c69636b6579",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.couldnotruntheverifiererror",
+      "resource": "m74727573742e646961672e636f756c646e6f7472756e74686576657269666965726572726f72",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "error",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.credentialsnotallowedinarawlink",
+      "resource": "m74727573742e646961672e63726564656e7469616c736e6f74616c6c6f776564696e617261776c696e6b",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.degraded",
+      "resource": "m74727573742e646961672e6465677261646564",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.entrybodyisnotvalidjson",
+      "resource": "m74727573742e646961672e656e747279626f647969736e6f7476616c69646a736f6e",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.entryhasnoproductfield",
+      "resource": "m74727573742e646961672e656e7472796861736e6f70726f647563746669656c64",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.entryhasnoversionfield",
+      "resource": "m74727573742e646961672e656e7472796861736e6f76657273696f6e6669656c64",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.fragmentnotallowedinarawlink",
+      "resource": "m74727573742e646961672e667261676d656e746e6f74616c6c6f776564696e617261776c696e6b",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.hostmustbeexpectedgothost",
+      "resource": "m74727573742e646961672e686f73746d75737462656578706563746564676f74686f7374",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "expected",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "host",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.minisignverificationfailederror",
+      "resource": "m74727573742e646961672e6d696e697369676e766572696669636174696f6e6661696c65646572726f72",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "error",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.nocanonicalartifactrouteforproductproduct",
+      "resource": "m74727573742e646961672e6e6f63616e6f6e6963616c6172746966616374726f757465666f7270726f6475637470726f64756374",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.nonasciivalueatpath",
+      "resource": "m74727573742e646961672e6e6f6e617363696976616c7565617470617468",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "path",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.nondefaultportnotallowed",
+      "resource": "m74727573742e646961672e6e6f6e64656661756c74706f72746e6f74616c6c6f776564",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.notaparseableurl",
+      "resource": "m74727573742e646961672e6e6f7461706172736561626c6575726c",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.operatordecision2026081218",
+      "resource": "m74727573742e646961672e6f70657261746f726465636973696f6e32303236303831323138",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.operatordecision2026081218publicationisdelib",
+      "resource": "m74727573742e646961672e6f70657261746f726465636973696f6e323032363038313231387075626c69636174696f6e697364656c6962",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.pathcontainsadoubledseparator",
+      "resource": "m74727573742e646961672e70617468636f6e7461696e7361646f75626c6564736570617261746f72",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.pathcontainsanencodedseparatorordotsegmentam",
+      "resource": "m74727573742e646961672e70617468636f6e7461696e73616e656e636f646564736570617261746f726f72646f747365676d656e74616d",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.pathmustnameonefiledirectlyunderprefix",
+      "resource": "m74727573742e646961672e706174686d7573746e616d656f6e6566696c656469726563746c79756e646572707265666978",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "prefix",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.pointerbodyisnotvalidjson",
+      "resource": "m74727573742e646961672e706f696e746572626f647969736e6f7476616c69646a736f6e",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.pointerismissingarequiredfield",
+      "resource": "m74727573742e646961672e706f696e74657269736d697373696e676172657175697265646669656c64",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.prevmismatchcommentcommentbodybody",
+      "resource": "m74727573742e646961672e707265766d69736d61746368636f6d6d656e74636f6d6d656e74626f6479626f6479",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "body",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.prevsha256mustbeexactly64lowercasehexcharact",
+      "resource": "m74727573742e646961672e707265767368613235366d757374626565786163746c7936346c6f7765726361736568657863686172616374",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.prevversionfieldmissinguseemptystringatgenes",
+      "resource": "m74727573742e646961672e7072657676657273696f6e6669656c646d697373696e67757365656d707479737472696e67617467656e6573",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.productmismatchcommentcommentbodybody",
+      "resource": "m74727573742e646961672e70726f647563746d69736d61746368636f6d6d656e74636f6d6d656e74626f6479626f6479",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "body",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.publishedutcmustbeexactlyyyyymmddthhmmsszg",
+      "resource": "m74727573742e646961672e7075626c69736865647574636d757374626565786163746c79797979796d6d64647468686d6d73737a67",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "value",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.querystringnotallowedinarawlink",
+      "resource": "m74727573742e646961672e7175657279737472696e676e6f74616c6c6f776564696e617261776c696e6b",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.schememustbehttpsgotscheme",
+      "resource": "m74727573742e646961672e736368656d656d75737462656874747073676f74736368656d65",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "scheme",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.seq1mustbegenesisprevsha256allzeroandprev",
+      "resource": "m74727573742e646961672e736571316d757374626567656e6573697370726576736861323536616c6c7a65726f616e6470726576",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.seqmismatchcommentcommentbodybody",
+      "resource": "m74727573742e646961672e7365716d69736d61746368636f6d6d656e74636f6d6d656e74626f6479626f6479",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "body",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.seqmustbeapositiveintegergotvalue",
+      "resource": "m74727573742e646961672e7365716d757374626561706f736974697665696e7465676572676f7476616c7565",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "value",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.sha256mismatchcommentcommentbodybody",
+      "resource": "m74727573742e646961672e7368613235366d69736d61746368636f6d6d656e74636f6d6d656e74626f6479626f6479",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "body",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.signatureverifiedbutnotrustedcommentwasreturn",
+      "resource": "m74727573742e646961672e7369676e617475726576657269666965646275746e6f74727573746564636f6d6d656e7477617372657475726e",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.signedatvaliduntilmustbeexactlyyyyymmddthh",
+      "resource": "m74727573742e646961672e7369676e6564617476616c6964756e74696c6d757374626565786163746c79797979796d6d6464746868",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.thesignedfreshnesspointercouldnotbefetched",
+      "resource": "m74727573742e646961672e7468657369676e656466726573686e657373706f696e746572636f756c646e6f74626566657463686564",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.thesignedfreshnesspointerdidnotverifydetail",
+      "resource": "m74727573742e646961672e7468657369676e656466726573686e657373706f696e7465726469646e6f7476657269667964657461696c",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "detail",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.trustedcommentbindingfaileddetail",
+      "resource": "m74727573742e646961672e74727573746564636f6d6d656e7462696e64696e676661696c656464657461696c",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "detail",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.trustedcommentisnotav1entrycommentcomment",
+      "resource": "m74727573742e646961672e74727573746564636f6d6d656e7469736e6f74617631656e747279636f6d6d656e74636f6d6d656e74",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "comment",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.diag.versionmismatchcommentcommentbodybody",
+      "resource": "m74727573742e646961672e76657273696f6e6d69736d61746368636f6d6d656e74636f6d6d656e74626f6479626f6479",
+      "namespace": "trust.diag",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "body",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.evidence.linkcount",
+      "resource": "m74727573742e65766964656e63652e6c696e6b636f756e74",
+      "namespace": "trust.evidence",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.home.registerrow",
+      "resource": "m74727573742e686f6d652e7265676973746572726f77",
+      "namespace": "trust.home",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "enum",
+      "arguments": [
+        {
+          "name": "state",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "state",
+        "type": "string",
+        "enum_values": [
+          "empty",
+          "hasrecord"
+        ],
+        "enum_default": "empty"
+      }
+    },
+    {
+      "id": "trust.home.verifylead",
+      "resource": "m74727573742e686f6d652e7665726966796c656164",
+      "namespace": "trust.home",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "enum",
+      "arguments": [
+        {
+          "name": "lead",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "lead",
+        "type": "string",
+        "enum_values": [
+          "v1",
+          "v2"
+        ],
+        "enum_default": "v1"
+      }
+    },
+    {
+      "id": "trust.keys.linklabel",
+      "resource": "m74727573742e6b6579732e6c696e6b6c6162656c",
+      "namespace": "trust.keys",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "enum",
+      "arguments": [
+        {
+          "name": "label",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "label",
+        "type": "string",
+        "enum_values": [
+          "v1",
+          "v2"
+        ],
+        "enum_default": "v1"
+      }
+    },
+    {
+      "id": "trust.keys.namedasexpectedatbuildtime",
+      "resource": "m74727573742e6b6579732e6e616d65646173657870656374656461746275696c6474696d65",
+      "namespace": "trust.keys",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.keys.rootintro",
+      "resource": "m74727573742e6b6579732e726f6f74696e74726f",
+      "namespace": "trust.keys",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "key_count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "root_version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "threshold",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "key_count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.keys.thepinnedrootinthepublicverifierrepository",
+      "resource": "m74727573742e6b6579732e74686570696e6e6564726f6f74696e7468657075626c696376657269666965727265706f7369746f7279",
+      "namespace": "trust.keys",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.keys.thewitnesslogonsolpbcorg",
+      "resource": "m74727573742e6b6579732e7468657769746e6573736c6f676f6e736f6c7062636f7267",
+      "namespace": "trust.keys",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.aboutthisregister",
+      "resource": "m74727573742e706167652e61626f7574746869737265676973746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.aboutthisregistertrustsolstoneapp",
+      "resource": "m74727573742e706167652e61626f75747468697372656769737465727472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.acceptedexit0",
+      "resource": "m74727573742e706167652e61636365707465646578697430",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "ACCEPTED"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.acceptedreleaserecordexit0",
+      "resource": "m74727573742e706167652e616363657074656472656c656173657265636f72646578697430",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "accepted release record"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.active",
+      "resource": "m74727573742e706167652e616374697665",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.algorithm",
+      "resource": "m74727573742e706167652e616c676f726974686d",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.authorizationpolicy",
+      "resource": "m74727573742e706167652e617574686f72697a6174696f6e706f6c696379",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.backtothesoftwareregister",
+      "resource": "m74727573742e706167652e6261636b746f746865736f6674776172657265676973746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.breadcrumb",
+      "resource": "m74727573742e706167652e62726561646372756d62",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.buildandverificationreportid",
+      "resource": "m74727573742e706167652e6275696c64616e64766572696669636174696f6e7265706f72746964",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "id",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.chainledgerderived",
+      "resource": "m74727573742e706167652e636861696e6c656467657264657269766564",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.chainposition",
+      "resource": "m74727573742e706167652e636861696e706f736974696f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.confidentialprocessingappliance",
+      "resource": "m74727573742e706167652e636f6e666964656e7469616c70726f63657373696e676170706c69616e6365",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.confidentialprocessingappliancerecord8e4291dpub",
+      "resource": "m74727573742e706167652e636f6e666964656e7469616c70726f63657373696e676170706c69616e63657265636f726438653432393164707562",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.confidentialprocessingappliancerecord9968c21pub",
+      "resource": "m74727573742e706167652e636f6e666964656e7469616c70726f63657373696e676170706c69616e63657265636f726439393638633231707562",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.couldnotrunexit2",
+      "resource": "m74727573742e706167652e636f756c646e6f7472756e6578697432",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.curlorfetchfails",
+      "resource": "m74727573742e706167652e6375726c6f7266657463686661696c73",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.degradedreason",
+      "resource": "m74727573742e706167652e6465677261646564726561736f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.ed25519",
+      "resource": "m74727573742e706167652e65643235353139",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.entrysha256",
+      "resource": "m74727573742e706167652e656e747279736861323536",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.entrysignature",
+      "resource": "m74727573742e706167652e656e7472797369676e6174757265",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.expectedrecordmissing",
+      "resource": "m74727573742e706167652e65787065637465647265636f72646d697373696e67",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.fingerprint",
+      "resource": "m74727573742e706167652e66696e6765727072696e74",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.footer",
+      "resource": "m74727573742e706167652e666f6f746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.freshnessassertion",
+      "resource": "m74727573742e706167652e66726573686e657373617373657274696f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.fullpublickeytext",
+      "resource": "m74727573742e706167652e66756c6c7075626c69636b657974657874",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.godeeper",
+      "resource": "m74727573742e706167652e676f646565706572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.home",
+      "resource": "m74727573742e706167652e686f6d65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.immutableentry",
+      "resource": "m74727573742e706167652e696d6d757461626c65656e747279",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.issuedat",
+      "resource": "m74727573742e706167652e6973737565646174",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.issuetime",
+      "resource": "m74727573742e706167652e697373756574696d65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.keys",
+      "resource": "m74727573742e706167652e6b657973",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.keystrustsolstoneapp",
+      "resource": "m74727573742e706167652e6b6579737472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.labelcount",
+      "resource": "m74727573742e706167652e6c6162656c636f756e74",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.latestrecorded",
+      "resource": "m74727573742e706167652e6c61746573747265636f72646564",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.latestrecordedrelease",
+      "resource": "m74727573742e706167652e6c61746573747265636f7264656472656c65617365",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.linux",
+      "resource": "m74727573742e706167652e6c696e7578",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.mac",
+      "resource": "m74727573742e706167652e6d6163",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.mainnavigation",
+      "resource": "m74727573742e706167652e6d61696e6e617669676174696f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.minisignsignatureovertheentry",
+      "resource": "m74727573742e706167652e6d696e697369676e7369676e61747572656f766572746865656e747279",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.minisignsignatureoverthepointer",
+      "resource": "m74727573742e706167652e6d696e697369676e7369676e61747572656f766572746865706f696e746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.missingsubject",
+      "resource": "m74727573742e706167652e6d697373696e677375626a656374",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.mutablelatestpointer",
+      "resource": "m74727573742e706167652e6d757461626c656c6174657374706f696e746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.namesand",
+      "resource": "m74727573742e706167652e6e616d6573616e64",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "items",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.nativeproofreceipts",
+      "resource": "m74727573742e706167652e6e617469766570726f6f667265636569707473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.noevidenceobjectatname",
+      "resource": "m74727573742e706167652e6e6f65766964656e63656f626a65637461746e616d65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "name",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.nopublishdate",
+      "resource": "m74727573742e706167652e6e6f7075626c69736864617465",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.norecord",
+      "resource": "m74727573742e706167652e6e6f7265636f7264",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.norecordatthisversion",
+      "resource": "m74727573742e706167652e6e6f7265636f726461747468697376657273696f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.norecordatthisversiontrustsolstoneapp",
+      "resource": "m74727573742e706167652e6e6f7265636f726461747468697376657273696f6e7472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.norecordsinthisregister",
+      "resource": "m74727573742e706167652e6e6f7265636f726473696e746869737265676973746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.norecordwasconstructedforthisproduct",
+      "resource": "m74727573742e706167652e6e6f7265636f7264776173636f6e7374727563746564666f727468697370726f64756374",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.notarawlink",
+      "resource": "m74727573742e706167652e6e6f74617261776c696e6b",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.notcheckedbecausethetipentryitselfcouldnotb",
+      "resource": "m74727573742e706167652e6e6f74636865636b656462656361757365746865746970656e747279697473656c66636f756c646e6f7462",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.notfoundtrustsolstoneapp",
+      "resource": "m74727573742e706167652e6e6f74666f756e647472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.outcome",
+      "resource": "m74727573742e706167652e6f7574636f6d65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.pinnedroot",
+      "resource": "m74727573742e706167652e70696e6e6564726f6f74",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.pointersignature",
+      "resource": "m74727573742e706167652e706f696e7465727369676e6174757265",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.policysha256",
+      "resource": "m74727573742e706167652e706f6c696379736861323536",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.product",
+      "resource": "m74727573742e706167652e70726f64756374",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.products",
+      "resource": "m74727573742e706167652e70726f6475637473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.producttrustsolstoneapp",
+      "resource": "m74727573742e706167652e70726f647563747472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "trust.solstone.app"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.productversiontrustsolstoneapp",
+      "resource": "m74727573742e706167652e70726f6475637476657273696f6e7472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "trust.solstone.app"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rawevidence",
+      "resource": "m74727573742e706167652e72617765766964656e6365",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rawkeyfile",
+      "resource": "m74727573742e706167652e7261776b657966696c65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rawrootfile",
+      "resource": "m74727573742e706167652e726177726f6f7466696c65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.readingtheresult",
+      "resource": "m74727573742e706167652e72656164696e67746865726573756c74",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.record",
+      "resource": "m74727573742e706167652e7265636f7264",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.recordedbytes",
+      "resource": "m74727573742e706167652e7265636f726465646279746573",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.recordproduct",
+      "resource": "m74727573742e706167652e7265636f726470726f64756374",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rejectedexit11",
+      "resource": "m74727573742e706167652e72656a6563746564657869743131",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "REJECTED"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rejectedexit12",
+      "resource": "m74727573742e706167652e72656a6563746564657869743132",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "rejected:"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.releasemanifests",
+      "resource": "m74727573742e706167652e72656c656173656d616e696665737473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.releaserecord",
+      "resource": "m74727573742e706167652e72656c656173657265636f7264",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rootfilesha256",
+      "resource": "m74727573742e706167652e726f6f7466696c65736861323536",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rootkeyids",
+      "resource": "m74727573742e706167652e726f6f746b6579696473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.rootversion",
+      "resource": "m74727573742e706167652e726f6f7476657273696f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.seqseqgenesis",
+      "resource": "m74727573742e706167652e73657173657167656e65736973",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "seq",
+          "type": "integer",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 9007199254740990.0
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "seq"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.seqseqpreviousversion",
+      "resource": "m74727573742e706167652e73657173657170726576696f757376657273696f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "seq",
+          "type": "integer",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 9007199254740990.0
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "seq"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.page.sha256digestlengthbytes",
+      "resource": "m74727573742e706167652e7368613235366469676573746c656e6774686279746573",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "length",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "digest",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "sha256"
+        }
+      ],
+      "selector": {
+        "name": "length",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.page.signaturefailstoverify",
+      "resource": "m74727573742e706167652e7369676e61747572656661696c73746f766572696679",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signatureverifies",
+      "resource": "m74727573742e706167652e7369676e61747572657665726966696573",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signedledgerentry",
+      "resource": "m74727573742e706167652e7369676e65646c6564676572656e747279",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signedpointer",
+      "resource": "m74727573742e706167652e7369676e6564706f696e746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signedrecorddsseenvelopeinside",
+      "resource": "m74727573742e706167652e7369676e65647265636f726464737365656e76656c6f7065696e73696465",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signerkeyids",
+      "resource": "m74727573742e706167652e7369676e65726b6579696473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signingkey",
+      "resource": "m74727573742e706167652e7369676e696e676b6579",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signingkeyset",
+      "resource": "m74727573742e706167652e7369676e696e676b6579736574",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.signingthreshold",
+      "resource": "m74727573742e706167652e7369676e696e677468726573686f6c64",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.skiptocontent",
+      "resource": "m74727573742e706167652e736b6970746f636f6e74656e74",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.software",
+      "resource": "m74727573742e706167652e736f667477617265",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.softwarepublicationregistersummary",
+      "resource": "m74727573742e706167652e736f6674776172657075626c69636174696f6e726567697374657273756d6d617279",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.softwareregister",
+      "resource": "m74727573742e706167652e736f6674776172657265676973746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.softwaretrustsolstoneapp",
+      "resource": "m74727573742e706167652e736f6674776172657472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.state",
+      "resource": "m74727573742e706167652e7374617465",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "state",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.status",
+      "resource": "m74727573742e706167652e737461747573",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.subject",
+      "resource": "m74727573742e706167652e7375626a656374",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.targetpath",
+      "resource": "m74727573742e706167652e74617267657470617468",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.targetsha256",
+      "resource": "m74727573742e706167652e746172676574736861323536",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.technicalfields",
+      "resource": "m74727573742e706167652e746563686e6963616c6669656c6473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thecommand",
+      "resource": "m74727573742e706167652e746865636f6d6d616e64",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thederivedchainledger",
+      "resource": "m74727573742e706167652e74686564657269766564636861696e6c6564676572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thejournalsrecords",
+      "resource": "m74727573742e706167652e7468656a6f75726e616c737265636f726473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.theregisterataglance",
+      "resource": "m74727573742e706167652e7468657265676973746572617461676c616e6365",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thesoftwareregister",
+      "resource": "m74727573742e706167652e746865736f6674776172657265676973746572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thisisnotastatementaboutanyrecordtherawevi",
+      "resource": "m74727573742e706167652e7468697369736e6f746173746174656d656e7461626f7574616e797265636f7264746865726177657669",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thisportalcannotpresentcollidingrecords",
+      "resource": "m74727573742e706167652e74686973706f7274616c63616e6e6f7470726573656e74636f6c6c6964696e677265636f726473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thisportalcannotpresentcollidingrecordstrusts",
+      "resource": "m74727573742e706167652e74686973706f7274616c63616e6e6f7470726573656e74636f6c6c6964696e677265636f726473747275737473",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thisportalcannotpresenttheregisterrightnow",
+      "resource": "m74727573742e706167652e74686973706f7274616c63616e6e6f7470726573656e74746865726567697374657272696768746e6f77",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thisrecordcouldnotbeconstructednofieldsfrom",
+      "resource": "m74727573742e706167652e746869737265636f7264636f756c646e6f746265636f6e73747275637465646e6f6669656c647366726f6d",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.thresholdofkeycount",
+      "resource": "m74727573742e706167652e7468726573686f6c646f666b6579636f756e74",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "key_count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "threshold",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.timestamprole",
+      "resource": "m74727573742e706167652e74696d657374616d70726f6c65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.trustportalhome",
+      "resource": "m74727573742e706167652e7472757374706f7274616c686f6d65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.trustsolstoneapp",
+      "resource": "m74727573742e706167652e7472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.tworecordsresolvedtothesamerouteleftleftver",
+      "resource": "m74727573742e706167652e74776f7265636f7264737265736f6c766564746f74686573616d65726f7574656c6566746c656674766572",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "left",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "left_version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "right",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "right_version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.unavailable",
+      "resource": "m74727573742e706167652e756e617661696c61626c65",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.unavailablereason",
+      "resource": "m74727573742e706167652e756e617661696c61626c65726561736f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.unavailabletrustsolstoneapp",
+      "resource": "m74727573742e706167652e756e617661696c61626c657472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.v1tiptofirstv2record",
+      "resource": "m74727573742e706167652e7631746970746f666972737476327265636f7264",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.valid",
+      "resource": "m74727573742e706167652e76616c6964",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.verify",
+      "resource": "m74727573742e706167652e766572696679",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.verifyarecordyourself",
+      "resource": "m74727573742e706167652e766572696679617265636f7264796f757273656c66",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.verifythisrecordyourself",
+      "resource": "m74727573742e706167652e766572696679746869737265636f7264796f757273656c66",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.verifytrustsolstoneapp",
+      "resource": "m74727573742e706167652e7665726966797472757374736f6c73746f6e65617070",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.verifywhatishereyourself",
+      "resource": "m74727573742e706167652e76657269667977686174697368657265796f757273656c66",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.versionversion",
+      "resource": "m74727573742e706167652e76657273696f6e76657273696f6e",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.viewproduct",
+      "resource": "m74727573742e706167652e7669657770726f64756374",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.wedonthaveapageatthataddress",
+      "resource": "m74727573742e706167652e7765646f6e7468617665617061676561747468617461646472657373",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.whatitmeans",
+      "resource": "m74727573742e706167652e7768617469746d65616e73",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.whatthisdoesnotprove",
+      "resource": "m74727573742e706167652e7768617474686973646f65736e6f7470726f7665",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.whatthisproves",
+      "resource": "m74727573742e706167652e776861747468697370726f766573",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.whycoverageisstatednotimplied",
+      "resource": "m74727573742e706167652e776879636f76657261676569737374617465646e6f74696d706c696564",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.page.windows",
+      "resource": "m74727573742e706167652e77696e646f7773",
+      "namespace": "trust.page",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.product.summaryjournalcount",
+      "resource": "m74727573742e70726f647563742e73756d6d6172796a6f75726e616c636f756e74",
+      "namespace": "trust.product",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": {
+        "name": "count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.software.journalplatforms",
+      "resource": "m74727573742e736f6674776172652e6a6f75726e616c706c6174666f726d73",
+      "namespace": "trust.software",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "platforms",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.accepted",
+      "resource": "m74727573742e7665726966792e6163636570746564",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "ACCEPTED"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.acceptedreleaserecordproductversion",
+      "resource": "m74727573742e7665726966792e616363657074656472656c656173657265636f726470726f6475637476657273696f6e",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "accepted release record:"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.advisoriesbody",
+      "resource": "m74727573742e7665726966792e61647669736f72696573626f6479",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "enum",
+      "arguments": [
+        {
+          "name": "kind",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp2",
+          "kind": "whitespace",
+          "value": "  "
+        }
+      ],
+      "selector": {
+        "name": "kind",
+        "type": "string",
+        "enum_values": [
+          "none",
+          "list"
+        ],
+        "enum_default": "list"
+      }
+    },
+    {
+      "id": "trust.verify.detailline",
+      "resource": "m74727573742e7665726966792e64657461696c6c696e65",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "detail",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp2",
+          "kind": "whitespace",
+          "value": "  "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.evaluatedat",
+      "resource": "m74727573742e7665726966792e6576616c75617465646174",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "when",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp2",
+          "kind": "whitespace",
+          "value": "  "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.fetchedcountobjects",
+      "resource": "m74727573742e7665726966792e66657463686564636f756e746f626a65637473",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp2",
+          "kind": "whitespace",
+          "value": "  "
+        }
+      ],
+      "selector": {
+        "name": "count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.verify.fetchedcountobjectsbeforerejecting",
+      "resource": "m74727573742e7665726966792e66657463686564636f756e746f626a656374736265666f726572656a656374696e67",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "cardinal",
+      "arguments": [
+        {
+          "name": "count",
+          "type": "cardinal",
+          "numeric_style": "ungrouped",
+          "min": 0.0,
+          "max": 2147483647.0
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp2",
+          "kind": "whitespace",
+          "value": "  "
+        }
+      ],
+      "selector": {
+        "name": "count",
+        "type": "cardinal",
+        "enum_values": [],
+        "enum_default": null
+      }
+    },
+    {
+      "id": "trust.verify.fingerprintline",
+      "resource": "m74727573742e7665726966792e66696e6765727072696e746c696e65",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "fingerprint",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp2",
+          "kind": "whitespace",
+          "value": "  "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.rejectedlinkreason",
+      "resource": "m74727573742e7665726966792e72656a65637465646c696e6b726561736f6e",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "link",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "rejected:"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.rejectedreason",
+      "resource": "m74727573742e7665726966792e72656a6563746564726561736f6e",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "tok",
+          "kind": "accepted-input",
+          "value": "REJECTED:"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.rolefailedreason",
+      "resource": "m74727573742e7665726966792e726f6c656661696c6564726561736f6e",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp4",
+          "kind": "whitespace",
+          "value": "    "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.rolestate",
+      "resource": "m74727573742e7665726966792e726f6c657374617465",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "role",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp4",
+          "kind": "whitespace",
+          "value": "    "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.verify.rolestatevversion",
+      "resource": "m74727573742e7665726966792e726f6c6573746174657676657273696f6e",
+      "namespace": "trust.verify",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "role",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "sp4",
+          "kind": "whitespace",
+          "value": "    "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.afiledidnotmatchitssigneddescription",
+      "resource": "m74727573742e766f6361622e6166696c656469646e6f746d617463686974737369676e65646465736372697074696f6e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.afiledidnotparse",
+      "resource": "m74727573742e766f6361622e6166696c656469646e6f747061727365",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.anolderversionwasservedthanonealreadyseen",
+      "resource": "m74727573742e766f6361622e616e6f6c64657276657273696f6e7761737365727665647468616e6f6e65616c72656164797365656e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.asignaturedidnotcheckout",
+      "resource": "m74727573742e766f6361622e617369676e61747572656469646e6f74636865636b6f7574",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.asserteduntil",
+      "resource": "m74727573742e766f6361622e6173736572746564756e74696c",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.av1objectdidnotmatchthemanifest",
+      "resource": "m74727573742e766f6361622e6176316f626a6563746469646e6f746d617463687468656d616e6966657374",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.couldnotbechecked",
+      "resource": "m74727573742e766f6361622e636f756c646e6f746265636865636b6564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.didnotverify",
+      "resource": "m74727573742e766f6361622e6469646e6f74766572696679",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.evidencefreshness",
+      "resource": "m74727573742e766f6361622e65766964656e636566726573686e657373",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.expired",
+      "resource": "m74727573742e766f6361622e65787069726564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.fromanyreleasesrawevidencetabledownloadledger",
+      "resource": "m74727573742e766f6361622e66726f6d616e7972656c656173657372617765766964656e63657461626c65646f776e6c6f61646c6564676572",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.itssigningkeyismarkedcompromisedinthepolicy",
+      "resource": "m74727573742e766f6361622e6974737369676e696e676b657969736d61726b6564636f6d70726f6d69736564696e746865706f6c696379",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.method1av1recordwithminisign",
+      "resource": "m74727573742e766f6361622e6d6574686f64316176317265636f7264776974686d696e697369676e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.method2thev2registerwithverifyv2",
+      "resource": "m74727573742e766f6361622e6d6574686f643274686576327265676973746572776974687665726966797632",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.method3onev2recordwithverifyrelease",
+      "resource": "m74727573742e766f6361622e6d6574686f64336f6e6576327265636f72647769746876657269667972656c65617365",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.minisignvmledgerentryjsonpfilenamexledgeren",
+      "resource": "m74727573742e766f6361622e6d696e697369676e766d6c6564676572656e7472796a736f6e7066696c656e616d65786c6564676572656e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "filename",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "cmd",
+          "kind": "command",
+          "value": "minisign -Vm ledger-entry.json -p "
+        },
+        {
+          "name": "cmd2",
+          "kind": "command",
+          "value": " -x ledger-entry.json.minisig"
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.norecordyet",
+      "resource": "m74727573742e766f6361622e6e6f7265636f7264796574",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.notattempted",
+      "resource": "m74727573742e766f6361622e6e6f74617474656d70746564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.nottimebound",
+      "resource": "m74727573742e766f6361622e6e6f7474696d65626f756e64",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.oneofitssignedvaliditywindowshadpassed",
+      "resource": "m74727573742e766f6361622e6f6e656f666974737369676e656476616c696469747977696e646f7773686164706173736564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.partoftheregistercouldnotbefetchedorchecked",
+      "resource": "m74727573742e766f6361622e706172746f667468657265676973746572636f756c646e6f746265666574636865646f72636865636b6564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.paused",
+      "resource": "m74727573742e766f6361622e706175736564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.publication",
+      "resource": "m74727573742e766f6361622e7075626c69636174696f6e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.rebuild",
+      "resource": "m74727573742e766f6361622e72656275696c64",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.register",
+      "resource": "m74727573742e766f6361622e7265676973746572",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.savetherawrootfilelinkedonkeysastufrootjs",
+      "resource": "m74727573742e766f6361622e73617665746865726177726f6f7466696c656c696e6b65646f6e6b6579736173747566726f6f746a73",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.signaturedidnotverify",
+      "resource": "m74727573742e766f6361622e7369676e61747572656469646e6f74766572696679",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.signed",
+      "resource": "m74727573742e766f6361622e7369676e6564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.signingkeys",
+      "resource": "m74727573742e766f6361622e7369676e696e676b657973",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solpbcsays",
+      "resource": "m74727573742e766f6361622e736f6c70626373617973",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solstoneforlinux",
+      "resource": "m74727573742e766f6361622e736f6c73746f6e65666f726c696e7578",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solstoneformacos",
+      "resource": "m74727573742e766f6361622e736f6c73746f6e65666f726d61636f73",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solstonefortmux",
+      "resource": "m74727573742e766f6361622e736f6c73746f6e65666f72746d7578",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solstoneforwindows",
+      "resource": "m74727573742e766f6361622e736f6c73746f6e65666f7277696e646f7773",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solstonetransparencyverifyreleaseroottufrootj1",
+      "resource": "m74727573742e766f6361622e736f6c73746f6e657472616e73706172656e637976657269667972656c65617365726f6f74747566726f6f746a31",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "metadata",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "targets",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "cmd",
+          "kind": "command",
+          "value": "solstone-transparency verify-release --root tuf-root.json --product PRODUCT --version VERSION --metadata-base "
+        },
+        {
+          "name": "cmd2",
+          "kind": "command",
+          "value": " --targets-base "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solstonetransparencyverifyreleaseroottufrootj2",
+      "resource": "m74727573742e766f6361622e736f6c73746f6e657472616e73706172656e637976657269667972656c65617365726f6f74747566726f6f746a32",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "metadata",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "targets",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "cmd",
+          "kind": "command",
+          "value": "solstone-transparency verify-release --root tuf-root.json --product "
+        },
+        {
+          "name": "cmd2",
+          "kind": "command",
+          "value": " --version "
+        },
+        {
+          "name": "cmd3",
+          "kind": "command",
+          "value": " --metadata-base "
+        },
+        {
+          "name": "cmd4",
+          "kind": "command",
+          "value": " --targets-base "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.solstonetransparencyverifyv2roottufrootjsonm",
+      "resource": "m74727573742e766f6361622e736f6c73746f6e657472616e73706172656e63797665726966797632726f6f74747566726f6f746a736f6e6d",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "metadata",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "targets",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [
+        {
+          "name": "cmd",
+          "kind": "command",
+          "value": "solstone-transparency verify-v2 --root tuf-root.json --metadata-base "
+        },
+        {
+          "name": "cmd2",
+          "kind": "command",
+          "value": " --targets-base "
+        }
+      ],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thecheckersownsavedstatedidnotreadback",
+      "resource": "m74727573742e766f6361622e746865636865636b6572736f776e736176656473746174656469646e6f74726561646261636b",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thecheckreportedreason",
+      "resource": "m74727573742e766f6361622e746865636865636b7265706f72746564726561736f6e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thejournal",
+      "resource": "m74727573742e766f6361622e7468656a6f75726e616c",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.therecorddoesnotnamewhatitwaspublishedas",
+      "resource": "m74727573742e766f6361622e7468657265636f7264646f65736e6f746e616d657768617469747761737075626c69736865646173",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.therootsrolesetupdidnotcheckout",
+      "resource": "m74727573742e766f6361622e746865726f6f7473726f6c6573657475706469646e6f74636865636b6f7574",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thesigningkeywasnotauthorizedforthisrecord",
+      "resource": "m74727573742e766f6361622e7468657369676e696e676b65797761736e6f74617574686f72697a6564666f72746869737265636f7264",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thev1signingkey",
+      "resource": "m74727573742e766f6361622e74686576317369676e696e676b6579",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thev2signingroot",
+      "resource": "m74727573742e766f6361622e74686576327369676e696e67726f6f74",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thewitnessloglinesforthisroot",
+      "resource": "m74727573742e766f6361622e7468657769746e6573736c6f676c696e6573666f7274686973726f6f74",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thisisthesignedrecordofproductversionpublish1",
+      "resource": "m74727573742e766f6361622e7468697369737468657369676e65647265636f72646f6670726f6475637476657273696f6e7075626c69736831",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "published_utc",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thisisthesignedrecordofproductversionpublish2",
+      "resource": "m74727573742e766f6361622e7468697369737468657369676e65647265636f72646f6670726f6475637476657273696f6e7075626c69736832",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "published_utc",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thisisthesignedrecordofproductversionpublish3",
+      "resource": "m74727573742e766f6361622e7468697369737468657369676e65647265636f72646f6670726f6475637476657273696f6e7075626c69736833",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [
+        {
+          "name": "product",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "published_utc",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "numeric_style": null,
+          "min": null,
+          "max": null
+        }
+      ],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thispageshowsonefactratherthanfourseparatea",
+      "resource": "m74727573742e766f6361622e746869737061676573686f77736f6e65666163747261746865727468616e666f7572736570617261746561",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.thisportalisforallofsolstonenotonlythejour",
+      "resource": "m74727573742e766f6361622e74686973706f7274616c6973666f72616c6c6f66736f6c73746f6e656e6f746f6e6c797468656a6f7572",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.v1record",
+      "resource": "m74727573742e766f6361622e76317265636f7264",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.v1releasetimelineclosedchain",
+      "resource": "m74727573742e766f6361622e763172656c6561736574696d656c696e65636c6f736564636861696e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.v2record",
+      "resource": "m74727573742e766f6361622e76327265636f7264",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.v2registernotchecked",
+      "resource": "m74727573742e766f6361622e763272656769737465726e6f74636865636b6564",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.v2releaserecords",
+      "resource": "m74727573742e766f6361622e763272656c656173657265636f726473",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.verification",
+      "resource": "m74727573742e766f6361622e766572696669636174696f6e",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.verifier",
+      "resource": "m74727573742e766f6361622e7665726966696572",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.whattherecordsaysitproves",
+      "resource": "m74727573742e766f6361622e776861747468657265636f726473617973697470726f766573",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.whatthev1recordsdonotprove",
+      "resource": "m74727573742e766f6361622e7768617474686576317265636f726473646f6e6f7470726f7665",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.whatthev1recordsprove",
+      "resource": "m74727573742e766f6361622e7768617474686576317265636f72647370726f7665",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    },
+    {
+      "id": "trust.vocab.withthesamepinnedtufrootjsonnametherecordb",
+      "resource": "m74727573742e766f6361622e7769746874686573616d6570696e6e6564747566726f6f746a736f6e6e616d657468657265636f726462",
+      "namespace": "trust.vocab",
+      "owner": "transparency",
+      "tombstone": false,
+      "replacement": null,
+      "format_intent": "text",
+      "arguments": [],
+      "protected_slots": [],
+      "selector": null
+    }
+  ]
+}

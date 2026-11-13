@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.verify-release-checks-one-v2-record-it-walks-from-yo).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 603,
+  "source_revision": "707b9c735a0173e2adc16f17e04bbea5e1e7e26df7aace52bed799b00395471b",
+  "risk": "routine",
+  "auto_merge": true
+}

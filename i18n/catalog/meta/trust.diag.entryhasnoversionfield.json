@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.entry-has-no-version-field).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 26,
+  "source_revision": "801311bc56253771faa3fec32e39059aaaa00978eda2d62c77fb1fe81ddaea37",
+  "risk": "routine",
+  "auto_merge": true
+}

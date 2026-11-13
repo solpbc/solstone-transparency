@@ -1,0 +1,28 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.label-count).",
+  "context": "profile gap: s050. kept as today's English. found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "count",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "name": "label",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 6,
+  "source_revision": "f188ba761b1ee43fa307cb9f2e4be2c5ea5e254a0c23831342acbac50d76db37",
+  "risk": "routine",
+  "auto_merge": true
+}

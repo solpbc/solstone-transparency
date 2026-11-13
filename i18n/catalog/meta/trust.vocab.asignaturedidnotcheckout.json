@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.a-signature-did-not-check-out).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class. readerReason maps a reason code; the code is not the label.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 29,
+  "source_revision": "c9434e7d203d594a235118c376555139961c47152401920bb944f46439858bf5",
+  "risk": "routine",
+  "auto_merge": true
+}

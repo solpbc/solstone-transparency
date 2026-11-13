@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.path-must-name-one-file-directly-under-prefix).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "prefix",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 40,
+  "source_revision": "374d94db3be256e7de820453dec572ec6bd930cdae1c8a34e83cf855f6cc2eae",
+  "risk": "routine",
+  "auto_merge": true
+}

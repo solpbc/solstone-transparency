@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.degraded).",
+  "context": "found as a check sentence stored on the model and rendered on the page. no defect class. the marker word on the degraded page. the reason beside it is its own sentence.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 8,
+  "source_revision": "3e13f5307299260acead1b74eb21610c9d11a2dcf46a951179d7e06ba8db6dba",
+  "risk": "routine",
+  "auto_merge": true
+}

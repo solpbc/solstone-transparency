@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.prev-version-field-missing-use-empty-string-at-genes).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 56,
+  "source_revision": "99af6709379f95b63a1904266129bbf119cb98b49c3955ab6435766dc2893f83",
+  "risk": "routine",
+  "auto_merge": true
+}

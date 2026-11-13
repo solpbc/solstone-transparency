@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.sol-pbc-has-created-its-v2-signing-root-every-v1-rec).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 134,
+  "source_revision": "a0bed33ef56529415d0e3cf21c2500b9f8530a967d8a9a00edb99ed9cc10741f",
+  "risk": "routine",
+  "auto_merge": true
+}

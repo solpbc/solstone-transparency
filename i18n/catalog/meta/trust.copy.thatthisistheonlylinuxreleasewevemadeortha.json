@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.that-this-is-the-only-linux-release-weve-made-or-tha).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 85,
+  "source_revision": "15258f0d38520b70d0bb42b87721e4e3a85f5f12ce2dc1db58d0a0caec76a872",
+  "risk": "routine",
+  "auto_merge": true
+}

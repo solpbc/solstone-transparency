@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.solstone-is-a-trademark-of-sol-pbc).",
+  "context": "found in the approved copy module. trademark line. flagged, not rewritten.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 35,
+  "source_revision": "5132900448cfdeff7a4ce2f6a0cddd63538f6403d0a8382d4575743c191fc5d1",
+  "risk": "legal",
+  "auto_merge": false
+}

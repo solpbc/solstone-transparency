@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.from-any-releases-raw-evidence-table-download-ledger).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 144,
+  "source_revision": "f8bcc55ddaed4287152aea1446cb4f643ffb272b60fb72a997ecfa33dedea298",
+  "risk": "routine",
+  "auto_merge": true
+}

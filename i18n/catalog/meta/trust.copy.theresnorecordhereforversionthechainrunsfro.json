@@ -1,0 +1,29 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.theres-no-record-here-for-version-the-chain-runs-fro).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "next",
+      "type": "string"
+    },
+    {
+      "name": "prev",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 138,
+  "source_revision": "ea4f68cf4695b65e609635ffbd1973457d13a39e3ae9675f96539c30f14a04ba",
+  "risk": "routine",
+  "auto_merge": true
+}

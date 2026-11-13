@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.native-proof-receipts).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 21,
+  "source_revision": "c4a533a2849aab4e021fb62f5551cfe2b7cfff1160d72bc1bd86b4b2a0b9ae82",
+  "risk": "routine",
+  "auto_merge": true
+}

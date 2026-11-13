@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.method-2-the-v2-register-with-verify-v2).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 41,
+  "source_revision": "d9ef901f5039d68005a080a667cd80cbba1dc5a234e2abf75221d13f869e0742",
+  "risk": "routine",
+  "auto_merge": true
+}

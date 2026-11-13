@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.keys.named-as-expected-at-build-time).",
+  "context": "found as a source string. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 31,
+  "source_revision": "ee791e59a6a7c285461c5b845e6a890164334fe4fa912239bfddbf0ad0b95871",
+  "risk": "routine",
+  "auto_merge": true
+}

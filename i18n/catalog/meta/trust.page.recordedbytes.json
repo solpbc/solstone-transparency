@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.recorded-bytes).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 14,
+  "source_revision": "ab662c5c1367ef87d5e3bd46b654b3887b43f0d2e98d25034dbf6e2fff71d0e2",
+  "risk": "routine",
+  "auto_merge": true
+}

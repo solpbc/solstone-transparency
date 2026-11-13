@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.its-signing-key-is-marked-compromised-in-the-policy).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class. readerReason maps a reason code; the code is not the label.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 51,
+  "source_revision": "1894cf8473e5522ba91b6a9d5fdaa2b2b23c3aa8ae8c1093a24ba2dcf1f73b92",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.why-coverage-is-stated-not-implied).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 35,
+  "source_revision": "efef63348ccf8279363eb7aabeebf9d5f7db5f0818c499fdebd22078e4fa98c7",
+  "risk": "routine",
+  "auto_merge": true
+}

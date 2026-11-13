@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.axis.fresh-until-when).",
+  "context": "catalog uses today's English. found in an axis or evidence primitive.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "when",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 13,
+  "source_revision": "bfc216fc380d24a3be98ebefbeb9443b0c475e1671b1ea7a71bb7cbc46ff505a",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,23 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.accepted-exit-0).",
+  "context": "found in the portal renderer. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 16,
+  "source_revision": "e24f6a693877e86ef92ea12fab4f88b67692b7db6225dc1741d9f0be3b8af6de",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "ACCEPTED"
+    }
+  ]
+}

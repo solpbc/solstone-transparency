@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.v1-release-timeline-closed-chain).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 34,
+  "source_revision": "85ec7d53a9c6181b845d78ea2b043c347f448886c49ff328454066c9f672e1dc",
+  "risk": "routine",
+  "auto_merge": true
+}

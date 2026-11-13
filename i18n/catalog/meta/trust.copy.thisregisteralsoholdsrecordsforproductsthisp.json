@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.this-register-also-holds-records-for-products-this-p).",
+  "context": "profile gap: agreement. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "products",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 114,
+  "source_revision": "c2b9b5083d729b7f08236481c45f5b7c3294aeee37b1fe4adbc861545a3a20c1",
+  "risk": "routine",
+  "auto_merge": true
+}

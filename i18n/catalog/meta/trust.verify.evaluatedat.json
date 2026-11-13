@@ -1,0 +1,28 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.evaluated-at).",
+  "context": "census missed this verify-v2 stdout line. catalog follows the template at HEAD.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "when",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 18,
+  "source_revision": "cb8ea5df066bef2cc56753526faab24ebcc2f576d0092d0b4e1910007007d501",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "sp2",
+      "kind": "whitespace",
+      "value": "  "
+    }
+  ]
+}

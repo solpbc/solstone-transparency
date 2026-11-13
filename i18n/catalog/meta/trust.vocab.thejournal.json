@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.the-journal).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 11,
+  "source_revision": "6bfc4b6f92c727396d79b54ab1c0bd63f19ccc13e7ca9e43cdff680122c8f851",
+  "risk": "routine",
+  "auto_merge": true
+}

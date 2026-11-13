@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.this-portal-cannot-present-colliding-records).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 44,
+  "source_revision": "b5880ae51650495c6eb1a75f40ae8350cbb70aa712e4e1e8dda9e07dad16cb9e",
+  "risk": "routine",
+  "auto_merge": true
+}

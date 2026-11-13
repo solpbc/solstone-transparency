@@ -1,0 +1,28 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-v1-release-records-count-objects-are-bound-into-).",
+  "context": "found in the approved copy module. cardinal select. both branches render the sentence the code renders for every count. a rewrite that changed the noun for [one] was not applied.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "count",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    }
+  ],
+  "format_intent": "cardinal",
+  "max_length": 142,
+  "source_revision": "e053a3fb5eb85a46ec2ec494981dce5e8c09cdf2e19a8e9258e08fdfcefeef2d",
+  "risk": "routine",
+  "auto_merge": true,
+  "selector": {
+    "name": "count",
+    "type": "cardinal"
+  }
+}

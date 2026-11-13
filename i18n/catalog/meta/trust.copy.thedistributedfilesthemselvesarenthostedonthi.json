@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-distributed-files-themselves-arent-hosted-on-thi).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 240,
+  "source_revision": "ff60536e3e9ea7c5a66af480c2bbca98ff333830b0557f226ac54b838b87e43c",
+  "risk": "routine",
+  "auto_merge": true
+}

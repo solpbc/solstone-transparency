@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-command-exited-2-because-the-pinned-root-couldnt).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 165,
+  "source_revision": "4458486349ba0ccfa1ead542d9fc58a37f1a89bbb01e39d72f9ccb1ef88acf9d",
+  "risk": "routine",
+  "auto_merge": true
+}

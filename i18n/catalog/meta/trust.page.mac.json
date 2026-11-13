@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.mac).",
+  "context": "found in the portal renderer. no defect class. display word for the filename token macos. the match stays macos.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 3,
+  "source_revision": "233663ab63d0e307cb805685a082b785c398474dfcea53eaffd9fff1a39073ac",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,25 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-v1-chain-of-product-closed-at-version-it-is-hist).",
+  "context": "profile gap: agreement. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 134,
+  "source_revision": "4de344be2f7026dbfec86fa16c82fc2241d0230ee56f436770c62507c0063344",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.the-signing-key-was-not-authorized-for-this-record).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class. readerReason maps a reason code; the code is not the label.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 50,
+  "source_revision": "054d46cec14e7ad68d688b5f9951c80fcda91618147b5d6e892e602029d404e7",
+  "risk": "routine",
+  "auto_merge": true
+}

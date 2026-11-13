@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.signing-key-set).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 15,
+  "source_revision": "45e7b62d74f2012e0ac2c1e05f910f0e84a6e0fc408cb88570582578be685d0c",
+  "risk": "routine",
+  "auto_merge": true
+}

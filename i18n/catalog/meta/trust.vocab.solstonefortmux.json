@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.solstone-for-tmux).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 17,
+  "source_revision": "5a468e3d5faae7e4019209b3712ec1e703663fa34afcc05883fe2cb8c4431b47",
+  "risk": "routine",
+  "auto_merge": true
+}

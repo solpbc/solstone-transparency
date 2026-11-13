@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
+import { msg, t } from "../../i18n/lookup";
+
 /**
  * Closed structural vocabulary for the Wave 1 portal. These strings are not
  * CMO copy — they come from the CPO state-semantics table and the IA
@@ -9,15 +11,15 @@
 
 import type { ProductSlug } from "../legacy/types";
 
-export const AXIS_PUBLICATION = "publication";
-export const AXIS_FRESHNESS = "evidence freshness";
-export const AXIS_VERIFICATION = "verification";
-export const AXIS_REBUILD = "rebuild";
+export const AXIS_PUBLICATION = t("trust.vocab.publication");
+export const AXIS_FRESHNESS = t("trust.vocab.evidencefreshness");
+export const AXIS_VERIFICATION = t("trust.vocab.verification");
+export const AXIS_REBUILD = t("trust.vocab.rebuild");
 
-export const KIND_SIGNED = "✓ signed";
-export const KIND_REGISTER = "▤ register";
-export const KIND_DECLARATION = "◆ sol pbc says";
-export const KIND_VERIFIER = "⟳ verifier";
+export const KIND_SIGNED = t("trust.vocab.signed");
+export const KIND_REGISTER = t("trust.vocab.register");
+export const KIND_DECLARATION = t("trust.vocab.solpbcsays");
+export const KIND_VERIFIER = t("trust.vocab.verifier");
 
 /**
  * Display names, per sol pbc brand canon: the journal is
@@ -26,92 +28,110 @@ export const KIND_VERIFIER = "⟳ verifier";
  * follow the same rule; the operated-services layer is named by mechanism.
  */
 export const PRODUCT_DISPLAY: Record<ProductSlug, string> = {
-	journal: "the journal",
-	linux: "solstone for linux",
-	windows: "solstone for windows",
-	macos: "solstone for macos",
-	tmux: "solstone for tmux",
+	journal: t("trust.vocab.thejournal"),
+	linux: t("trust.vocab.solstoneforlinux"),
+	windows: t("trust.vocab.solstoneforwindows"),
+	macos: t("trust.vocab.solstoneformacos"),
+	tmux: t("trust.vocab.solstonefortmux"),
 };
 
 /** One line above the coverage caveat on /software/: this portal is for all of solstone. */
-export const SOFTWARE_SCOPE_LINE =
-	"this portal is for all of solstone, not only the journal. products are listed here as sol pbc publishes release records for them, and a listed product with no records says so.";
+export const SOFTWARE_SCOPE_LINE = t(
+	"trust.vocab.thisportalisforallofsolstonenotonlythejour",
+);
 
-export const WINDOWS_ONE_FACT =
-	"this page shows one fact rather than four separate axes: with no records, there is no freshness window, nothing to verify, and nothing to rebuild.";
+export const WINDOWS_ONE_FACT = t(
+	"trust.vocab.thispageshowsonefactratherthanfourseparatea",
+);
 
 /** Structural summary for a superseded (non-tip) version page. Placeholders: product, version, published_utc. */
-export const VERSION_SUMMARY_NOT_TIME_BOUND =
-	"this is the signed record of {product} {version}, published {published_utc}. superseded entries like this one are not assigned their own freshness window — only the current tip of the chain carries a separately signed freshness assertion. this entry's own signature remains exactly as published and is independently verifiable today.";
+export const VERSION_SUMMARY_NOT_TIME_BOUND = msg(
+	"trust.vocab.thisisthesignedrecordofproductversionpublish2",
+);
 
 /** Structural summary for a tip whose freshness pointer could not be checked. Placeholders: product, version, published_utc, reason. */
-export const VERSION_SUMMARY_UNAVAILABLE =
-	"this is the signed record of {product} {version}, published {published_utc}. this is the current tip of the chain, but its separately signed freshness pointer could not be checked ({reason}); that is a statement about this check, not about the entry's own signature, which remains exactly as published and independently verifiable today.";
+export const VERSION_SUMMARY_UNAVAILABLE = msg(
+	"trust.vocab.thisisthesignedrecordofproductversionpublish3",
+);
 
-export const VERIFY_LEAD_IN =
-	"from any release's raw-evidence table, download ledger-entry.json, ledger-entry.json.minisig, and the pinned key file named on /keys/. then run:";
+export const VERIFY_LEAD_IN = t(
+	"trust.vocab.fromanyreleasesrawevidencetabledownloadledger",
+);
 
 export function verifyCommand(filename: string): string {
-	return `minisign -Vm ledger-entry.json -p ${filename} -x ledger-entry.json.minisig`;
+	return t("trust.vocab.minisignvmledgerentryjsonpfilenamexledgeren", {
+		filename: filename,
+	});
 }
 
-export const STATE_PAUSED = "paused";
+export const STATE_PAUSED = t("trust.vocab.paused");
 
 // ---- v2 structural vocabulary (not CMO copy; headings, labels, command shapes) ----
 
-export const HEADING_V2_RECORDS = "v2 release records";
-export const HEADING_V1_TIMELINE_CLOSED = "v1 release timeline (closed chain)";
-export const HEADING_V1_METHOD = "method 1: a v1 record, with minisign";
-export const HEADING_V2_METHOD = "method 2: the v2 register, with verify-v2";
-export const HEADING_V3_METHOD = "method 3: one v2 record, with verify-release";
-export const HEADING_V1_KEY = "the v1 signing key";
-export const HEADING_V2_ROOT = "the v2 signing root";
-export const HEADING_WITNESS_LINES = "the witness log lines for this root";
-export const HEADING_RECORD_CLAIMS = "what the record says it proves";
-export const KEYS_PAGE_TITLE_V2 = "signing keys";
-export const V2_RECORD_TAG = "v2 record";
-export const V1_RECORD_TAG = "v1 record";
-export const STATE_ASSERTED_UNTIL = "asserted until";
-export const STATE_EXPIRED = "expired";
-export const STATE_NO_RECORD_YET = "no record yet";
-export const STATE_V2_NOT_CHECKED = "v2 register not checked";
+export const HEADING_V2_RECORDS = t("trust.vocab.v2releaserecords");
+export const HEADING_V1_TIMELINE_CLOSED = t(
+	"trust.vocab.v1releasetimelineclosedchain",
+);
+export const HEADING_V1_METHOD = t("trust.vocab.method1av1recordwithminisign");
+export const HEADING_V2_METHOD = t(
+	"trust.vocab.method2thev2registerwithverifyv2",
+);
+export const HEADING_V3_METHOD = t(
+	"trust.vocab.method3onev2recordwithverifyrelease",
+);
+export const HEADING_V1_KEY = t("trust.vocab.thev1signingkey");
+export const HEADING_V2_ROOT = t("trust.vocab.thev2signingroot");
+export const HEADING_WITNESS_LINES = t(
+	"trust.vocab.thewitnessloglinesforthisroot",
+);
+export const HEADING_RECORD_CLAIMS = t("trust.vocab.whattherecordsaysitproves");
+export const KEYS_PAGE_TITLE_V2 = t("trust.vocab.signingkeys");
+export const V2_RECORD_TAG = t("trust.vocab.v2record");
+export const V1_RECORD_TAG = t("trust.vocab.v1record");
+export const STATE_ASSERTED_UNTIL = t("trust.vocab.asserteduntil");
+export const STATE_EXPIRED = t("trust.vocab.expired");
+export const STATE_NO_RECORD_YET = t("trust.vocab.norecordyet");
+export const STATE_V2_NOT_CHECKED = t("trust.vocab.v2registernotchecked");
 /** A v2 record that failed its check for any reason; the reason phrase beside it says which. Never "signature", because some failures leave the signature valid. */
-export const STATE_DID_NOT_VERIFY = "did not verify";
-export const HEADING_V1_PROVES = "what the v1 records prove";
-export const HEADING_V1_DOES_NOT_PROVE = "what the v1 records do not prove";
+export const STATE_DID_NOT_VERIFY = t("trust.vocab.didnotverify");
+export const HEADING_V1_PROVES = t("trust.vocab.whatthev1recordsprove");
+export const HEADING_V1_DOES_NOT_PROVE = t(
+	"trust.vocab.whatthev1recordsdonotprove",
+);
 
 /** Structural summary for a non-tip v1 version page once a v2 root exists: chain position without a status word on the chain. Placeholders: product, version, published_utc. */
-export const VERSION_SUMMARY_NOT_TIME_BOUND_V2 =
-	"this is the signed record of {product} {version}, published {published_utc}. it is not the last entry in the v1 chain, so it carries no freshness window of its own; only the chain's last entry does. its signature remains exactly as published and is verifiable today.";
+export const VERSION_SUMMARY_NOT_TIME_BOUND_V2 = msg(
+	"trust.vocab.thisisthesignedrecordofproductversionpublish1",
+);
 
 /** The verifier's rejection reason in reader words. The code itself stays in the model and the packet, never on the page. */
 export function readerReason(reason: string): string {
 	switch (reason) {
 		case "expired":
-			return "one of its signed validity windows had passed";
+			return t("trust.vocab.oneofitssignedvaliditywindowshadpassed");
 		case "unavailable":
 		case "retrieval-failed":
-			return "part of the register could not be fetched or checked";
+			return t("trust.vocab.partoftheregistercouldnotbefetchedorchecked");
 		case "hash-mismatch":
 		case "length-mismatch":
 		case "snapshot-mismatch":
-			return "a file did not match its signed description";
+			return t("trust.vocab.afiledidnotmatchitssigneddescription");
 		case "signature-invalid":
 		case "threshold-unmet":
 		case "key-not-in-role":
 		case "unknown-key":
 		case "keyid-mismatch":
-			return "a signature did not check out";
+			return t("trust.vocab.asignaturedidnotcheckout");
 		case "version-rollback":
-			return "an older version was served than one already seen";
+			return t("trust.vocab.anolderversionwasservedthanonealreadyseen");
 		case "migration-target-mismatch":
-			return "a v1 object did not match the manifest";
+			return t("trust.vocab.av1objectdidnotmatchthemanifest");
 		case "trust-store-corrupt":
-			return "the checker's own saved state did not read back";
+			return t("trust.vocab.thecheckersownsavedstatedidnotreadback");
 		case "compromised":
-			return "its signing key is marked compromised in the policy";
+			return t("trust.vocab.itssigningkeyismarkedcompromisedinthepolicy");
 		case "subject-mismatch":
-			return "the record does not name what it was published as";
+			return t("trust.vocab.therecorddoesnotnamewhatitwaspublishedas");
 		case "unrecognized-predicate":
 		case "predicate-malformed":
 		case "malformed":
@@ -130,43 +150,51 @@ export function readerReason(reason: string): string {
 		case "wrong-signature-length":
 		case "unsupported-key-type":
 		case "unsupported-spec-version":
-			return "a file did not parse";
+			return t("trust.vocab.afiledidnotparse");
 		case "metadata-type-mismatch":
 		case "payload-type-mismatch":
 		case "filename-version-mismatch":
 		case "snapshot-role-dropped":
-			return "a file did not match its signed description";
+			return t("trust.vocab.afiledidnotmatchitssigneddescription");
 		case "dangling-keyid":
 		case "degenerate-role-configuration":
 		case "unsafe-target-path":
 		case "delegation-too-deep":
-			return "the root's role setup did not check out";
+			return t("trust.vocab.therootsrolesetupdidnotcheckout");
 		case "outside-issuance-window":
 		case "role-not-authorized":
-			return "the signing key was not authorized for this record";
+			return t("trust.vocab.thesigningkeywasnotauthorizedforthisrecord");
 		default:
-			return `the check reported "${reason}"`;
+			return t("trust.vocab.thecheckreportedreason", { reason: reason });
 	}
 }
 
-export const VERIFY_V2_LEAD_IN =
-	"save the raw root file linked on /keys/ as tuf-root.json, byte for byte; that saved copy is your pin. before you use it, check it against the witness log: find the sha256 line naming your copy's signed.version and match its digest against the sha256 of your copy's bytes; match the key ids your copy lists for its root role against the nearest key id line above that; then confirm no higher version line appears, because the log keeps every earlier version's line while the pin holds only one. then run:";
+export const VERIFY_V2_LEAD_IN = t(
+	"trust.vocab.savetherawrootfilelinkedonkeysastufrootjs",
+);
 
-export const VERIFY_V3_LEAD_IN =
-	"with the same pinned tuf-root.json, name the record by its product id and version as they appear in the record's path, software/PRODUCT/VERSION, not by its display name, then run:";
+export const VERIFY_V3_LEAD_IN = t(
+	"trust.vocab.withthesamepinnedtufrootjsonnametherecordb",
+);
 
 export function verifyV2Command(
 	metadataBase: string,
 	targetsBase: string,
 ): string {
-	return `solstone-transparency verify-v2 --root tuf-root.json --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
+	return t("trust.vocab.solstonetransparencyverifyv2roottufrootjsonm", {
+		metadata: metadataBase,
+		targets: targetsBase,
+	});
 }
 /** The record-level command. PRODUCT and VERSION are the record's own values as shown on its page. */
 export function verifyReleaseCommand(
 	metadataBase: string,
 	targetsBase: string,
 ): string {
-	return `solstone-transparency verify-release --root tuf-root.json --product PRODUCT --version VERSION --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
+	return t("trust.vocab.solstonetransparencyverifyreleaseroottufrootj1", {
+		metadata: metadataBase,
+		targets: targetsBase,
+	});
 }
 
 function shellArgument(value: string): string {
@@ -180,10 +208,17 @@ export function verifyReleaseRecordCommand(
 	product: string,
 	version: string,
 ): string {
-	return `solstone-transparency verify-release --root tuf-root.json --product ${shellArgument(product)} --version ${shellArgument(version)} --metadata-base ${metadataBase} --targets-base ${targetsBase}`;
+	return t("trust.vocab.solstonetransparencyverifyreleaseroottufrootj2", {
+		product: shellArgument(product),
+		version: shellArgument(version),
+		metadata: metadataBase,
+		targets: targetsBase,
+	});
 }
-export const STATE_NOT_TIME_BOUND = "not time-bound";
-export const STATE_NOT_ATTEMPTED = "not attempted";
-export const STATE_COULD_NOT_BE_CHECKED = "could not be checked";
+export const STATE_NOT_TIME_BOUND = t("trust.vocab.nottimebound");
+export const STATE_NOT_ATTEMPTED = t("trust.vocab.notattempted");
+export const STATE_COULD_NOT_BE_CHECKED = t("trust.vocab.couldnotbechecked");
 /** Retired 2026-09-07 in favour of `STATE_DID_NOT_VERIFY`: an invalid outcome is not always a signature failure. Kept exported for one release so nothing outside this tree breaks. */
-export const STATE_SIGNATURE_DID_NOT_VERIFY = "signature did not verify";
+export const STATE_SIGNATURE_DID_NOT_VERIFY = t(
+	"trust.vocab.signaturedidnotverify",
+);

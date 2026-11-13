@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.linux).",
+  "context": "found in the portal renderer. no defect class. display word in the journal's platform list. the filename token is the same string. the product name is solstone for linux, a different message.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 5,
+  "source_revision": "bfe7a0405925106755851b85630f904745c616066793d37e9626f84a0443dfa6",
+  "risk": "routine",
+  "auto_merge": true
+}

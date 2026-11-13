@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.this-portal-is-for-all-of-solstone-not-only-the-jour).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 175,
+  "source_revision": "b3d85ee21bf85b1cb4a4904686bf5981b9d13f2c6870c8b062899c45463f6b45",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.axis.how-this-was-checked).",
+  "context": "found in an axis or evidence primitive. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 20,
+  "source_revision": "9776c58623fbc606eba3a1fc31fced103806ea4b75683473529fa3277ac5a868",
+  "risk": "routine",
+  "auto_merge": true
+}

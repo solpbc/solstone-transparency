@@ -1,0 +1,25 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-register-moves-from-the-v1-tip-prev-to-the-first).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "next",
+      "type": "string"
+    },
+    {
+      "name": "prev",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 176,
+  "source_revision": "79d7523fcbd7c16c36a7d4f096d27abe5b0800d8c0dd72f88a23a4af8fe95239",
+  "risk": "routine",
+  "auto_merge": true
+}

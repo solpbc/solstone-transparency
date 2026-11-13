@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.this-page-shows-one-fact-rather-than-four-separate-a).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 146,
+  "source_revision": "fa3373988c430b2046c448de21c386cb7488ce64923ab5d8a6bf71a84417cd5b",
+  "risk": "routine",
+  "auto_merge": true
+}

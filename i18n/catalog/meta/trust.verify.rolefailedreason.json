@@ -1,0 +1,32 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.role-failed-reason).",
+  "context": "profile gap: agreement. kept as today's English. found in the command stdout the verify page tells the reader to run. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "reason",
+      "type": "string"
+    },
+    {
+      "name": "role",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 16,
+  "source_revision": "775ffb71e4641f9189ae21e1603d429ce54a5033c80829f41a2bce36c4057a19",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "sp4",
+      "kind": "whitespace",
+      "value": "    "
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.trust-solstone-app-is-where-sol-pbc-explains-in-plai).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 352,
+  "source_revision": "c82287284a730966f1409332b589639e994d908a21fef21da1ef1622e2f5ed74",
+  "risk": "routine",
+  "auto_merge": true
+}

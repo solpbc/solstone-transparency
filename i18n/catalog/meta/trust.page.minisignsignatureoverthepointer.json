@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.minisign-signature-over-the-pointer).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 35,
+  "source_revision": "d03939053263b8aba29ea49d83e9312a439d8af320293edcbfaeb361689b5201",
+  "risk": "routine",
+  "auto_merge": true
+}

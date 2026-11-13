@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.axis.verified-when).",
+  "context": "catalog uses today's English. found in an axis or evidence primitive.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "when",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 10,
+  "source_revision": "fd7fdfdd84d5b876e214d346c0ffab351f4684591dd6a8334d4ee9f5e8be541e",
+  "risk": "routine",
+  "auto_merge": true
+}

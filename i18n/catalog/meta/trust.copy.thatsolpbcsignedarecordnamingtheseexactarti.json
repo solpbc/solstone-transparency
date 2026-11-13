@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.that-sol-pbc-signed-a-record-naming-these-exact-arti).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 172,
+  "source_revision": "2d79ae4a8a2e036a56b069c0da7cfadc475bc89f72460c0050886721587dbc02",
+  "risk": "routine",
+  "auto_merge": true
+}

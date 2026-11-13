@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.pointer-is-missing-a-required-field).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 35,
+  "source_revision": "d8e5eb65c40f9faeb7da8db5b96e265d486ac4b8beaa8a204663e5188c59f4aa",
+  "risk": "routine",
+  "auto_merge": true
+}

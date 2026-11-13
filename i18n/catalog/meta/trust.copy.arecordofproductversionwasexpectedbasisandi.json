@@ -1,0 +1,29 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.a-record-of-product-version-was-expected-basis-and-i).",
+  "context": "profile gap: agreement. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "basis",
+      "type": "string"
+    },
+    {
+      "name": "product",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 124,
+  "source_revision": "42a30f2ac09e81684e0493bdc1133e39c1c8be3429af1f24ce15b36397890ae9",
+  "risk": "routine",
+  "auto_merge": true
+}

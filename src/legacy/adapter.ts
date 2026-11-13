@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
+import { t } from "../../i18n/lookup";
+
 /**
  * Live adapter: fetches the real v1 register from
  * `https://transparency.solstone.app`, verifies every record via
@@ -59,7 +61,7 @@ function parseFingerprint(
 	if (value === undefined || value === "") {
 		return {
 			status: "unavailable",
-			reason: "could not parse minisign key id from the public-key file",
+			reason: t("trust.diag.couldnotparseminisignkeyidfromthepublickey"),
 			provenance: { kind: "verifier", checkedAt },
 		};
 	}
@@ -153,7 +155,7 @@ async function buildEntryRecord(
 			kind: "malformed",
 			product,
 			version,
-			reason: "entry body is not valid JSON",
+			reason: t("trust.diag.entrybodyisnotvalidjson"),
 			provenance: { kind: "verifier", checkedAt },
 			checkedAt,
 		};
@@ -261,7 +263,7 @@ async function buildEntryRecord(
 		]);
 		freshness = {
 			state: "unavailable",
-			reason: "the signed freshness pointer could not be fetched",
+			reason: t("trust.diag.thesignedfreshnesspointercouldnotbefetched"),
 			checkedAt,
 			provenance: { kind: "verifier", checkedAt },
 		};
@@ -286,7 +288,9 @@ async function buildEntryRecord(
 			} else {
 				freshness = {
 					state: "unavailable",
-					reason: `the signed freshness pointer did not verify: ${ptrOutcome.reason}`,
+					reason: t("trust.diag.thesignedfreshnesspointerdidnotverifydetail", {
+						detail: ptrOutcome.reason,
+					}),
 					checkedAt,
 					provenance: { kind: "verifier", checkedAt },
 				};
@@ -326,10 +330,10 @@ async function buildEntryRecord(
 		axes: {
 			publication: {
 				state: "paused",
-				basis: "operator decision, 2026-08-12/18",
+				basis: t("trust.diag.operatordecision2026081218"),
 				provenance: {
 					kind: "declaration",
-					basis: "operator decision, 2026-08-12/18",
+					basis: t("trust.diag.operatordecision2026081218"),
 				},
 			},
 			freshness,
@@ -419,7 +423,7 @@ export async function buildPortalModel(
 		const degraded: ModelDegraded = {
 			httpStatus: keyRes?.status ?? 0,
 			marker: "degraded",
-			reason: "could not fetch the pinned public key",
+			reason: t("trust.diag.couldnotfetchthepinnedpublickey"),
 			neverStale: true,
 		};
 		return { ok: false, degraded };
@@ -454,11 +458,10 @@ export async function buildPortalModel(
 	const model: PortalModel = {
 		generatedAt,
 		registerDeclaration: {
-			basis:
-				"operator decision, 2026-08-12/18: publication is deliberately paused",
+			basis: t("trust.diag.operatordecision2026081218publicationisdelib"),
 			provenance: {
 				kind: "declaration",
-				basis: "operator decision, 2026-08-12/18",
+				basis: t("trust.diag.operatordecision2026081218"),
 			},
 		},
 		subjects,

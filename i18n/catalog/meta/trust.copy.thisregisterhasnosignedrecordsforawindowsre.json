@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.this-register-has-no-signed-records-for-a-windows-re).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 254,
+  "source_revision": "82d574cc78bff7fa781a3a5dc3f6c8ea39703d7bc9e36f70ceb85eab1b8d633a",
+  "risk": "routine",
+  "auto_merge": true
+}

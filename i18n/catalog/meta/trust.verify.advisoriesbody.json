@@ -1,0 +1,41 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.advisories-body).",
+  "context": "found in the command stdout the verify page tells the reader to run. english-as-logic. stdout the verify page tells the reader to match. branches are the template's two arms.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "kind",
+      "type": "string"
+    },
+    {
+      "name": "body",
+      "type": "string"
+    }
+  ],
+  "format_intent": "enum",
+  "max_length": 21,
+  "source_revision": "989362a4db3ccf5b36a84f886b8e0f86ec4ed4e179791280629e612b515019cd",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "sp2",
+      "kind": "whitespace",
+      "value": "  "
+    }
+  ],
+  "selector": {
+    "name": "kind",
+    "type": "string",
+    "enum_values": [
+      "none",
+      "list"
+    ],
+    "enum_default": "list"
+  }
+}

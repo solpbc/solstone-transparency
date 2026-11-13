@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.fragment-not-allowed-in-a-raw-link).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 34,
+  "source_revision": "062ecda58b140c0d0815b653e4de273783664a77fe3336c1499090b200668066",
+  "risk": "routine",
+  "auto_merge": true
+}

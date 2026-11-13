@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.version-version).",
+  "context": "found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 9,
+  "source_revision": "13045dc93ddbc42b838cdd073de35c4e918abd53b22a8f89796b6d0059354fe6",
+  "risk": "routine",
+  "auto_merge": true
+}

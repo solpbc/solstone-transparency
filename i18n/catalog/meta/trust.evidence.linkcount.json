@@ -1,0 +1,28 @@
+{
+  "description": "Copy on trust.solstone.app (trust.evidence.link-count).",
+  "context": "found in an axis or evidence primitive. cardinal select. both branches render the sentence the code renders for every count. a rewrite that changed the noun for [one] was not applied.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "count",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    }
+  ],
+  "format_intent": "cardinal",
+  "max_length": 19,
+  "source_revision": "1c8a11a809405e830a305f5e0f18281e667e13d62a8cac7354a994679223c4a7",
+  "risk": "routine",
+  "auto_merge": true,
+  "selector": {
+    "name": "count",
+    "type": "cardinal"
+  }
+}

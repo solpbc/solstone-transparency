@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.axis.asserted-until-when).",
+  "context": "catalog uses today's English. found in an axis or evidence primitive.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "when",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 16,
+  "source_revision": "a72979f88f1d3160369797682a876239fe576ed19c6d91c5eb356a77c2163085",
+  "risk": "routine",
+  "auto_merge": true
+}

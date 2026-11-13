@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.a-file-did-not-match-its-signed-description).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class. readerReason maps a reason code; the code is not the label.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 43,
+  "source_revision": "726379ffe82916062653c1482c82c2928dc125a2ce6795575596bbbf9cabb7e7",
+  "risk": "routine",
+  "auto_merge": true
+}

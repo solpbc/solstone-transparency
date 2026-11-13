@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.signature-verified-but-no-trusted-comment-was-return).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 54,
+  "source_revision": "785ec69b81a1935c5eefb5128b2996a72ad7c04b63be4c28561dcfbbec793d63",
+  "risk": "routine",
+  "auto_merge": true
+}

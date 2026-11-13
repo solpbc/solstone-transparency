@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.operator-decision-2026-08-12-18-publication-is-delib).",
+  "context": "found as a check sentence stored on the model and rendered on the page. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 68,
+  "source_revision": "f6e63f9e5337714520fd982a93acb0876c34daf2b94b8457a399a5e0db697b99",
+  "risk": "routine",
+  "auto_merge": true
+}

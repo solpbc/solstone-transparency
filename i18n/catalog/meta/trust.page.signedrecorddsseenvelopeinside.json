@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.signed-record-dsse-envelope-inside).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 36,
+  "source_revision": "d83875beb9c050ab7b880ac1b426b0a2711d276f30644fa20d4b2bf1d4ea739c",
+  "risk": "routine",
+  "auto_merge": true
+}

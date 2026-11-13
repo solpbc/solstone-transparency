@@ -1,0 +1,33 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.minisign-vm-ledger-entry-json-p-filename-x-ledger-en).",
+  "context": "found in vocab.ts. this is verifyCommand(), the command the request names. stays verbatim. command template. fixed bytes are protected slots.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "filename",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 64,
+  "source_revision": "ca6b9c1cdcaac62c991cd28dbf2bb31a18e482e6e01533d408a23233d23cc928",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "cmd",
+      "kind": "command",
+      "value": "minisign -Vm ledger-entry.json -p "
+    },
+    {
+      "name": "cmd2",
+      "kind": "command",
+      "value": " -x ledger-entry.json.minisig"
+    }
+  ]
+}

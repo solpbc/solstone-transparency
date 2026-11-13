@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.the-record-states-what-it-does-and-does-not-prove-bo).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 119,
+  "source_revision": "fb0851b51b9a4bf3fc8d44a8ffb0f7afb0005b5697f0d240ba5e609699659085",
+  "risk": "routine",
+  "auto_merge": true
+}

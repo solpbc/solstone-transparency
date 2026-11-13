@@ -1,0 +1,33 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.two-records-resolved-to-the-same-route-left-left-ver).",
+  "context": "profile gap: agreement. kept as today's English. census text inserts a comma after route. the page renders no comma there. catalog follows the page. found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "left",
+      "type": "string"
+    },
+    {
+      "name": "left_version",
+      "type": "string"
+    },
+    {
+      "name": "right",
+      "type": "string"
+    },
+    {
+      "name": "right_version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 69,
+  "source_revision": "b504407657fe8b48ffa06d0a7d8cef0ac66e2daae48e22dd8088c8c07bbcfe95",
+  "risk": "routine",
+  "auto_merge": true
+}

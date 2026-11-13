@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.claims.does-prove).",
+  "context": "each item of the signed record's list, rendered word for word at solstone-transparency@5a012db:src/portal/pages.ts:1281. not authored in this repo. stay verbatim. no rewrite. signed-record claim items. not authored in this repo. the message passes the record's own bytes through.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "claim",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 1,
+  "source_revision": "06ad95c064bb7cbcb0a6832f2968feed3dd6873b6ba8c4950ae0b76138b37e52",
+  "risk": "routine",
+  "auto_merge": true
+}

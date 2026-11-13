@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.this-page-is-about-product-the-solstone-app-the-jour).",
+  "context": "profile gap: agreement. kept as today's English. found in the approved copy module.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "product",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 96,
+  "source_revision": "25807ffcb5f20ff8d043cc128cfa64e6fd94fd2e1db0c0d33728cb1ceabbc21e",
+  "risk": "routine",
+  "auto_merge": true
+}

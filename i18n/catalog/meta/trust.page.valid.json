@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.valid).",
+  "context": "found in the portal renderer. no defect class. the v2 timeline's success label, written as the word. the v1 timeline prints the state id; that assembly is the {state} message.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 5,
+  "source_revision": "e2c6a3335a1043cf35109cf068e0df250782e3a5c35304b5db6ddaeacd515426",
+  "risk": "routine",
+  "auto_merge": true
+}

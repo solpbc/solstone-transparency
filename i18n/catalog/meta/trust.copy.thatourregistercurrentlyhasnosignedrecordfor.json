@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.that-our-register-currently-has-no-signed-record-for).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 71,
+  "source_revision": "7e2ddf8d66755a06ad69f78f9fa00c8b5a56a9d8b4f559acb693573fbe5d5590",
+  "risk": "routine",
+  "auto_merge": true
+}

@@ -1,0 +1,30 @@
+{
+  "description": "Copy on trust.solstone.app (trust.keys.link-label).",
+  "context": "found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "label",
+      "type": "string"
+    }
+  ],
+  "format_intent": "enum",
+  "max_length": 16,
+  "source_revision": "b5e30a944c6a64222836d22a3b699877c403053817ac347ba7db3f556c3d5a8e",
+  "risk": "routine",
+  "auto_merge": true,
+  "selector": {
+    "name": "label",
+    "type": "string",
+    "enum_values": [
+      "v1",
+      "v2"
+    ],
+    "enum_default": "v1"
+  }
+}

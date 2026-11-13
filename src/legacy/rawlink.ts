@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
+import { t } from "../../i18n/lookup";
+
 /**
  * Raw evidence-link construction and validation, bound to the exact real v1
  * layout. A raw link is clickable only when it is a valid HTTPS URL on
@@ -43,56 +45,66 @@ function validateHttpsLinkOnHost(
 	) {
 		return {
 			status: "rejected",
-			reason: "path contains an encoded separator or dot-segment ambiguity",
+			reason: t("trust.diag.pathcontainsanencodedseparatorordotsegmentam"),
 		};
 	}
 	let url: URL;
 	try {
 		url = new URL(candidate);
 	} catch {
-		return { status: "rejected", reason: "not a parseable URL" };
+		return { status: "rejected", reason: t("trust.diag.notaparseableurl") };
 	}
 	if (url.protocol !== "https:") {
 		return {
 			status: "rejected",
-			reason: `scheme must be https, got ${url.protocol}`,
+			reason: t("trust.diag.schememustbehttpsgotscheme", {
+				scheme: url.protocol,
+			}),
 		};
 	}
 	if (url.hostname !== expectedHost) {
 		return {
 			status: "rejected",
-			reason: `host must be ${expectedHost}, got ${url.hostname}`,
+			reason: t("trust.diag.hostmustbeexpectedgothost", {
+				expected: expectedHost,
+				host: url.hostname,
+			}),
 		};
 	}
 	if (url.port !== "") {
-		return { status: "rejected", reason: "non-default port not allowed" };
+		return {
+			status: "rejected",
+			reason: t("trust.diag.nondefaultportnotallowed"),
+		};
 	}
 	if (url.username !== "" || url.password !== "") {
 		return {
 			status: "rejected",
-			reason: "credentials not allowed in a raw link",
+			reason: t("trust.diag.credentialsnotallowedinarawlink"),
 		};
 	}
 	if (url.search !== "") {
 		return {
 			status: "rejected",
-			reason: "query string not allowed in a raw link",
+			reason: t("trust.diag.querystringnotallowedinarawlink"),
 		};
 	}
 	if (url.hash !== "") {
-		return { status: "rejected", reason: "fragment not allowed in a raw link" };
+		return {
+			status: "rejected",
+			reason: t("trust.diag.fragmentnotallowedinarawlink"),
+		};
 	}
 	if (url.pathname.includes("//")) {
 		return {
 			status: "rejected",
-			reason: "path contains a doubled separator",
+			reason: t("trust.diag.pathcontainsadoubledseparator"),
 		};
 	}
 	if (url.toString() !== candidate) {
 		return {
 			status: "rejected",
-			reason:
-				"candidate was not already in normalized form — refusing to link a URL that differs from what it will actually resolve to",
+			reason: t("trust.diag.candidatewasnotalreadyinnormalizedformrefusin"),
 		};
 	}
 	return { status: "linked", url: url.toString() };
@@ -134,13 +146,17 @@ export function validateReleaseArtifactLink(
 			? checked
 			: {
 					status: "rejected",
-					reason: `path must name one file directly under ${appPrefix}`,
+					reason: t("trust.diag.pathmustnameonefiledirectlyunderprefix", {
+						prefix: appPrefix,
+					}),
 				};
 	}
 	if (product !== "journal" && product !== "solstone-journal") {
 		return {
 			status: "rejected",
-			reason: `no canonical artifact route for product ${product}`,
+			reason: t("trust.diag.nocanonicalartifactrouteforproductproduct", {
+				product: product,
+			}),
 		};
 	}
 	const url = new URL(checked.url);
@@ -169,7 +185,9 @@ export function validateReleaseArtifactLink(
 	if (basename === "" || basename.includes("/")) {
 		return {
 			status: "rejected",
-			reason: `path must name one file directly under ${prefix}`,
+			reason: t("trust.diag.pathmustnameonefiledirectlyunderprefix", {
+				prefix: prefix,
+			}),
 		};
 	}
 	return checked;

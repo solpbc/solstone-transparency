@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.build-and-verification-report-id).",
+  "context": "profile gap: split. kept as today's English. found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "id",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 32,
+  "source_revision": "71e2884b7c43912ce6b149662009490fa94689cbfa352518d3615bb4c7884718",
+  "risk": "routine",
+  "auto_merge": true
+}

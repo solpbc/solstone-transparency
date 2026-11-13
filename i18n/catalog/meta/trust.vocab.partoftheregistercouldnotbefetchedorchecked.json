@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.part-of-the-register-could-not-be-fetched-or-checked).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class. readerReason maps a reason code; the code is not the label.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 52,
+  "source_revision": "d9c1bbac1c78f9446484a5d61c41bb4c314370b86e2cf327a9f64ba08d27b62a",
+  "risk": "routine",
+  "auto_merge": true
+}

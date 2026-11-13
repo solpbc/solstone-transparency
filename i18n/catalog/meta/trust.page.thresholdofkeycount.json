@@ -1,0 +1,31 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.threshold-of-key-count).",
+  "context": "profile gap: two-cardinals. kept as today's English. found in the portal renderer.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "key_count",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "name": "threshold",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 6,
+  "source_revision": "b38b3cc16683485121524f1bf563951c2ed987415b21ceb7fd8aa258a67aa849",
+  "risk": "routine",
+  "auto_merge": true
+}

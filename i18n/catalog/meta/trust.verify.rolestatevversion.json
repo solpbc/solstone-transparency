@@ -1,0 +1,36 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.role-state-vversion).",
+  "context": "profile gap: s050. kept as today's English. found in the command stdout the verify page tells the reader to run. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "role",
+      "type": "string"
+    },
+    {
+      "name": "state",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 12,
+  "source_revision": "dd1fe0c326b8e07bc04220788b63d8d8095fcaa09aa047148f6682e7cadeeee3",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "sp4",
+      "kind": "whitespace",
+      "value": "    "
+    }
+  ]
+}

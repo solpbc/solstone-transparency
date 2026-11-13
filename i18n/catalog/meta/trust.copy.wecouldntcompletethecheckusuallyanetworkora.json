@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.we-couldnt-complete-the-check-usually-a-network-or-a).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 160,
+  "source_revision": "6d05a3242dce92c65d1477380cbeee44cc054e00b65c0312d5d172b04e251d02",
+  "risk": "routine",
+  "auto_merge": true
+}

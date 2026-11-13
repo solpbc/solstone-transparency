@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.the-derived-chain-ledger).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 24,
+  "source_revision": "11d5e2afae216d7067142385aeb8946a7df9bed5b17686ee156fb45e3478d7dc",
+  "risk": "routine",
+  "auto_merge": true
+}

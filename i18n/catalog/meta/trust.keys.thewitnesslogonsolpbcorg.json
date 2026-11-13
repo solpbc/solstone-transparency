@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.keys.the-witness-log-on-solpbc-org).",
+  "context": "found as a source string. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 29,
+  "source_revision": "fc7cf79a79931fb4a76dac81f0a29f6deab4b2a8b930104b0a9e113b713445d4",
+  "risk": "routine",
+  "auto_merge": true
+}

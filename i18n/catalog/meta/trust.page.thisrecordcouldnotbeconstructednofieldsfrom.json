@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.this-record-could-not-be-constructed-no-fields-from-).",
+  "context": "found in the portal renderer. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 79,
+  "source_revision": "23ba53df729e6f8def9e69e49584e499cfd31b63e52cd7b0bbb3651c7a91675f",
+  "risk": "routine",
+  "auto_merge": true
+}

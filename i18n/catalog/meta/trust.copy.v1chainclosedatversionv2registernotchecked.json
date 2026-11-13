@@ -1,0 +1,21 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.v1-chain-closed-at-version-v2-register-not-checked).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "version",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 46,
+  "source_revision": "78bc4c2e7c06bd3fa3caeb3dff79e6c934ec865e83f54f857258082b669db59c",
+  "risk": "routine",
+  "auto_merge": true
+}

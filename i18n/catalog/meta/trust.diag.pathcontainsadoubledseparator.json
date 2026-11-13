@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.path-contains-a-doubled-separator).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 33,
+  "source_revision": "c00f93e3fb3414b3a42af77e5cf4d2baf3d109a6ae66be9c293addc351c7e695",
+  "risk": "routine",
+  "auto_merge": true
+}

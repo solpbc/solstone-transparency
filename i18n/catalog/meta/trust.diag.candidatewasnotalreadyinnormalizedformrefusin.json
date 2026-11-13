@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.candidate-was-not-already-in-normalized-form-refusin).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 120,
+  "source_revision": "bd840b479fa7a3c5b2a31343225536995f303a70b6e602e4216a1aac33906bc1",
+  "risk": "routine",
+  "auto_merge": true
+}

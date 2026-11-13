@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.v2-records-are-covered-by-verify-v2-which-checks-the).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 655,
+  "source_revision": "d30576ae147ca239a15dd0de8f3f68b3ebf80f09fd46b26df5169dbd6d763c15",
+  "risk": "routine",
+  "auto_merge": true
+}

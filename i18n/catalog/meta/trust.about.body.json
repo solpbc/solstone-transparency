@@ -1,0 +1,48 @@
+{
+  "description": "Copy on trust.solstone.app (trust.about.body).",
+  "context": "found as ABOUT_READABLE_BODY, a reflow of the published releases/ABOUT.txt. the page prints these bytes. not in the request's named protected set. same stay-verbatim rule.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 1603,
+  "source_revision": "fa1f33cc72fdeb66e6665903aeb91000678d7a36da57039192fd3adf23775533",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "url",
+      "kind": "url",
+      "value": "https://transparency.solstone.app/releases/"
+    },
+    {
+      "name": "nl",
+      "kind": "whitespace",
+      "value": "\n"
+    },
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "<product>"
+    },
+    {
+      "name": "url2",
+      "kind": "url",
+      "value": "https://pypi.org/project/solstone-journal/"
+    },
+    {
+      "name": "url3",
+      "kind": "url",
+      "value": "https://solstone.app/download/windows"
+    },
+    {
+      "name": "url4",
+      "kind": "url",
+      "value": "https://github.com/solpbc/solstone-linux/releases"
+    }
+  ]
+}

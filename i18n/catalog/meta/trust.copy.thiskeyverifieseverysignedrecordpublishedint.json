@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.copy.this-key-verifies-every-signed-record-published-in-t).",
+  "context": "found in the approved copy module. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 65,
+  "source_revision": "8cdda96f878b0e41c3a9a9be1a35fa3b9ee2fa8b5a1635d9eb0f98222b52c03b",
+  "risk": "routine",
+  "auto_merge": true
+}

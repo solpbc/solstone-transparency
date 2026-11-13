@@ -1,0 +1,28 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.fingerprint-line).",
+  "context": "census missed this verify-v2 stdout line. catalog follows the template at HEAD.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "fingerprint",
+      "type": "string"
+    }
+  ],
+  "format_intent": "text",
+  "max_length": 18,
+  "source_revision": "03b0099c6e428c861d3ae34ce6cfd7879f3f54482e7ddcb3c64a76d5a9c7bf1e",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "sp2",
+      "kind": "whitespace",
+      "value": "  "
+    }
+  ]
+}

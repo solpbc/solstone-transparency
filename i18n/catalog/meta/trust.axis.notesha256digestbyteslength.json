@@ -1,0 +1,43 @@
+{
+  "description": "Copy on trust.solstone.app (trust.axis.note-sha256-digest-bytes-length).",
+  "context": "profile gap: split. kept as today's English. found in an axis or evidence primitive. cardinal select. both branches render the sentence the code renders for every count. a rewrite that changed the noun for [one] was not applied.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "length",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    },
+    {
+      "name": "digest",
+      "type": "string"
+    },
+    {
+      "name": "note",
+      "type": "string"
+    }
+  ],
+  "format_intent": "cardinal",
+  "max_length": 18,
+  "source_revision": "c1267ec1908daa5adcaa239b96f0c109f023b04c25672cbba7bca161633f0274",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "tok",
+      "kind": "accepted-input",
+      "value": "sha256"
+    }
+  ],
+  "selector": {
+    "name": "length",
+    "type": "cardinal"
+  }
+}

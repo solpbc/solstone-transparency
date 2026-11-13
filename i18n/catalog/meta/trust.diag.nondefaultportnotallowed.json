@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.non-default-port-not-allowed).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 28,
+  "source_revision": "c3f93fbb59e5f2d3e70380046be01526e77d9f0c87ecabae26f50532db0c9ef1",
+  "risk": "routine",
+  "auto_merge": true
+}

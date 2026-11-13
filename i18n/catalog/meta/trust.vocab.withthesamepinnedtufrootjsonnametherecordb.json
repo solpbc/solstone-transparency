@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.vocab.with-the-same-pinned-tuf-root-json-name-the-record-b).",
+  "context": "catalog uses today's English. found in vocab.ts. no defect class.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 179,
+  "source_revision": "3a91b8916b16e47e40c5f49e29af7f88cb26d1bfeea046f7ac8c0ec3f78cc9e4",
+  "risk": "routine",
+  "auto_merge": true
+}

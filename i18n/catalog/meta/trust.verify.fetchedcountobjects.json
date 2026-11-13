@@ -1,0 +1,35 @@
+{
+  "description": "Copy on trust.solstone.app (trust.verify.fetched-count-object-s).",
+  "context": "found in the command stdout the verify page tells the reader to run. english-as-logic. cardinal select. both branches render the sentence the code renders for every count. a rewrite that changed the noun for [one] was not applied.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [
+    {
+      "name": "count",
+      "type": "cardinal",
+      "numeric_style": "ungrouped",
+      "min": 0,
+      "max": 2147483647
+    }
+  ],
+  "format_intent": "cardinal",
+  "max_length": 21,
+  "source_revision": "327d62d34c2fb32471802fa8feca0235aa7087a9d206b9f7b2b6f1c82d774c56",
+  "risk": "routine",
+  "auto_merge": true,
+  "protected_slots": [
+    {
+      "name": "sp2",
+      "kind": "whitespace",
+      "value": "  "
+    }
+  ],
+  "selector": {
+    "name": "count",
+    "type": "cardinal"
+  }
+}

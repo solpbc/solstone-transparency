@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.diag.prev-sha256-must-be-exactly-64-lowercase-hex-charact).",
+  "context": "found as a check sentence stored on the model and rendered on the page. english-as-logic.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 55,
+  "source_revision": "d125b25279fa507c534cff9ef49cc81e82e7df4824b3959185cfa33094ca2c37",
+  "risk": "routine",
+  "auto_merge": true
+}
