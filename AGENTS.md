@@ -6,6 +6,10 @@ sol pbc's transparency evidence-plane verifier, publisher, protocol schemas, and
 
 **Status: the read-side legacy verifier/model exists; a read-only HTML presentation layer exists under `src/portal/`; it is deployed at `trust.solstone.app` (`worker.ts` wires `src/portal` over a model built by `make build-model` immediately before deploy).** `src/legacy/` fetches the existing historical (v1) release-transparency register, verifies each record (minisign signature, hash-chain linkage, schema shape), and builds a typed, already-verified model of the register: see that directory's own module comments for the exact contract. `src/portal/` renders that model as server-side HTML. The v1 implementation is read-only. `src/v2/` and `bin/` implement TUF repository construction, DSSE records and authorization, conditional publication, and release verification. Tests use synthetic keys; production signing and publishing credentials must remain outside this repository. `src/v2view/` is the portal's build-time view of the v2 register: `make build-model` verifies the v2 repository from a pinned root file (`protocol/tuf-root.json`) and writes `model-v2.generated.json` beside the v1 model; with no pinned root the portal says nothing about v2; a repository that does not verify is shown as unverified, and never as a fabricated register. See [`README.md`](README.md) for the current install/run/test instructions.
 
+## English copy
+
+English on the portal lives in `i18n/catalog/`. A new or changed sentence is a catalog message with its `meta/` sidecar, regenerated with the compiler pinned in `i18n/compiler.json`, as `i18n/README.md` describes. Page and portal code pass an id, not a sentence. Verifier command output stays English on purpose, in `src/v2/verify-cli.ts` and `bin/verify-release.ts`.
+
 ## Repo layout
 
 | Path | Purpose |
