@@ -1034,6 +1034,12 @@ const MESSAGES = {
     arguments: [
     ],
   },
+  "trust.page.confidentialprocessingappliancerecord1630bf4pub": {
+    resourceKey: "m74727573742e706167652e636f6e666964656e7469616c70726f63657373696e676170706c69616e63657265636f726431363330626634707562",
+    formatIntent: "text",
+    arguments: [
+    ],
+  },
   "trust.page.confidentialprocessingappliancerecord8e4291dpub": {
     resourceKey: "m74727573742e706167652e636f6e666964656e7469616c70726f63657373696e676170706c69616e63657265636f726438653432393164707562",
     formatIntent: "text",

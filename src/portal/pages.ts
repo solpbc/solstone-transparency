@@ -925,6 +925,7 @@ ${extraRows}
 <h2>${trustedText(t("trust.page.godeeper"))}</h2>
 <ul>
 <li><a href="/software/">${trustedText(t("trust.page.softwareregister"))}</a></li>
+<li><a href="https://transparency.solstone.app/software/spp/1630bf4/index.html">${trustedText(t("trust.page.confidentialprocessingappliancerecord1630bf4pub"))}</a></li>
 <li><a href="https://transparency.solstone.app/software/spp/9968c21/index.html">${trustedText(t("trust.page.confidentialprocessingappliancerecord9968c21pub"))}</a></li>
 <li><a href="https://transparency.solstone.app/software/spp/8e4291d/index.html">${trustedText(t("trust.page.confidentialprocessingappliancerecord8e4291dpub"))}</a></li>
 <li><a href="https://transparency.solstone.app/software/spp/34a6c82/index.html">${trustedText(t("trust.page.confidentialprocessingappliance"))}</a> ${trustedText(t("trust.page.buildandverificationreportid", { id: "34a6c82" }))}</li>

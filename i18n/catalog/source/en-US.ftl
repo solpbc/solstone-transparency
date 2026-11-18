@@ -332,6 +332,8 @@ trust.page.chainposition = chain position
 
 trust.page.confidentialprocessingappliance = confidential processing appliance
 
+trust.page.confidentialprocessingappliancerecord1630bf4pub = confidential processing appliance record, 1630bf4: published
+
 trust.page.confidentialprocessingappliancerecord8e4291dpub = confidential processing appliance record, 8e4291d: published
 
 trust.page.confidentialprocessingappliancerecord9968c21pub = confidential processing appliance record, 9968c21: published
