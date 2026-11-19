@@ -338,6 +338,8 @@ trust.page.confidentialprocessingappliancerecord8e4291dpub = confidential proces
 
 trust.page.confidentialprocessingappliancerecord9968c21pub = confidential processing appliance record, 9968c21: published
 
+trust.page.confidentialprocessingwhitepaper = confidential processing in solstone: how your journal checks the service before it sends (security whitepaper, PDF)
+
 trust.page.couldnotrunexit2 = could not run, exit 2
 
 trust.page.curlorfetchfails = curl or fetch fails

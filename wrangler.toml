@@ -19,8 +19,9 @@ enabled = true
 [observability.logs]
 invocation_logs = false
 
-# The one static file this surface serves that isn't generated in-memory by
-# the Worker (the vendored brand font). Requests are routed to this binding
+# The static files this surface serves that aren't generated in-memory by
+# the Worker (public/: the vendored brand font, the favicon, robots.txt and
+# the published whitepaper). Requests are routed to this binding
 # explicitly inside worker.ts, not via Cloudflare's default assets-first
 # behavior, so every non-static-asset path still reaches handle() and every
 # response header still comes from the one approved policy.

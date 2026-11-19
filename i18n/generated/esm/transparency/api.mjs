@@ -1052,6 +1052,12 @@ const MESSAGES = {
     arguments: [
     ],
   },
+  "trust.page.confidentialprocessingwhitepaper": {
+    resourceKey: "m74727573742e706167652e636f6e666964656e7469616c70726f63657373696e6777686974657061706572",
+    formatIntent: "text",
+    arguments: [
+    ],
+  },
   "trust.page.couldnotrunexit2": {
     resourceKey: "m74727573742e706167652e636f756c646e6f7472756e6578697432",
     formatIntent: "text",

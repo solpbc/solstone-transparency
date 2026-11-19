@@ -2,6 +2,7 @@
 // Copyright (c) 2026 sol pbc
 
 import { beforeAll, describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
 import { buildPortalModel } from "../legacy/adapter";
 import { CATALOG, JOURNAL_GAP } from "../legacy/inventory";
 import {
@@ -113,6 +114,23 @@ describe("AC-1 durable routes and JS-free graph walk", () => {
 			expect((res.body.match(/<h1/g) ?? []).length).toBe(1);
 		}
 		expect(pages.get("/about/")?.body).toContain("about this register");
+	});
+
+	test("every /static/ file a page links is a file the worker serves", () => {
+		expect(defaultResult.ok).toBe(true);
+		if (!defaultResult.ok) return;
+		const linked = new Set<string>();
+		for (const res of renderAll(defaultResult).values()) {
+			for (const href of collectHrefs(res.body)) {
+				if (href !== STYLESHEET_PATH && href.startsWith("/static/")) {
+					linked.add(href);
+				}
+			}
+		}
+		expect(linked.size).toBeGreaterThan(0);
+		for (const href of linked) {
+			expect(existsSync(`${import.meta.dir}/../../public${href}`)).toBe(true);
+		}
 	});
 });
 

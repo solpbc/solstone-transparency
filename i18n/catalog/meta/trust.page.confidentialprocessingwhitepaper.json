@@ -1,0 +1,16 @@
+{
+  "description": "Copy on trust.solstone.app (trust.page.confidential-processing-whitepaper).",
+  "context": "a link on the home page's go deeper list. it opens the confidential processing security whitepaper as a pdf. everything before the parenthetical is the paper's published title and must match the title printed in the pdf.",
+  "surfaces": [
+    "trust.solstone.app"
+  ],
+  "bundles": [
+    "transparency"
+  ],
+  "arguments": [],
+  "format_intent": "text",
+  "max_length": 140,
+  "source_revision": "926adbf69266e8fb27e49a51f6b496695d27159aa584cce11b3a55fb6c19d7ba",
+  "risk": "routine",
+  "auto_merge": true
+}

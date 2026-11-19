@@ -64,6 +64,17 @@ An optional read-only network conformance check walks the journal migration cons
 bun bin/check-migration-constructor.ts --live
 ```
 
+## Published documents
+
+`public/static/confidential-processing-whitepaper.pdf` is sol pbc's security whitepaper on confidential processing. It is served at `https://trust.solstone.app/static/confidential-processing-whitepaper.pdf` and linked from the portal's home page.
+
+The URL has no version in it, and the paper prints it in its own citation block, so each new version replaces this file under the same name:
+
+1. Copy the new PDF over the file exactly as it was approved. Don't re-render, compress or edit it here.
+2. If the title changed, change the home-page label `trust.page.confidentialprocessingwhitepaper` in `i18n/catalog/` to match, as `i18n/README.md` describes.
+3. Run `make ci`, commit, and run `make deploy`.
+4. Fetch the URL and check that the sha256 of the served bytes matches the committed file.
+
 ## Test
 
 ```bash
