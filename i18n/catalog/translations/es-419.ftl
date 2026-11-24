@@ -176,8 +176,6 @@ trust.copy.verifyreleasechecksonev2recorditwalksfromyo = verify-release revisa u
 
 trust.copy.wecouldntcompletethecheckusuallyanetworkora = no se pudo completar la revisión, por lo general por un problema de red o de disponibilidad de nuestro lado; eso es distinto de una revisión fallida y no es evidencia de que el registro sea incorrecto.
 
-trust.diag.degraded = degradado
-
 trust.diag.operatordecision2026081218 = decisión del operador, 2026-08-12/18
 
 trust.diag.operatordecision2026081218publicationisdelib = decisión del operador, 2026-08-12/18: la publicación está en pausa de forma deliberada

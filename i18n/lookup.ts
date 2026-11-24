@@ -14,8 +14,33 @@
 
 import { ARG_TYPES, MESSAGE_IDS, type MessageId } from "./catalog-table";
 import { render } from "./generated/esm/transparency/api.mjs";
+import { CATALOGS } from "./generated/esm/transparency/catalogs.mjs";
 
 export const SOURCE_LOCALE = "en-US";
+export const PACKAGED_LOCALES: readonly string[] = Object.keys(CATALOGS);
+
+function resolveActiveLocale(): string {
+	const requested =
+		typeof process !== "undefined" ? process.env?.SOLSTONE_LOCALE : undefined;
+	if (requested) {
+		const trimmed = requested.trim().toLowerCase();
+		const exact = PACKAGED_LOCALES.find((l) => l.toLowerCase() === trimmed);
+		if (exact !== undefined) return exact;
+		const primary = trimmed.split("-")[0];
+		const byPrimary = PACKAGED_LOCALES.find(
+			(l) => l.toLowerCase().split("-")[0] === primary,
+		);
+		if (byPrimary !== undefined) return byPrimary;
+	}
+	const nonSource = PACKAGED_LOCALES.filter((l) => l !== SOURCE_LOCALE);
+	if (nonSource.length === 1 && nonSource[0] !== undefined) {
+		return nonSource[0];
+	}
+	return SOURCE_LOCALE;
+}
+
+export const ACTIVE_LOCALE = resolveActiveLocale();
+export const HTML_LANG = ACTIVE_LOCALE === SOURCE_LOCALE ? "en" : ACTIVE_LOCALE;
 export { MESSAGE_IDS, type MessageId };
 
 const DECIMAL = /^(0|[1-9][0-9]*)$/;
@@ -59,8 +84,8 @@ export function t(
 			throw new Error(`message ${id} unknown ${name}`);
 		}
 	}
-	const text = render(SOURCE_LOCALE, id, pairs, {
-		useIsolating: SOURCE_LOCALE !== "en-US",
+	const text = render(ACTIVE_LOCALE, id, pairs, {
+		useIsolating: ACTIVE_LOCALE !== SOURCE_LOCALE,
 	});
 	if (typeof text !== "string" || text.length === 0) {
 		throw new Error(`message ${id} rendered empty`);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 sol pbc
 
-import { t } from "../../i18n/lookup";
+import { HTML_LANG, t } from "../../i18n/lookup";
 
 /**
  * Per-route HTML renderers for the portal. No JavaScript ships; CSS is
@@ -204,7 +204,7 @@ function shell(args: {
 					.join("")}</ol></nav>`
 			: "";
 	return `<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="${HTML_LANG}" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1655,13 +1655,7 @@ export function renderNotFound(
 }
 
 function degradedLine(marker: "degraded", reason: string): string {
-	const word = t("trust.diag.degraded");
-	const token = "\uE000";
-	const sentence = t("trust.page.degradedreason", { reason: token });
-	if (word !== marker || sentence !== `${word} ${token}`) {
-		throw new Error("degraded copy does not match the page marker");
-	}
-	return `<span class="marker">${trustedText(word)}</span> ${untrustedText(reason)}`;
+	return `<span class="marker">${trustedText(marker)}</span> ${untrustedText(reason)}`;
 }
 
 export function renderDegraded(degraded: ModelDegraded, path: string): string {

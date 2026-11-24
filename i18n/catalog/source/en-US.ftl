@@ -198,8 +198,6 @@ trust.diag.couldnotruntheverifiererror = could not run the verifier: { $error }
 
 trust.diag.credentialsnotallowedinarawlink = credentials not allowed in a raw link
 
-trust.diag.degraded = degraded
-
 trust.diag.entrybodyisnotvalidjson = entry body is not valid JSON
 
 trust.diag.entryhasnoproductfield = entry has no product field
@@ -343,8 +341,6 @@ trust.page.confidentialprocessingwhitepaper = confidential processing in solston
 trust.page.couldnotrunexit2 = could not run, exit 2
 
 trust.page.curlorfetchfails = curl or fetch fails
-
-trust.page.degradedreason = degraded { $reason }
 
 trust.page.ed25519 = ed25519
 

@@ -1715,7 +1715,7 @@
       "resource": "m74727573742e646961672e6465677261646564",
       "namespace": "trust.diag",
       "owner": "transparency",
-      "tombstone": false,
+      "tombstone": true,
       "replacement": null,
       "format_intent": "text",
       "arguments": [],
@@ -2763,7 +2763,7 @@
       "resource": "m74727573742e706167652e6465677261646564726561736f6e",
       "namespace": "trust.page",
       "owner": "transparency",
-      "tombstone": false,
+      "tombstone": true,
       "replacement": null,
       "format_intent": "text",
       "arguments": [

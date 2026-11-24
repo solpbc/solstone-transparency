@@ -3208,36 +3208,6 @@
         "entry": "render(locale, dotted_id, named_args)",
         "enum_argument": null,
         "format_passes": 1,
-        "gettext_lookup_key": "trust.diag.degraded\u0004m74727573742e646961672e6465677261646564",
-        "gettext_plural_key": "m74727573742e646961672e6465677261646564_plural",
-        "gettext_unsigned_quantity": null,
-        "locale": "en-US",
-        "message_id": "trust.diag.degraded",
-        "resource_key": "m74727573742e646961672e6465677261646564",
-        "signed_quantity": null
-      },
-      "cardinal": "en",
-      "expectation_kind": "native-reader-required",
-      "expected": null,
-      "folder": null,
-      "inputs": {},
-      "locale": "en-US",
-      "logical_expected": "degraded",
-      "message_id": "trust.diag.degraded",
-      "own_reader": "fluent-js",
-      "own_reader_call": "render(\"en-US\", \"trust.diag.degraded\", [])",
-      "platform_reader": "pending",
-      "resource_key": "m74727573742e646961672e6465677261646564",
-      "target": "esm"
-    },
-    {
-      "bundle": "transparency",
-      "call_contract": {
-        "arguments": [],
-        "bundle": "transparency",
-        "entry": "render(locale, dotted_id, named_args)",
-        "enum_argument": null,
-        "format_passes": 1,
         "gettext_lookup_key": "trust.diag.entrybodyisnotvalidjson\u0004m74727573742e646961672e656e747279626f647969736e6f7476616c69646a736f6e",
         "gettext_plural_key": "m74727573742e646961672e656e747279626f647969736e6f7476616c69646a736f6e_plural",
         "gettext_unsigned_quantity": null,
@@ -5324,44 +5294,6 @@
       "own_reader_call": "render(\"en-US\", \"trust.page.curlorfetchfails\", [])",
       "platform_reader": "pending",
       "resource_key": "m74727573742e706167652e6375726c6f7266657463686661696c73",
-      "target": "esm"
-    },
-    {
-      "bundle": "transparency",
-      "call_contract": {
-        "arguments": [
-          {
-            "name": "reason",
-            "type": "string",
-            "value": "sample"
-          }
-        ],
-        "bundle": "transparency",
-        "entry": "render(locale, dotted_id, named_args)",
-        "enum_argument": null,
-        "format_passes": 1,
-        "gettext_lookup_key": "trust.page.degradedreason\u0004m74727573742e706167652e6465677261646564726561736f6e",
-        "gettext_plural_key": "m74727573742e706167652e6465677261646564726561736f6e_plural",
-        "gettext_unsigned_quantity": null,
-        "locale": "en-US",
-        "message_id": "trust.page.degradedreason",
-        "resource_key": "m74727573742e706167652e6465677261646564726561736f6e",
-        "signed_quantity": null
-      },
-      "cardinal": "en",
-      "expectation_kind": "native-reader-required",
-      "expected": null,
-      "folder": null,
-      "inputs": {
-        "reason": "sample"
-      },
-      "locale": "en-US",
-      "logical_expected": "degraded ⁨sample⁩",
-      "message_id": "trust.page.degradedreason",
-      "own_reader": "fluent-js",
-      "own_reader_call": "render(\"en-US\", \"trust.page.degradedreason\", [[\"reason\", \"sample\"]])",
-      "platform_reader": "pending",
-      "resource_key": "m74727573742e706167652e6465677261646564726561736f6e",
       "target": "esm"
     },
     {

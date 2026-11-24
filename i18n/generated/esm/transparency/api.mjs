@@ -634,12 +634,6 @@ const MESSAGES = {
     arguments: [
     ],
   },
-  "trust.diag.degraded": {
-    resourceKey: "m74727573742e646961672e6465677261646564",
-    formatIntent: "text",
-    arguments: [
-    ],
-  },
   "trust.diag.entrybodyisnotvalidjson": {
     resourceKey: "m74727573742e646961672e656e747279626f647969736e6f7476616c69646a736f6e",
     formatIntent: "text",
@@ -1068,13 +1062,6 @@ const MESSAGES = {
     resourceKey: "m74727573742e706167652e6375726c6f7266657463686661696c73",
     formatIntent: "text",
     arguments: [
-    ],
-  },
-  "trust.page.degradedreason": {
-    resourceKey: "m74727573742e706167652e6465677261646564726561736f6e",
-    formatIntent: "text",
-    arguments: [
-      { name: "reason", type: "string", min: null, max: null, numericStyle: "ungrouped" },
     ],
   },
   "trust.page.ed25519": {

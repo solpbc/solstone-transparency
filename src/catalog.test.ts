@@ -50,7 +50,7 @@ function sampleArgs(
 describe("catalog sync", () => {
 	test("source, generated cases, and the id table name the same messages", () => {
 		const source = messageIds(sourceFtl);
-		const fromCases = cases.cases.map((row) => row.message_id);
+		const fromCases = [...new Set(cases.cases.map((row) => row.message_id))];
 		expect(new Set(source).size).toBe(source.length);
 		expect(source.sort()).toEqual([...MESSAGE_IDS].sort());
 		expect(fromCases.sort()).toEqual([...MESSAGE_IDS].sort());

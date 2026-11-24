@@ -1,7 +1,7 @@
 # solstone-transparency
 # Toolchain is bun. Every target is hermetic to this repo checkout.
 
-.PHONY: install test ci format lint typecheck clean build-model deploy
+.PHONY: install test ci format lint typecheck clean build-model deploy i18n-dev
 
 # Frozen install: fails if bun.lock is out of date rather than silently
 # rewriting it, so the committed lockfile is always what CI/gate ran against.
@@ -59,3 +59,6 @@ build-model:
 # never ship a stale or hand-edited snapshot.
 deploy: build-model
 	wrangler deploy
+
+i18n-dev:
+	node scripts/i18n.mjs --channel development
