@@ -351,7 +351,7 @@
   "i18n/catalog/meta/trust.vocab.withthesamepinnedtufrootjsonnametherecordb.json": "194c9c6f309cd19069c5909ce4d00db5ed44c828f746d49bfcb372f1ff02a354",
   "i18n/catalog/source-lock.json": "78cec6de8a4db35e094767b3d8259c789a714b1f2f226ce817099b900811a4ed",
   "i18n/catalog/source/en-US.ftl": "7f7e75844d6ba160b0eb8928e1940ddb25f83247da2ed8b3e160dd0ae3e00edc",
-  "i18n/compiler.json": "4deaf9290a5be37bb41e6a0fff7d574a68f1dc7e130747a1361ef5877605cec7",
+  "i18n/compiler.json": "eb5bdaec581c6474264eaaefbdd88db2acc53ef38b64bcd9d736e7d8e7b17edb",
   "i18n/generated/cases.json": "256f2479500fccf2c27eed3aa9614cc36b6536e7c0bf30af0911f5143dbf9583",
   "i18n/generated/esm/transparency/api.d.mts": "7a528b059639ce52979a760292fb0ac6cd0c56717f48d88fc77f59e3c7c2fb1f",
   "i18n/generated/esm/transparency/api.mjs": "8a60f414cad1787307e76c4f32355abfc017946aa433ed30b2e4feef62f8fc0e",
