@@ -42,7 +42,23 @@ export type ReleaseVerificationResult =
 			artifacts: readonly ReleaseArtifact[];
 			fingerprint: string;
 	  }
-	| { ok: false; link: ReleaseVerificationLink; reason: string };
+	| {
+			ok: false;
+			link: ReleaseVerificationLink;
+			reason: string;
+			detail?: RetrievalDetail;
+	  };
+/**
+ * Where a fetch stopped: the URL, the bytes received before it stopped, the
+ * length the server announced, and the class of error that ended it. It
+ * explains a rejection; it never changes which rejection is reported.
+ */
+export interface RetrievalDetail {
+	url: string;
+	received: number;
+	announced?: number;
+	error?: string;
+}
 export type PublicFetch = (
 	url: string,
 	init?: RequestInit,
@@ -67,12 +83,37 @@ class VerificationFailure extends Error {
 	constructor(
 		readonly link: ReleaseVerificationLink,
 		readonly reason: string,
+		readonly detail?: RetrievalDetail,
 	) {
 		super(reason);
 	}
 }
-function fail(link: ReleaseVerificationLink, reason: string): never {
-	throw new VerificationFailure(link, reason);
+function fail(
+	link: ReleaseVerificationLink,
+	reason: string,
+	detail?: RetrievalDetail,
+): never {
+	throw new VerificationFailure(link, reason, detail);
+}
+/** Names an error and its causes by type, code and message, bounded in length. */
+function errorClass(error: unknown): string {
+	const parts: string[] = [];
+	let current = error;
+	for (let depth = 0; depth < 3 && current !== undefined; depth++) {
+		if (!(current instanceof Error)) {
+			parts.push(typeof current);
+			break;
+		}
+		const code = (current as { code?: unknown }).code;
+		parts.push(
+			[current.name, typeof code === "string" ? code : "", current.message]
+				.filter(Boolean)
+				.join(" ")
+				.slice(0, 160),
+		);
+		current = current.cause;
+	}
+	return parts.join(" <- ");
 }
 function must<T>(result: TufResult<T>, link: ReleaseVerificationLink): T {
 	if (!result.ok) fail(link, result.reason);
@@ -83,7 +124,12 @@ function failure(
 	fallback: ReleaseVerificationLink,
 ): ReleaseVerificationResult & { ok: false } {
 	return error instanceof VerificationFailure
-		? { ok: false, link: error.link, reason: error.reason }
+		? {
+				ok: false,
+				link: error.link,
+				reason: error.reason,
+				...(error.detail ? { detail: error.detail } : {}),
+			}
 		: { ok: false, link: fallback, reason: "verification-unavailable" };
 }
 function object(value: unknown): value is Record<string, unknown> {
@@ -148,6 +194,7 @@ async function download(
 		clearTimeout(deadline);
 		deadline = setTimeout(() => controller.abort(), timeout);
 	};
+	const detail: RetrievalDetail = { url: url.href, received: 0 };
 	let reader:
 		| {
 				read(): Promise<{ done?: boolean; value?: Uint8Array }>;
@@ -168,11 +215,9 @@ async function download(
 		if (response.status === 404) fail(link, "http-404");
 		if (!response.ok) fail(link, `http-${response.status}`);
 		const announced = response.headers.get("content-length");
-		if (
-			announced !== null &&
-			/^\d+$/.test(announced) &&
-			Number(announced) > maximum
-		) {
+		if (announced !== null && /^\d+$/.test(announced))
+			detail.announced = Number(announced);
+		if (detail.announced !== undefined && detail.announced > maximum) {
 			await response.body?.cancel();
 			fail(link, "response-too-large");
 		}
@@ -187,6 +232,7 @@ async function download(
 				if (!chunk.value) fail(link, "retrieval-failed");
 				progressed();
 				length += chunk.value.byteLength;
+				detail.received = length;
 				if (length > maximum) fail(link, "response-too-large");
 				digest.update(chunk.value);
 				if (collect) chunks.push(chunk.value.slice());
@@ -200,8 +246,12 @@ async function download(
 		}
 		return { bytes, length, sha256: digest.digest("hex") };
 	} catch (error) {
-		if (error instanceof VerificationFailure) throw error;
-		return fail(link, signal.aborted ? "timeout" : "retrieval-failed");
+		if (error instanceof VerificationFailure)
+			fail(error.link, error.reason, error.detail ?? { ...detail });
+		return fail(link, signal.aborted ? "timeout" : "retrieval-failed", {
+			...detail,
+			error: errorClass(error),
+		});
 	} finally {
 		clearTimeout(deadline);
 		if (reader) {
@@ -475,8 +525,11 @@ async function verifyFromView(
 			"artifact",
 			false,
 		);
-		if (actual.length !== artifact.length) fail("artifact", "length-mismatch");
-		if (actual.sha256 !== artifact.sha256) fail("artifact", "hash-mismatch");
+		const received = { url: artifact.url, received: actual.length };
+		if (actual.length !== artifact.length)
+			fail("artifact", "length-mismatch", received);
+		if (actual.sha256 !== artifact.sha256)
+			fail("artifact", "hash-mismatch", received);
 	}
 	return {
 		ok: true,
@@ -523,8 +576,14 @@ export type DeliveryHeadResult =
 			version: string;
 			link: ReleaseVerificationLink;
 			reason: string;
+			detail?: RetrievalDetail;
 	  }
-	| { state: "lane-unavailable"; product: string; reason: string };
+	| {
+			state: "lane-unavailable";
+			product: string;
+			reason: string;
+			detail?: RetrievalDetail;
+	  };
 export interface DeliveryAuditResult {
 	coverage: "delivery-heads-only";
 	ok: boolean;
@@ -575,10 +634,12 @@ export async function auditDeliveryHeads(
 			} else fail("lane", "invalid-lane");
 			if (!coordinate(version)) fail("lane", "lane-version-malformed");
 		} catch (error) {
+			const result = failure(error, "lane");
 			heads.push({
 				state: "lane-unavailable",
 				product: lane?.product ?? "",
-				reason: failure(error, "lane").reason,
+				reason: result.reason,
+				...(result.detail ? { detail: result.detail } : {}),
 			});
 			continue;
 		}
@@ -609,6 +670,7 @@ export async function auditDeliveryHeads(
 							version,
 							link: result.link,
 							reason: result.reason,
+							...(result.detail ? { detail: result.detail } : {}),
 						},
 			);
 		}

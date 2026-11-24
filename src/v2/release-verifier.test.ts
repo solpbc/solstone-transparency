@@ -373,6 +373,63 @@ test("streamed artifact length limits reject oversized and truncated responses",
 		ok: false,
 		link: "artifact",
 		reason: "length-mismatch",
+		detail: { url: artifactUrl, received: short.artifact.length - 1 },
+	});
+});
+
+test("a body that ends early names its URL, the bytes received, the announced length and the error", async () => {
+	const built = await fixture();
+	const cut = 3;
+	// The server announces the whole length, sends a few bytes, then the connection drops.
+	const closesEarly: PublicFetch = async (url, init) => {
+		if (url !== artifactUrl) return built.fetcher(url, init);
+		const body = new ReadableStream<Uint8Array>({
+			start(stream) {
+				stream.enqueue(built.artifact.slice(0, cut));
+			},
+			pull(stream) {
+				stream.error(
+					new TypeError("terminated", {
+						cause: Object.assign(new Error("other side closed"), {
+							code: "UND_ERR_SOCKET",
+						}),
+					}),
+				);
+			},
+		});
+		return new Response(body, {
+			status: 200,
+			headers: { "content-length": String(built.artifact.length) },
+		});
+	};
+	const result = await verify({ ...built.input, fetch: closesEarly });
+	expect(result).toMatchObject({
+		ok: false,
+		link: "artifact",
+		reason: "retrieval-failed",
+		detail: {
+			url: artifactUrl,
+			received: cut,
+			announced: built.artifact.length,
+		},
+	});
+	expect(result.ok ? "" : result.detail?.error).toContain("UND_ERR_SOCKET");
+	expect(result.ok ? "" : result.detail?.error).toContain("other side closed");
+	// The detail explains the rejection; the reason a reader keys on is unchanged.
+	const audit = await auditDeliveryHeads(
+		[{ product: "journal", latestUrl, format: "version-line" }],
+		{ ...built.input, fetch: closesEarly },
+	);
+	expect(audit).toMatchObject({
+		ok: false,
+		heads: [
+			{
+				state: "rejected",
+				link: "artifact",
+				reason: "retrieval-failed",
+				detail: { url: artifactUrl, received: cut },
+			},
+		],
 	});
 });
 

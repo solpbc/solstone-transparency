@@ -13,7 +13,7 @@ import {
 	DEFAULT_MAX_METADATA_BYTES,
 	admitTufJson,
 } from "../src/v2/tuf/admission";
-import { verifierInputs } from "./verify-release";
+import { retrievalLine, verifierInputs } from "./verify-release";
 
 async function readLanes(path: string): Promise<readonly DeliveryLane[]> {
 	const info = await stat(path);
@@ -84,10 +84,13 @@ Exit 0 means every head passed; exit 1 means a gap or failed check; exit 2 means
 		if (values.json) console.log(JSON.stringify(result, null, 2));
 		else {
 			console.log("coverage: delivery heads only");
-			for (const head of result.heads)
+			for (const head of result.heads) {
 				console.log(
 					`${head.product}: ${head.state}${"version" in head ? ` ${head.version}` : ""}${"reason" in head ? ` (${head.reason})` : ""}`,
 				);
+				if ("detail" in head && head.detail)
+					console.error(`${head.product}: ${retrievalLine(head.detail)}`);
+			}
 		}
 		return result.ok ? 0 : 1;
 	} catch {

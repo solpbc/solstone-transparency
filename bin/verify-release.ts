@@ -7,6 +7,7 @@ import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import {
 	type ReleaseVerifierOptions,
+	type RetrievalDetail,
 	verifyRelease,
 } from "../src/v2/release-verifier";
 import { DEFAULT_MAX_METADATA_BYTES } from "../src/v2/tuf/admission";
@@ -14,6 +15,13 @@ import {
 	ephemeralTrustStore,
 	openFileTrustStore,
 } from "../src/v2/tuf/trust-store";
+
+/** One line naming where a fetch stopped, for the text output of a rejection. */
+export function retrievalLine(detail: RetrievalDetail): string {
+	const of = detail.announced === undefined ? "" : ` of ${detail.announced}`;
+	const error = detail.error ? ` (${detail.error})` : "";
+	return `at ${detail.url}: ${detail.received}${of} bytes received${error}`;
+}
 
 export async function verifierInputs(values: {
 	root?: string;
@@ -96,6 +104,8 @@ Exit 1 means verification failed; exit 2 means the command could not read its in
 					? `accepted release record: ${result.product} ${result.version}`
 					: `rejected: ${result.link}/${result.reason}`,
 		);
+		if (!values.json && !result.ok && result.detail)
+			console.error(retrievalLine(result.detail));
 		return result.ok ? 0 : 1;
 	} catch {
 		console.error(
