@@ -211,7 +211,7 @@ trust.page.aboutthisregister = ఈ రిజిస్టర్ గురిం�
 
 trust.page.aboutthisregistertrustsolstoneapp = ఈ రిజిస్టర్ గురించి — trust.solstone.app
 
-trust.page.active = సక్రియం
+trust.page.active = యాక్టివ్
 
 trust.page.algorithm = అల్గారిథమ్
 
@@ -257,7 +257,7 @@ trust.page.freshnessassertion = తాజాదన నిర్ధారణ
 
 trust.page.fullpublickeytext = పూర్తి బహిరంగ కీ వచనం
 
-trust.page.godeeper = మరింత లోతుగా
+trust.page.godeeper = లోతుగా వెళ్లండి
 
 trust.page.home = హోమ్
 
@@ -485,7 +485,7 @@ trust.vocab.didnotverify = ధృవీకరించలేదు
 
 trust.vocab.evidencefreshness = ఆధారం తాజాదనం
 
-trust.vocab.expired = గడువు అయిపోయింది
+trust.vocab.expired = గడువు అయింది
 
 trust.vocab.fromanyreleasesrawevidencetabledownloadledger = ఏదైనా రిలీజ్ యొక్క ముడి ఆధార పట్టిక నుండి, ledger-entry.json, ledger-entry.json.minisig, మరియు /keys/ పై పేర్కొన్న పిన్ చేసిన కీ ఫైల్‌ను డౌన్‌లోడ్ చేయండి. ఆపై నడపండి:
 
@@ -501,7 +501,7 @@ trust.vocab.minisignvmledgerentryjsonpfilenamexledgeren = { $cmd }{ $filename }{
 
 trust.vocab.norecordyet = ఇంకా నమోదు లేదు
 
-trust.vocab.notattempted = ప్రయత్నించబడలేదు
+trust.vocab.notattempted = ప్రయత్నించలేదు
 
 trust.vocab.nottimebound = కాలపరిమితి లేదు
 
@@ -509,7 +509,7 @@ trust.vocab.oneofitssignedvaliditywindowshadpassed = దాని సంతక�
 
 trust.vocab.partoftheregistercouldnotbefetchedorchecked = రిజిస్టర్‌లోని భాగాన్ని తేవడం లేదా సరిచూడటం సాధ్యం కాలేదు
 
-trust.vocab.paused = నిలిపివేయబడింది
+trust.vocab.paused = పాజ్ అయి ఉంది
 
 trust.vocab.publication = ప్రచురణ
 
