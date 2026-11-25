@@ -509,7 +509,7 @@ trust.vocab.minisignvmledgerentryjsonpfilenamexledgeren = { $cmd }{ $filename }{
 
 trust.vocab.norecordyet = ancora nessun registro
 
-trust.vocab.notattempted = nessun tentativo
+trust.vocab.notattempted = non tentato
 
 trust.vocab.nottimebound = senza vincolo di tempo
 
